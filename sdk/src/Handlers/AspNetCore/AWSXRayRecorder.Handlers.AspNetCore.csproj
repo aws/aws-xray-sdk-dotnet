@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+    <Company>Amazon.com, Inc</Company>
+    <Product>Amazon Web Service X-Ray Recorder</Product>
+    <Copyright>Copyright 2017-2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.</Copyright>
+    <AssemblyVersion>2.0.0.0</AssemblyVersion>
+    <FileVersion>2.0.0.0</FileVersion>
+    <Version>2.0.0-beta</Version>
+    <SignAssembly>true</SignAssembly>
+    <RootNamespace>Amazon.XRay.Recorder.Handlers.AspNetCore</RootNamespace>
+    <AssemblyOriginatorKeyFile>../../../../buildtools/local-development.snk</AssemblyOriginatorKeyFile>
+    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
+    <PackageLicenseUrl>http://aws.amazon.com/apache2.0/</PackageLicenseUrl>
+    <PackageProjectUrl>https://aws.amazon.com/documentation/xray/</PackageProjectUrl>
+    <PackageIconUrl>https://sdk-for-net.amazonwebservices.com/images/AWSLogo128x128.png</PackageIconUrl>
+    <Description>This package contains libraries to trace ASP.NET Core Web requests.</Description>
+    <PackageTags>AWS Amazon cloud AWSXRay XRay</PackageTags>
+    <Authors>Amazon Web Services</Authors>
+    <RepositoryUrl>https://github.com/aws/aws-xray-sdk-dotnet</RepositoryUrl>
+  </PropertyGroup>
+  
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <NoWarn>1701;1702;1705;1591;1573;1587</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <NoWarn>1701;1702;1705;1591;1587;1573;1572</NoWarn>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Http.Extensions" Version="2.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="2.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Core\AWSXRayRecorder.Core.csproj" />
+  </ItemGroup>
+
+</Project>

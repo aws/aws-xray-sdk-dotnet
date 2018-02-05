@@ -1,0 +1,100 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27130.2010
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{F0ED74B6-1639-47D3-9511-B4217012AC88}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AWSXRayRecorder.IntegrationTests", "test\IntegrationTests\AWSXRayRecorder.IntegrationTests.csproj", "{19C240A9-DA92-49B7-9431-505F77491118}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{749584D0-0498-4ECD-B4A0-ED6D4F359C28}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Handlers", "Handlers", "{6FD9C919-1504-445D-B70D-D0F8AC2829C4}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AWSXRayRecorder.Handlers.SqlServer", "src\Handlers\SqlServer\AWSXRayRecorder.Handlers.SqlServer.csproj", "{D386A92C-E56D-4985-86BC-BBC5E67B5617}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AWSXRayRecorder.Handlers.System.Net", "src\Handlers\System.Net\AWSXRayRecorder.Handlers.System.Net.csproj", "{D13F4EE9-D64F-4462-B4B9-51F01AA43595}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AWSXRayRecorder.Core", "src\Core\AWSXRayRecorder.Core.csproj", "{28FA83DF-397A-4FF5-9D21-25B8553DD0B5}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AWSXRayRecorder.Handlers.AwsSdk", "src\Handlers\AwsSdk\AWSXRayRecorder.Handlers.AwsSdk.csproj", "{225BA773-6602-499D-99F6-3DB9AADA5EE5}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AWSXRayRecorder.Handlers.AspNetCore", "src\Handlers\AspNetCore\AWSXRayRecorder.Handlers.AspNetCore.csproj", "{7E2D2EC0-DFA6-4B4D-B79F-EBC08CCD2A8A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AWSXRayRecorder.UnitTests", "test\UnitTests\AWSXRayRecorder.UnitTests.csproj", "{B7D60B1F-C452-454E-AD4B-202A40E628E8}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AWSXRayRecorder.Handlers.AspNet", "src\Handlers\AspNet\AWSXRayRecorder.Handlers.AspNet.csproj", "{C647F311-4023-4E0B-9147-074EAF243D54}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Nuget|Any CPU = Nuget|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{19C240A9-DA92-49B7-9431-505F77491118}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{19C240A9-DA92-49B7-9431-505F77491118}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{19C240A9-DA92-49B7-9431-505F77491118}.Nuget|Any CPU.ActiveCfg = Release|Any CPU
+		{19C240A9-DA92-49B7-9431-505F77491118}.Nuget|Any CPU.Build.0 = Release|Any CPU
+		{19C240A9-DA92-49B7-9431-505F77491118}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{19C240A9-DA92-49B7-9431-505F77491118}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D386A92C-E56D-4985-86BC-BBC5E67B5617}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D386A92C-E56D-4985-86BC-BBC5E67B5617}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D386A92C-E56D-4985-86BC-BBC5E67B5617}.Nuget|Any CPU.ActiveCfg = Release|Any CPU
+		{D386A92C-E56D-4985-86BC-BBC5E67B5617}.Nuget|Any CPU.Build.0 = Release|Any CPU
+		{D386A92C-E56D-4985-86BC-BBC5E67B5617}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D386A92C-E56D-4985-86BC-BBC5E67B5617}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D13F4EE9-D64F-4462-B4B9-51F01AA43595}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D13F4EE9-D64F-4462-B4B9-51F01AA43595}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D13F4EE9-D64F-4462-B4B9-51F01AA43595}.Nuget|Any CPU.ActiveCfg = Release|Any CPU
+		{D13F4EE9-D64F-4462-B4B9-51F01AA43595}.Nuget|Any CPU.Build.0 = Release|Any CPU
+		{D13F4EE9-D64F-4462-B4B9-51F01AA43595}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D13F4EE9-D64F-4462-B4B9-51F01AA43595}.Release|Any CPU.Build.0 = Release|Any CPU
+		{28FA83DF-397A-4FF5-9D21-25B8553DD0B5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{28FA83DF-397A-4FF5-9D21-25B8553DD0B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{28FA83DF-397A-4FF5-9D21-25B8553DD0B5}.Nuget|Any CPU.ActiveCfg = Release|Any CPU
+		{28FA83DF-397A-4FF5-9D21-25B8553DD0B5}.Nuget|Any CPU.Build.0 = Release|Any CPU
+		{28FA83DF-397A-4FF5-9D21-25B8553DD0B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{28FA83DF-397A-4FF5-9D21-25B8553DD0B5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{225BA773-6602-499D-99F6-3DB9AADA5EE5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{225BA773-6602-499D-99F6-3DB9AADA5EE5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{225BA773-6602-499D-99F6-3DB9AADA5EE5}.Nuget|Any CPU.ActiveCfg = Release|Any CPU
+		{225BA773-6602-499D-99F6-3DB9AADA5EE5}.Nuget|Any CPU.Build.0 = Release|Any CPU
+		{225BA773-6602-499D-99F6-3DB9AADA5EE5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{225BA773-6602-499D-99F6-3DB9AADA5EE5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7E2D2EC0-DFA6-4B4D-B79F-EBC08CCD2A8A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7E2D2EC0-DFA6-4B4D-B79F-EBC08CCD2A8A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7E2D2EC0-DFA6-4B4D-B79F-EBC08CCD2A8A}.Nuget|Any CPU.ActiveCfg = Debug|Any CPU
+		{7E2D2EC0-DFA6-4B4D-B79F-EBC08CCD2A8A}.Nuget|Any CPU.Build.0 = Debug|Any CPU
+		{7E2D2EC0-DFA6-4B4D-B79F-EBC08CCD2A8A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7E2D2EC0-DFA6-4B4D-B79F-EBC08CCD2A8A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B7D60B1F-C452-454E-AD4B-202A40E628E8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B7D60B1F-C452-454E-AD4B-202A40E628E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B7D60B1F-C452-454E-AD4B-202A40E628E8}.Nuget|Any CPU.ActiveCfg = Release|Any CPU
+		{B7D60B1F-C452-454E-AD4B-202A40E628E8}.Nuget|Any CPU.Build.0 = Release|Any CPU
+		{B7D60B1F-C452-454E-AD4B-202A40E628E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B7D60B1F-C452-454E-AD4B-202A40E628E8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C647F311-4023-4E0B-9147-074EAF243D54}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C647F311-4023-4E0B-9147-074EAF243D54}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C647F311-4023-4E0B-9147-074EAF243D54}.Nuget|Any CPU.ActiveCfg = Release|Any CPU
+		{C647F311-4023-4E0B-9147-074EAF243D54}.Nuget|Any CPU.Build.0 = Release|Any CPU
+		{C647F311-4023-4E0B-9147-074EAF243D54}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C647F311-4023-4E0B-9147-074EAF243D54}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{19C240A9-DA92-49B7-9431-505F77491118} = {F0ED74B6-1639-47D3-9511-B4217012AC88}
+		{D386A92C-E56D-4985-86BC-BBC5E67B5617} = {6FD9C919-1504-445D-B70D-D0F8AC2829C4}
+		{D13F4EE9-D64F-4462-B4B9-51F01AA43595} = {6FD9C919-1504-445D-B70D-D0F8AC2829C4}
+		{28FA83DF-397A-4FF5-9D21-25B8553DD0B5} = {749584D0-0498-4ECD-B4A0-ED6D4F359C28}
+		{225BA773-6602-499D-99F6-3DB9AADA5EE5} = {6FD9C919-1504-445D-B70D-D0F8AC2829C4}
+		{7E2D2EC0-DFA6-4B4D-B79F-EBC08CCD2A8A} = {6FD9C919-1504-445D-B70D-D0F8AC2829C4}
+		{B7D60B1F-C452-454E-AD4B-202A40E628E8} = {F0ED74B6-1639-47D3-9511-B4217012AC88}
+		{C647F311-4023-4E0B-9147-074EAF243D54} = {6FD9C919-1504-445D-B70D-D0F8AC2829C4}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E3276CD5-62B3-466D-BFDD-2AFDB8819B46}
+	EndGlobalSection
+EndGlobal

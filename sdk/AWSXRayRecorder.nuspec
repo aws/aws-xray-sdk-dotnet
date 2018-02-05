@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package>
+  <metadata>
+    <id>AWSXRayRecorder</id>
+    <version>2.0.0-beta</version>
+    <title>AWS X-Ray Recorder</title>
+    <authors>AWS Web Service</authors>
+    <licenseUrl>http://aws.amazon.com/apache2.0/</licenseUrl>
+    <iconUrl>https://sdk-for-net.amazonwebservices.com/images/AWSLogo128x128.png</iconUrl>
+    <summary> This is the all-in-one package for AWS X-Ray which include the core package and all handlers packages.</summary>
+    <description>AWS X-Ray helps developers analyze and debug distributed applications. With X-Ray, you can understand how your application and its underlying services are performing to identify and troubleshoot the root cause of performance issues and errors.
+    </description>
+    <language>en-US</language>
+    <projectUrl>https://aws.amazon.com/documentation/xray/</projectUrl>
+    <tags>AWS Amazon cloud AWSXRay XRay</tags>
+    <dependencies>
+      <group targetFramework=".NETFramework4.5">
+        <dependency id="AWSXRayRecorder.Core" version="2.0.0-beta" />
+        <dependency id="AWSXRayRecorder.Handlers.AspNet" version="2.0.0-beta" />
+        <dependency id="AWSXRayRecorder.Handlers.AwsSdk" version="2.0.0-beta" />
+        <dependency id="AWSXRayRecorder.Handlers.SqlServer" version="2.0.0-beta" />
+        <dependency id="AWSXRayRecorder.Handlers.System.Net" version="2.0.0-beta" />
+      </group>
+      <group targetFramework=".NETStandard2.0">
+        <dependency id="AWSXRayRecorder.Core" version="2.0.0-beta" />
+        <dependency id="AWSXRayRecorder.Handlers.AspNetCore" version="2.0.0-beta" />
+        <dependency id="AWSXRayRecorder.Handlers.AwsSdk" version="2.0.0-beta" />
+        <dependency id="AWSXRayRecorder.Handlers.SqlServer" version="2.0.0-beta" />
+        <dependency id="AWSXRayRecorder.Handlers.System.Net" version="2.0.0-beta" />
+      </group>
+    </dependencies>
+  </metadata>
+</package>

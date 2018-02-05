@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0"
+    DefaultTargets="full-build"
+    xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <PropertyGroup>
+    <Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
+
+    <AssemblyOriginatorKeyFile Condition=" '$(AssemblyOriginatorKeyFile)' == '' ">$(MSBuildThisFileDirectory)local-development.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+
+  <Target Name="full-build" DependsOnTargets="build-nuget-packages;run-unit-tests">
+
+  </Target>
+
+  <Target Name="init" DependsOnTargets="">
+
+    <RemoveDir Directories="../Deployment"/>
+
+    <Exec Command="dotnet restore AWSXRayRecorder.sln"
+      WorkingDirectory="../sdk"/>
+  </Target>
+
+  <Target Name="build-solution" DependsOnTargets="init">
+    <Exec Command="dotnet build .\AWSXRayRecorder.sln /p:Configuration=$(Configuration) /p:AssemblyOriginatorKeyFile=$(AssemblyOriginatorKeyFile)"
+        WorkingDirectory="../sdk"/>
+  </Target>
+  
+  <Target Name="build-nuget-packages" DependsOnTargets="build-solution">
+
+    <Exec Command="dotnet pack --no-build -c $(Configuration) -o ../../../Deployment/nuget-packages"
+        WorkingDirectory="..\sdk\src\Core"/>
+
+	<PropertyGroup>
+      <Command>dotnet pack --no-build -c $(Configuration) -o ../../../../Deployment/nuget-packages</Command>
+    </PropertyGroup>
+		
+    <Exec Command="$(Command)"
+        WorkingDirectory="..\sdk\src\Handlers\AspNet"/>
+    <Exec Command="$(Command)"
+        WorkingDirectory="..\sdk\src\Handlers\AspNetCore"/>
+    <Exec Command="$(Command)"
+        WorkingDirectory="..\sdk\src\Handlers\AwsSdk"/>
+    <Exec Command="$(Command)"
+        WorkingDirectory="..\sdk\src\Handlers\SqlServer"/>
+    <Exec Command="$(Command)"
+        WorkingDirectory="..\sdk\src\Handlers\System.Net"/>
+	
+	<Exec Command=".\NuGet.exe pack ..\sdk\AWSXRayRecorder.nuspec -OutputDirectory ../Deployment/nuget-packages -Exclude **"/>
+  </Target>  
+  
+  <Target Name="run-unit-tests" DependsOnTargets="build-nuget-packages">
+    <Exec Command="dotnet test --no-build -c $(Configuration)"
+        WorkingDirectory="..\sdk\test\UnitTests"/>
+  </Target>
+
+</Project>

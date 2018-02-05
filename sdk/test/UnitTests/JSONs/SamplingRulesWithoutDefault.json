@@ -1,0 +1,12 @@
+{
+    "rules": {
+        "checkout": {
+          "id": "12",
+          "service_name": "checkout",
+          "http_method": "POST",
+          "url_path": "/checkout",
+          "fixed_target": 10,
+          "rate": 0.3
+        }
+    }
+}

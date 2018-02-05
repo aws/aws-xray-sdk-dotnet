@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  
+  <PropertyGroup>
+    <TargetFrameworks>net45;netcoreapp2.0</TargetFrameworks>
+    <Company>Amazon.com, Inc</Company>
+    <Product>Amazon Web Service X-Ray Recorder</Product>
+    <Copyright>Copyright 2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.</Copyright>
+    <AssemblyVersion>1.1.0.0</AssemblyVersion>
+    <FileVersion>1.1.0.0</FileVersion>
+    <RootNamespace> Amazon.XRay.Recorder.IntegrationTests</RootNamespace>
+    <DelaySign>true</DelaySign>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AWSSDK.Core" Version="3.3.21.8" />
+    <PackageReference Include="AWSSDK.XRay" Version="3.3.1.3" />
+    <PackageReference Include="Moq" Version="4.7.137" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0" />
+    <PackageReference Include="MSTest.TestAdapter" Version="1.1.18" />
+    <PackageReference Include="MSTest.TestFramework" Version="1.1.18" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Core\AWSXRayRecorder.Core.csproj" />
+  </ItemGroup>
+
+</Project>
