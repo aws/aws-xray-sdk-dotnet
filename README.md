@@ -28,18 +28,18 @@ in the [Getting Help](https://github.com/aws/aws-xray-sdk-dotnet#getting-help) s
 
 The [developer guide](https://docs.aws.amazon.com/xray/latest/devguide) provides in-depth guidance about using the AWS X-Ray service.
 Following API reference documentation provides guidance for using the SDK and module-level documentation.
-* The [API Reference for .NET](http://docs.aws.amazon.com/xray-sdk-for-dotnet/latest/reference/)
-* The [API Reference for .NET Core](http://docs.aws.amazon.com/xray-sdk-for-dotnetcore/latest/reference/)
+* The [API Reference for .NET](http://docs.aws.amazon.com/xray-sdk-for-dotnet/latest/reference/index.html)
+* The [API Reference for .NET Core](http://docs.aws.amazon.com/xray-sdk-for-dotnetcore/latest/reference/index.html)
 
 ## Quick Start
 
-1. [Configuration](https://github.com/aws/aws-xray-sdk-dotnet/tree/master#configuration--configuring-disablexraytracing-plugins-local-sampling-rules-aws-service-manifest-file-path-net)
-2. [ASP.NET Core 2.0 Framework](https://github.com/aws/aws-xray-sdk-dotnet/tree/master#aspnet-core-20-framework-net-core)
-3. [ASP.NET Framework](https://github.com/aws/aws-xray-sdk-dotnet/tree/master#aspnet-framework-net)
-4. [Trace AWS SDK request](https://github.com/aws/aws-xray-sdk-dotnet/tree/master#trace-aws-sdk-request-net-and-net-core) 
-5. [Trace out-going HTTP requests](https://github.com/aws/aws-xray-sdk-dotnet/tree/master#trace-out-going-http-requests-net-and-net-core)
-6. [Trace Query to SQL Server](https://github.com/aws/aws-xray-sdk-dotnet/tree/master#trace-query-to-sql-server-net-and-net-core)
-7. [Multithreaded Execution](https://github.com/aws/aws-xray-sdk-dotnet/tree/master#multithreaded-execution-net-and-net-core)
+1. [Configuration](https://github.com/aws/aws-xray-sdk-dotnet/tree/master#configuration)
+2. [ASP.NET Core 2.0 Framework](https://github.com/aws/aws-xray-sdk-dotnet/tree/master#aspnet-core-20-framework-net-core--nuget)
+3. [ASP.NET Framework](https://github.com/aws/aws-xray-sdk-dotnet/tree/master#aspnet-framework-net--nuget)
+4. [Trace AWS SDK request](https://github.com/aws/aws-xray-sdk-dotnet/tree/master#trace-aws-sdk-request-net-and-net-core--nuget) 
+5. [Trace out-going HTTP requests](https://github.com/aws/aws-xray-sdk-dotnet/tree/master#trace-out-going-http-requests-net-and-net-core--nuget)
+6. [Trace Query to SQL Server](https://github.com/aws/aws-xray-sdk-dotnet/tree/master#trace-query-to-sql-server-net-and-net-core--nuget)
+7. [Multithreaded Execution](https://github.com/aws/aws-xray-sdk-dotnet/tree/master#multithreaded-execution-net-and-net-core--nuget)
 8. [Trace custom methods ](https://github.com/aws/aws-xray-sdk-dotnet/tree/master#trace-custom-methods-net-and-net-core)
 9. [Creating custom Segment/Subsegment](https://github.com/aws/aws-xray-sdk-dotnet/tree/master#creating-custom-segmentsubsegment-net-and-net-core)
 10. [Adding metadata/annotations](https://github.com/aws/aws-xray-sdk-dotnet/tree/master#adding-metadataannotations-net-and-net-core)
