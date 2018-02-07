@@ -233,6 +233,7 @@ The `AddEventHandler()` method will subscribe to `BeforeRequestEvent`, `AfterRes
 
 ### Trace out-going HTTP requests (.NET and .NET Core) : [Nuget](https://www.nuget.org/packages/AWSXRayRecorder.Handlers.System.Net/)
 
+#### Using `System.Net.HttpWebRequest`
 #### Synchronous request
 
 An extension method `GetResponseTraced()` is provided to trace `GetResponse()` in `System.Net.HttpWebRequest` class. If you want to trace the out-going HTTP request, call the `GetResponseTraced()` instead of `GetResponse()`. The extension method will generate a trace subsegment, inject the trace header to the out-going HTTP request header and collect trace information. 
@@ -259,6 +260,21 @@ HttpWebRequest request = (HttpWebRequest) WebRequest.Create(URL); // enter desir
 // Any other configuration to the request
 
 request.GetAsyncResponseTraced();
+```
+
+#### Using `System.Net.HttpClient`
+
+A handler derived from `HttpClientHandler` is provided to trace `HttpClientHandler.SendAsync` method
+
+```
+using AWSXRayRecorder.Handlers.System.Net;
+
+var httpClient = new HttpClient(new HttpClientTracingHandler());
+
+// Any other configuration to the client
+
+httpClient.GetAsync(URL);
+
 ```
 
 ### Trace Query to SQL Server (.NET and .NET Core) : [Nuget](https://www.nuget.org/packages/AWSXRayRecorder.Handlers.SqlServer/)

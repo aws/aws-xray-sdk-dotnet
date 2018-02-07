@@ -22,6 +22,7 @@ using System.Threading.Tasks;
 using Amazon.XRay.Recorder.Core;
 using Amazon.XRay.Recorder.Core.Internal.Entities;
 using Amazon.XRay.Recorder.Core.Internal.Utils;
+using Amazon.XRay.Recorder.Handlers.System.Net.Utils;
 
 namespace Amazon.XRay.Recorder.Handlers.System.Net
 {
@@ -41,12 +42,12 @@ namespace Amazon.XRay.Recorder.Handlers.System.Net
         /// <returns>A <see cref="WebResponse"/> that contains the response from the Internet resource.</returns>
         public static WebResponse GetResponseTraced(this WebRequest request)
         {
-            ProcessRequest(request);
+            RequestUtil.ProcessRequest(request);
 
             try
             {
                 var response = (HttpWebResponse)request.GetResponse();
-                ProcessResponse(response);
+                RequestUtil.ProcessResponse(response);
                 return response;
             }
             catch (Exception e)
@@ -59,7 +60,7 @@ namespace Amazon.XRay.Recorder.Handlers.System.Net
 
                     if (exceptionResponse != null)
                     {
-                        ProcessResponse(exceptionResponse);
+                        RequestUtil.ProcessResponse(exceptionResponse);
                     }
                 }
 
@@ -82,12 +83,12 @@ namespace Amazon.XRay.Recorder.Handlers.System.Net
         /// <returns>A task of <see cref="WebResponse"/> that contains the response from the Internet resource.</returns>
         public static async Task<WebResponse> GetAsyncResponseTraced(this WebRequest request)
         {
-            ProcessRequest(request);
+            RequestUtil.ProcessRequest(request);
 
             try
             {
                 var response = (HttpWebResponse)await request.GetResponseAsync();
-                ProcessResponse(response);
+                RequestUtil.ProcessResponse(response);
                 return response;
             }
             catch (Exception e)
@@ -100,7 +101,7 @@ namespace Amazon.XRay.Recorder.Handlers.System.Net
 
                     if (exceptionResponse != null)
                     {
-                        ProcessResponse(exceptionResponse);
+                        RequestUtil.ProcessResponse(exceptionResponse);
                     }
                 }
 
@@ -111,75 +112,6 @@ namespace Amazon.XRay.Recorder.Handlers.System.Net
             {
                 AWSXRayRecorder.Instance.EndSubsegment();
             }
-        }
-
-        private static void ProcessResponse(HttpWebResponse response)
-        {
-            if (!AWSXRayRecorder.Instance.IsTracingDisabled())
-            {
-                Dictionary<string, object> responseInformation = new Dictionary<string, object>();
-                int statusCode = (int)response.StatusCode;
-                responseInformation["status"] = statusCode;
-
-                if (statusCode >= 400 && statusCode <= 499)
-                {
-                    AWSXRayRecorder.Instance.MarkError();
-
-                    if (statusCode == 429)
-                    {
-                        AWSXRayRecorder.Instance.MarkThrottle();
-                    }
-                }
-                else if (statusCode >= 500 && statusCode <= 599)
-                {
-                    AWSXRayRecorder.Instance.MarkFault();
-                }
-
-                responseInformation["content_length"] = response.ContentLength;
-                AWSXRayRecorder.Instance.AddHttpInformation("response", responseInformation);
-            }
-        }
-
-        private static void ProcessRequest(WebRequest request)
-        {
-            if (!AWSXRayRecorder.Instance.IsTracingDisabled())
-            {
-                AWSXRayRecorder.Instance.BeginSubsegment(request.RequestUri.Host);
-                AWSXRayRecorder.Instance.SetNamespace("remote");
-
-                Dictionary<string, object> requestInformation = new Dictionary<string, object>();
-                requestInformation["url"] = request.RequestUri.AbsoluteUri;
-                requestInformation["method"] = request.Method;
-                AWSXRayRecorder.Instance.AddHttpInformation("request", requestInformation);
-            }
-
-            if (TraceHeader.TryParse(TraceContext.GetEntity(), out TraceHeader header))
-            {
-                request.Headers.Add(TraceHeader.HeaderKey, header.ToString());
-            }
-        }
-
-        private static void ProcessException(int statusCode)
-        {
-            var recorder = AWSXRayRecorder.Instance;
-            var responseAttributes = new Dictionary<string, object>();
-
-            if (statusCode >= 400 && statusCode <= 499)
-            {
-                recorder.MarkError();
-
-                if (statusCode == 429)
-                {
-                    recorder.MarkThrottle();
-                }
-            }
-            else if (statusCode >= 500 && statusCode <= 599)
-            {
-                recorder.MarkFault();
-            }
-
-            responseAttributes["status"] = statusCode;
-            recorder.AddHttpInformation("response", responseAttributes);
         }
     }
 }
