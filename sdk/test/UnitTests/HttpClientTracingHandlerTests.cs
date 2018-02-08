@@ -24,9 +24,9 @@ namespace Amazon.XRay.Recorder.UnitTests
 
         public HttpClientTracingHandlerTests()
         {
-            _httpClient = new HttpClient(new HttpClientTracingHandler());
+            _httpClient = new HttpClient(new HttpClientTracingHandler(new HttpClientHandler()));
         }
-
+        
         [TestCleanup]
         public new void TestCleanup()
         {
