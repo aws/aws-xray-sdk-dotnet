@@ -269,7 +269,7 @@ A handler derived from `HttpClientHandler` is provided to trace `HttpClientHandl
 ```
 using AWSXRayRecorder.Handlers.System.Net;
 
-var httpClient = new HttpClient(new HttpClientTracingHandler());
+var httpClient = new HttpClient(new HttpClientTracingHandler(new HttpClientHandler()));
 
 // Any other configuration to the client
 
