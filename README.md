@@ -264,7 +264,7 @@ request.GetAsyncResponseTraced();
 
 #### Using `System.Net.HttpClient`
 
-A handler derived from `HttpClientHandler` is provided to trace `HttpClientHandler.SendAsync` method
+A handler derived from `DelegatingHandler` is provided to trace the `HttpMessageHandler.SendAsync` method
 
 ```
 using AWSXRayRecorder.Handlers.System.Net;
