@@ -151,13 +151,17 @@ namespace Amazon.XRay.Recorder.Core.Internal.Emitters
         {
             IPEndPoint daemonEndPoint;
 
-            if (!IPEndPointExtension.TryParse(daemonAddress, out daemonEndPoint))
+            if (string.IsNullOrEmpty(daemonAddress))
             {
-                _logger.InfoFormat("The given daemonAddress ({0}) is invalid, using default daemon address.", daemonEndPoint);
+                 daemonEndPoint = new IPEndPoint(_defaultDaemonAddress, _defaultDaemonPort);
+                _logger.InfoFormat("Using default daemon address: {0}:{1}", daemonEndPoint.Address.ToString(), daemonEndPoint.Port);
+            }
+            else if (!IPEndPointExtension.TryParse(daemonAddress, out daemonEndPoint))
+            {
                 daemonEndPoint = new IPEndPoint(_defaultDaemonAddress, _defaultDaemonPort);
+                _logger.InfoFormat("The given daemonAddress ({0}) is invalid, using default daemon address {1}:{2}.", daemonAddress, daemonEndPoint.Address.ToString(), daemonEndPoint.Port);
             }
 
-            _logger.InfoFormat("Set daemon address: {0}:{1}", daemonEndPoint.Address.ToString(), daemonEndPoint.Port);
             EndPoint = daemonEndPoint;
         }
     }

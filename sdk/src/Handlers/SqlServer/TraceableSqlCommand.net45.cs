@@ -582,7 +582,6 @@ namespace Amazon.XRay.Recorder.Handlers.SqlServer
             }
             finally
             {
-
                 recorder.EndSubsegment();
             }
         }

@@ -111,19 +111,19 @@ namespace Amazon.XRay.Recorder.Core.Sampling
         /// <summary>
         /// Given the service name, http method and url path of a http request, check whether the rule matches the request 
         /// </summary>
-        /// <param name="serviceNameToMatach">service name of the request</param>
+        /// <param name="serviceNameToMatch">service name of the request</param>
         /// <param name="urlPathToMatch">url path of the request</param>
         /// <param name="httpMethodToMatch">http method of the request</param>
         /// <returns>It returns true if the rule matches the request, otherwise it returns false.</returns>
-        public bool IsMatch(string serviceNameToMatach, string urlPathToMatch, string httpMethodToMatch)
+        public bool IsMatch(string serviceNameToMatch, string urlPathToMatch, string httpMethodToMatch)
         {
             try
             {
-                return serviceNameToMatach.WildcardMatch(ServiceName) && httpMethodToMatch.WildcardMatch(HttpMethod) && urlPathToMatch.WildcardMatch(UrlPath);
+                return serviceNameToMatch.WildcardMatch(ServiceName) && httpMethodToMatch.WildcardMatch(HttpMethod) && urlPathToMatch.WildcardMatch(UrlPath);
             }
             catch (RegexMatchTimeoutException e)
             {
-                _logger.Error(e, "Match rule timeout. Rule: serviceNameToMatach = {0}, urlPathToMatch = {1}, httpMethodToMatch = {2}. Input: serviceNameToMatach = {3}, urlPathToMatch = {4}, httpMethodToMatch = {5}.", ServiceName, UrlPath, HttpMethod, serviceNameToMatach, urlPathToMatch, httpMethodToMatch);
+                _logger.Error(e, "Match rule timeout. Rule: serviceNameToMatch = {0}, urlPathToMatch = {1}, httpMethodToMatch = {2}. Input: serviceNameToMatch = {3}, urlPathToMatch = {4}, httpMethodToMatch = {5}.", ServiceName, UrlPath, HttpMethod, serviceNameToMatch, urlPathToMatch, httpMethodToMatch);
                 return false;
             }
         }
@@ -134,7 +134,7 @@ namespace Amazon.XRay.Recorder.Core.Sampling
         /// <returns>The string generated from current object</returns>
         public override string ToString()
         {
-            return string.Format(CultureInfo.InvariantCulture, "serviceNameToMatach={0}, httpMethodToMatch={1}, urlPathToMatch={2}, fixedTarget={3}, rate={4}, description={5}", ServiceName, HttpMethod, UrlPath, FixedTarget, Rate, Description);
+            return string.Format(CultureInfo.InvariantCulture, "serviceNameToMatch={0}, httpMethodToMatch={1}, urlPathToMatch={2}, fixedTarget={3}, rate={4}, description={5}", ServiceName, HttpMethod, UrlPath, FixedTarget, Rate, Description);
         }
     }
 }

@@ -192,18 +192,18 @@ namespace Amazon.XRay.Recorder.Handlers.AspNetCore.Internal
         private void ProcessHTTPRequest(HttpContext context)
         {
             HttpRequest request = context.Request;
-            string headerSring = null;
+            string headerString = null;
 
             if (request.Headers.TryGetValue(TraceHeader.HeaderKey, out StringValues headerValue))
             {
                 if (headerValue.ToArray().Length >= 1)
-                    headerSring = headerValue.ToArray()[0];
+                    headerString = headerValue.ToArray()[0];
             }
 
             // Trace header doesn't exist, which means this is the root node. Create a new traceId and inject the trace header.
-            if (!TraceHeader.TryParse(headerSring, out TraceHeader traceHeader))
+            if (!TraceHeader.TryParse(headerString, out TraceHeader traceHeader))
             {
-                _logger.DebugFormat("Trace header doesn't exist or not valid. Injecting a new one. existing header = {0}", headerSring);
+                _logger.DebugFormat("Trace header doesn't exist or not valid : ({0}). Injecting a new one.", headerString);
                 traceHeader = new TraceHeader
                 {
                     RootTraceId = TraceId.NewId(),

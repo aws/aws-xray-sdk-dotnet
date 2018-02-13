@@ -34,10 +34,10 @@ namespace Amazon.XRay.Recorder.Core
         static AWSXRayRecorder _instance;
         public const String LambdaTaskRootKey = "LAMBDA_TASK_ROOT";
         public const String LambdaTraceHeaderKey = "_X_AMZN_TRACE_ID";
- 
+
         private static String _lambdaVariables;
-      
-        private  XRayOptions _xRayOptions = new XRayOptions();
+
+        private XRayOptions _xRayOptions = new XRayOptions();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AWSXRayRecorder" /> class.
@@ -45,7 +45,7 @@ namespace Amazon.XRay.Recorder.Core
         /// </summary>
         public AWSXRayRecorder() : this(new UdpSegmentEmitter())
         {
-            
+
         }
 
         /// <summary>
@@ -86,7 +86,7 @@ namespace Amazon.XRay.Recorder.Core
         /// with given instance of <see cref="ISegmentEmitter" />.
         /// </summary>
         /// <param name="emitter">Segment emitter</param>
-        internal AWSXRayRecorder(ISegmentEmitter emitter) :base(emitter)
+        internal AWSXRayRecorder(ISegmentEmitter emitter) : base(emitter)
         {
             PopulateContexts();
             SamplingStrategy = new LocalizedSamplingStrategy(XRayOptions.SamplingRuleManifest);
@@ -98,7 +98,7 @@ namespace Amazon.XRay.Recorder.Core
         /// </summary>
         /// <param name="emitter">Instance of <see cref="ISegmentEmitter"/>.</param>
         /// <param name="options">Instance of <see cref="XRayOptions"/>.</param>
-        internal AWSXRayRecorder(ISegmentEmitter emitter, XRayOptions options) :base(emitter)
+        internal AWSXRayRecorder(ISegmentEmitter emitter, XRayOptions options) : base(emitter)
         {
             XRayOptions = options;
             PopulateContexts();
@@ -113,7 +113,7 @@ namespace Amazon.XRay.Recorder.Core
         {
             get
             {
-                if(_instance == null)
+                if (_instance == null)
                 {
                     _instance = new AWSXRayRecorderBuilder().Build();
                 }
@@ -149,7 +149,7 @@ namespace Amazon.XRay.Recorder.Core
             }
             else
             {
-                 newSegment = new Segment(name, traceId, parentId);
+                newSegment = new Segment(name, traceId, parentId);
             }
 
             if (!IsTracingDisabled())
@@ -179,6 +179,7 @@ namespace Amazon.XRay.Recorder.Core
                 // If the request is not sampled, a segment will still be available in TraceContext.
                 // Need to clean up the segment, but do not emit it.
                 Segment segment = (Segment)TraceContext.GetEntity();
+
                 if (!IsTracingDisabled())
                 {
                     segment.SetEndTimeToNow();
@@ -233,25 +234,25 @@ namespace Amazon.XRay.Recorder.Core
         /// </summary>
         private void ProcessSubsegmentInLambdaContext(string name)
         {
-            if (!TraceContext.IsEntityPresent()) //No facade segment available and first subsegment of a subsegment branch needs to be added
+            if (!TraceContext.IsEntityPresent()) // No facade segment available and first subsegment of a subsegment branch needs to be added
             {
                 AddFacadeSegment(name);
                 AddSubsegmentInLambdaContext(new Subsegment(name));
             }
-            else //continuation of subsegment branch
+            else // Facade / Subsegment already present
             {
-                var parentSubsegment = (Subsegment)TraceContext.GetEntity();
+                var entity = TraceContext.GetEntity(); // can be Facade segment or Subsegment
                 var environmentRootTraceId = TraceHeader.FromString(GetTraceVariablesFromEnvironment()).RootTraceId;
-                if ((null != environmentRootTraceId) && !environmentRootTraceId.Equals(parentSubsegment.RootSegment.TraceId)) //If true, customer has leaked subsegments across invocation
+
+                if ((null != environmentRootTraceId) && !environmentRootTraceId.Equals(entity.RootSegment.TraceId)) // If true, customer has leaked subsegments across invocation
                 {
-                    TraceContext.ClearEntity(); //reset TraceContext
-                    BeginSubsegment(name); //This adds Facade segment with updated environment variables
+                    TraceContext.ClearEntity(); // reset TraceContext
+                    BeginSubsegment(name); // This adds Facade segment with updated environment variables
                 }
                 else
                 {
                     AddSubsegmentInLambdaContext(new Subsegment(name));
                 }
-
             }
         }
 
@@ -268,11 +269,11 @@ namespace Amazon.XRay.Recorder.Core
             {
                 if (name != null)
                 {
-                    _logger.DebugFormat("Lambda variables are missing/not valid trace Id, parent id or sampling decision = {0}, discarding subsegment = {1}", _lambdaVariables,name);
+                    _logger.DebugFormat("Lambda variables : {0} for X-Ray trace header environment variable under key : {1} are missing/not valid trace id, parent id or sampling decision, discarding subsegment : {2}", _lambdaVariables, LambdaTraceHeaderKey, name);
                 }
                 else
                 {
-                    _logger.DebugFormat("Lambda variables are missing/not valid trace Id, parent id or sampling decision = {0}, discarding subsegment", _lambdaVariables);
+                    _logger.DebugFormat("Lambda variables : {0} for X-Ray trace header environment variable under key : {1} are missing/not valid trace id, parent id or sampling decision, discarding subsegment", _lambdaVariables, LambdaTraceHeaderKey);
                 }
 
                 traceHeader = new TraceHeader();
@@ -317,7 +318,7 @@ namespace Amazon.XRay.Recorder.Core
             subsegment.SetStartTimeToNow();
             TraceContext.SetEntity(subsegment);
         }
-       
+
         /// <summary>
         /// End a subsegment.
         /// </summary>
@@ -354,7 +355,7 @@ namespace Amazon.XRay.Recorder.Core
         private void ProcessEndSubsegmentInLambdaContext()
         {
             var subsegment = PrepEndSubsegmentInLambdaContext();
-            
+
             // Check emittable
             if (subsegment.IsEmittable())
             {
@@ -378,7 +379,6 @@ namespace Amazon.XRay.Recorder.Core
             // If the request is not sampled, a subsegment will still be available in TraceContext.
             //This behavor is specific to AWS Lambda environment
             Entity entity = TraceContext.GetEntity();
-
             Subsegment subsegment = (Subsegment)entity;
 
             // Set end time
@@ -432,8 +432,9 @@ namespace Amazon.XRay.Recorder.Core
         /// <returns>Returns true if current execution is in AWS Lambda.</returns>
         public Boolean IsLambda()
         {
-           var lambdaTaskRootKey = Environment.GetEnvironmentVariable(LambdaTaskRootKey);
-           if (!Object.Equals(lambdaTaskRootKey, null))
+            var lambdaTaskRootKey = Environment.GetEnvironmentVariable(LambdaTaskRootKey);
+
+            if (!Object.Equals(lambdaTaskRootKey, null))
             {
                 return true;
             }
@@ -456,7 +457,7 @@ namespace Amazon.XRay.Recorder.Core
         /// <returns> Returns true if Tracing is disabled else false.</returns>
         public override bool IsTracingDisabled()
         {
-           return XRayOptions.IsXRayTracingDisabled;
+            return XRayOptions.IsXRayTracingDisabled;
         }
 
         /// <summary>

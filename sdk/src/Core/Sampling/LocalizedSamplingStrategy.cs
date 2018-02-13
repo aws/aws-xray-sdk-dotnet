@@ -56,11 +56,12 @@ namespace Amazon.XRay.Recorder.Core.Sampling
         {
             if (string.IsNullOrEmpty(path))
             {
-                _logger.DebugFormat("The path is null or empty, initializing with default sampling rules.");
+                _logger.DebugFormat("Initializing with default sampling rules.");
                 InitWithDefaultSamplingRules();
             }
             else
             {
+                _logger.DebugFormat("Initializing with custom sampling configuration : {0}", path);
                 using (Stream stream = new FileStream(path, FileMode.Open, FileAccess.Read))
                 {
                     Init(stream);
@@ -120,12 +121,14 @@ namespace Amazon.XRay.Recorder.Core.Sampling
         public SampleDecision Sample(string serviceName, string path, string method)
         {
             var firstMatchRule = Rules.FirstOrDefault(r => r.IsMatch(serviceName, path, method));
+
             if (firstMatchRule == null)
             {
                 _logger.DebugFormat("Can't match a rule for serviceName = {0}, path = {1}, method = {2}", serviceName, path, method);
                 return ApplyRule(DefaultRule);
             }
 
+            _logger.DebugFormat("Found a matching rule : ({0}) for serviceName = {1}, path = {2}, method = {3}", firstMatchRule.ToString(), serviceName, path, method);
             return ApplyRule(firstMatchRule);
         }
 

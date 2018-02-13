@@ -41,12 +41,6 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
         {
             endPoint = null;
 
-            if (string.IsNullOrEmpty(input))
-            {
-                _logger.InfoFormat("Failed to parse IPEndPoint, because input is null or empty.");
-                return false;
-            }
-
             try
             {
                 // Validate basic format of IPv4 address
@@ -88,6 +82,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
             {
                 // Validate port number is in valid range
                 endPoint = new IPEndPoint(ip, port);
+                _logger.InfoFormat("Using custom daemon address: {0}:{1}", endPoint.Address.ToString(), endPoint.Port);
                 return true;
             }
             catch (ArgumentOutOfRangeException e)

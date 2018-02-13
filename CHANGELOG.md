@@ -1,5 +1,27 @@
 # Change Log
 All notable changes to this project will be documented in this file.
+
+## 2.0.1-beta (2018-02-12)
+### AWSXRayRecorder.Core (2.0.1-beta)
+#### Fixed
+- .NET Core : In AWS Lambda environment, TraceContext.GetEntity() is now casted to Entity instead of Subsegment
+- .NET and .NET Core : Improve logging
+
+### AWSXRayRecorder.Handlers.System.Net (2.0.1-beta)
+- Bumped version to address AWSXRayRecorder.Core package change
+
+### AWSXRayRecorder.Handlers.SqlServer (2.0.1-beta)
+- Bumped version to address AWSXRayRecorder.Core package change
+
+### AWSXRayRecorder.Handlers.AwsSdk (2.0.1-beta)
+- Bumped version to address AWSXRayRecorder.Core package change
+
+### AWSXRayRecorder.Handlers.AspNet (2.0.1-beta)
+- Bumped version to address AWSXRayRecorder.Core package change
+
+### AWSXRayRecorder.Handlers.AspNetCore (2.0.1-beta)
+- Bumped version to address AWSXRayRecorder.Core package change
+
 ## 2.0.0-beta (2018-02-05)
 ### AWSXRayRecorder.Core (2.0.0-beta)
 #### Added

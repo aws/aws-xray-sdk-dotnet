@@ -44,8 +44,8 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
             {
                 if (AWSXRayRecorder.Instance.IsLambda()) // Create Facade segment if doesn't exists.
                 {
-                    Console.Out.WriteLine("Empty context, creating facade");
                     AWSXRayRecorder.Instance.AddFacadeSegment();
+                    entity = _entityHolder.Value;
                 }
                 else
                 {
@@ -86,6 +86,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
             {
                return false;
             }
+
             return true;
         }
     }

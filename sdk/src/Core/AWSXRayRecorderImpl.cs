@@ -35,7 +35,6 @@ namespace Amazon.XRay.Recorder.Core
     /// </summary>
     public abstract class AWSXRayRecorderImpl : IAWSXRayRecorder
     {
-
         private static readonly Logger _logger = Logger.GetLogger(typeof(AWSXRayRecorderImpl));
 #if NET45
         private static readonly Lazy<AWSXRayRecorder> lazyDefaultRecorder = new Lazy<AWSXRayRecorder>(() => new AWSXRayRecorderBuilder().WithPluginsFromAppSettings().Build());

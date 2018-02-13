@@ -486,6 +486,7 @@ Currently we support `log4net` logging and options provided in [LoggingOptions](
 Following is the way to configure logging with X-Ray SDK:
 
 ```csharp
+using Amazon;
 using Amazon.XRay.Recorder.Core;
 
 class Program
