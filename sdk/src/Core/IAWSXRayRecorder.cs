@@ -129,12 +129,12 @@ namespace Amazon.XRay.Recorder.Core
         Task<TResult> TraceMethodAsync<TResult>(string name, Func<Task<TResult>> method);
 
         /// <summary>
-        /// Trace a given asynchronous method that returns void.  A subsegment will be created for this method.
+        /// Trace a given asynchronous method that returns no value.  A subsegment will be created for this method.
         /// Any exception thrown by the method will be captured.
         /// </summary>
         /// <param name="name">The name of the trace subsegment for the method</param>
         /// <param name="method">The method to be traced</param>
-        void TraceMethodAsync(string name, Func<Task> method);
+        Task TraceMethodAsync(string name, Func<Task> method);
 
         /// <summary>
         /// Adds the specified key and value as http information to current segment

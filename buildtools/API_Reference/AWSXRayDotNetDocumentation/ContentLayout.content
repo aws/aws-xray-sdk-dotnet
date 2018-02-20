@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Topics>
+  <Topic id="d0b774be-200e-4897-9ce6-4e43c3f6f5de" visible="True" isSelected="true" apiParentMode="InsertAfter" title="Welcome to the AWS X-Ray SDK for .NET !">
+    <HelpKeywords>
+      <HelpKeyword index="K" term="Welcome" />
+      <HelpKeyword index="K" term="" />
+    </HelpKeywords>
+  </Topic>
+</Topics>

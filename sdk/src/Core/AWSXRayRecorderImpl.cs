@@ -638,8 +638,12 @@ namespace Amazon.XRay.Recorder.Core
 
             // Prepare XRay section for runtime context
             var xrayContext = new Dictionary<string, string>();
-            xrayContext["sdk"] = "X-Ray for .NET";
 
+#if NET45
+            xrayContext["sdk"] = "X-Ray for .NET";
+#else
+            xrayContext["sdk"] = "X-Ray for .NET Core";
+#endif
             string currentAssemblyLocation = Assembly.GetExecutingAssembly().Location;
             if (!string.IsNullOrEmpty(currentAssemblyLocation))
             {
@@ -840,12 +844,12 @@ namespace Amazon.XRay.Recorder.Core
         }
 
         /// <summary>
-        /// Trace a given asynchronous method that returns void.  A subsegment will be created for this method.
+        /// Trace a given asynchronous method that returns no value.  A subsegment will be created for this method.
         /// Any exception thrown by the method will be captured.
         /// </summary>
         /// <param name="name">The name of the trace subsegment for the method</param>
         /// <param name="method">The method to be traced</param>
-        public async void TraceMethodAsync(string name, Func<Task> method)
+        public async Task TraceMethodAsync(string name, Func<Task> method)
         {
             BeginSubsegment(name);
 

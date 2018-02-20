@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>AWSXRayRecorder</id>
-    <version>2.0.1-beta</version>
+    <version>2.1.0-beta</version>
     <title>AWS X-Ray Recorder</title>
     <authors>AWS Web Service</authors>
     <licenseUrl>http://aws.amazon.com/apache2.0/</licenseUrl>
@@ -15,18 +15,18 @@
     <tags>AWS Amazon cloud AWSXRay XRay</tags>
     <dependencies>
       <group targetFramework=".NETFramework4.5">
-        <dependency id="AWSXRayRecorder.Core" version="2.0.1-beta" />
-        <dependency id="AWSXRayRecorder.Handlers.AspNet" version="2.0.1-beta" />
-        <dependency id="AWSXRayRecorder.Handlers.AwsSdk" version="2.0.1-beta" />
-        <dependency id="AWSXRayRecorder.Handlers.SqlServer" version="2.0.1-beta" />
-        <dependency id="AWSXRayRecorder.Handlers.System.Net" version="2.0.1-beta" />
+        <dependency id="AWSXRayRecorder.Core" version="2.1.0-beta" />
+        <dependency id="AWSXRayRecorder.Handlers.AspNet" version="2.1.0-beta" />
+        <dependency id="AWSXRayRecorder.Handlers.AwsSdk" version="2.1.0-beta" />
+        <dependency id="AWSXRayRecorder.Handlers.SqlServer" version="2.1.0-beta" />
+        <dependency id="AWSXRayRecorder.Handlers.System.Net" version="2.1.0-beta" />
       </group>
       <group targetFramework=".NETStandard2.0">
-        <dependency id="AWSXRayRecorder.Core" version="2.0.1-beta" />
-        <dependency id="AWSXRayRecorder.Handlers.AspNetCore" version="2.0.1-beta" />
-        <dependency id="AWSXRayRecorder.Handlers.AwsSdk" version="2.0.1-beta" />
-        <dependency id="AWSXRayRecorder.Handlers.SqlServer" version="2.0.1-beta" />
-        <dependency id="AWSXRayRecorder.Handlers.System.Net" version="2.0.1-beta" />
+        <dependency id="AWSXRayRecorder.Core" version="2.1.0-beta" />
+        <dependency id="AWSXRayRecorder.Handlers.AspNetCore" version="2.1.0-beta" />
+        <dependency id="AWSXRayRecorder.Handlers.AwsSdk" version="2.1.0-beta" />
+        <dependency id="AWSXRayRecorder.Handlers.SqlServer" version="2.1.0-beta" />
+        <dependency id="AWSXRayRecorder.Handlers.System.Net" version="2.1.0-beta" />
       </group>
     </dependencies>
   </metadata>

@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27130.2010
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{7CF6DF6D-3B04-46F8-A40B-537D21BCA0B4}") = "AWSXRayDotNetCoreDocumentation", "AWSXRayDotNetCoreDocumentation\AWSXRayDotNetCoreDocumentation.shfbproj", "{72F4FDEF-310B-438B-9705-C34E6C52E03D}"
+EndProject
+Project("{7CF6DF6D-3B04-46F8-A40B-537D21BCA0B4}") = "AWSXRayDotNetDocumentation", "AWSXRayDotNetDocumentation\AWSXRayDotNetDocumentation.shfbproj", "{83CCD099-B2B1-4245-B5B2-5E1D745DB001}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{72F4FDEF-310B-438B-9705-C34E6C52E03D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{72F4FDEF-310B-438B-9705-C34E6C52E03D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{72F4FDEF-310B-438B-9705-C34E6C52E03D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{72F4FDEF-310B-438B-9705-C34E6C52E03D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{83CCD099-B2B1-4245-B5B2-5E1D745DB001}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{83CCD099-B2B1-4245-B5B2-5E1D745DB001}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{83CCD099-B2B1-4245-B5B2-5E1D745DB001}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{83CCD099-B2B1-4245-B5B2-5E1D745DB001}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8489C75A-9FCD-4F2C-B26D-A46A1E7C36A8}
+	EndGlobalSection
+EndGlobal

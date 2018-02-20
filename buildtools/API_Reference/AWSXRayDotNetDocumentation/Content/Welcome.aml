@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<topic id="d0b774be-200e-4897-9ce6-4e43c3f6f5de" revisionNumber="1">
+	<developerConceptualDocument xmlns="http://ddue.schemas.microsoft.com/authoring/2003/5" xmlns:xlink="http://www.w3.org/1999/xlink">
+		<introduction>
+			<para>This is API reference documentation for AWS X-Ray SDK for .NET</para>
+		</introduction>
+
+		<section>
+			<title>Getting Started</title>
+			<content>
+				<list class="bullet">
+             <listItem>
+            <externalLink>
+              <linkText>.NET Core API documentation</linkText>
+              <linkUri>https://docs.aws.amazon.com/xray-sdk-for-dotnetcore/latest/reference/index.html</linkUri>
+            </externalLink>
+          </listItem>
+          <para></para>
+					<listItem>
+            <externalLink>
+              <linkText><legacyBold>.NET V1 API documentation</legacyBold></linkText>
+              <linkUri>https://docs.aws.amazon.com/xray-sdk-for-dotnet/v1/reference/index.html</linkUri>
+            </externalLink>
+					</listItem>
+          <para></para>
+          <listItem>
+            This project is open sourced: <externalLink>
+              <linkText>Github</linkText>
+              <linkUri>https://github.com/aws/aws-xray-sdk-dotnet</linkUri>
+            </externalLink>
+          </listItem>
+				</list>
+			</content>
+		</section>
+	</developerConceptualDocument>
+</topic>

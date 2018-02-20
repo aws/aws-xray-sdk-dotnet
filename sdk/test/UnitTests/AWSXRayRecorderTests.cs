@@ -362,12 +362,12 @@ namespace Amazon.XRay.Recorder.UnitTests
         }
 
         [TestMethod]
-        public void TestTraceMethodAsyncReturnVoid()
+        public async Task TestTraceMethodAsyncReturnVoid()
         {
             _recorder.BeginSegment("test", TraceId);
 
             int count = 0;
-            _recorder.TraceMethodAsync("PlusOneNoReturnAsync", () => PlusOneNoReturnAsync<int>(count));
+            await _recorder.TraceMethodAsync("PlusOneNoReturnAsync", () => PlusOneNoReturnAsync<int>(count));
 
             var subsegment = TraceContext.GetEntity().Subsegments[0];
             Assert.AreEqual("PlusOneNoReturnAsync", subsegment.Name);
@@ -709,8 +709,7 @@ namespace Amazon.XRay.Recorder.UnitTests
 #endif
             using (var recorder = AWSXRayRecorderFactory.CreateAWSXRayRecorder(mockSegmentEmitter.Object))
             {
-#if NET45
-#else
+#if !NET45
                 recorder.XRayOptions = _xRayOptions;
 #endif
                 recorder.BeginSegment("test", TraceId);
@@ -750,7 +749,11 @@ namespace Amazon.XRay.Recorder.UnitTests
                     .ProductVersion;
 
             Assert.AreEqual(versionText, xray["sdk_version"]);
+#if NET45
             Assert.AreEqual("X-Ray for .NET", xray["sdk"]);
+#else
+            Assert.AreEqual("X-Ray for .NET Core", xray["sdk"]);
+#endif
         }
 
         [TestMethod]

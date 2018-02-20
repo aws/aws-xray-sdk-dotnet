@@ -1,6 +1,27 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 2.1.0-beta (2018-02-20)
+### AWSXRayRecorder.Core (2.1.0-beta)
+#### Changed
+- .NET and .NET Core : Updated `sdk` attribute of the Trace
+- .NET and .NET Core : Changed return type of `TraceMethodAsync()` method to `Task` (issue: [#9](https://github.com/aws/aws-xray-sdk-dotnet/issues/9))
+
+### AWSXRayRecorder.Handlers.System.Net (2.1.0-beta)
+- Bumped version to address AWSXRayRecorder.Core package change
+
+### AWSXRayRecorder.Handlers.SqlServer (2.1.0-beta)
+- Bumped version to address AWSXRayRecorder.Core package change
+
+### AWSXRayRecorder.Handlers.AwsSdk (2.1.0-beta)
+- Bumped version to address AWSXRayRecorder.Core package change
+
+### AWSXRayRecorder.Handlers.AspNet (2.1.0-beta)
+- Bumped version to address AWSXRayRecorder.Core package change
+
+### AWSXRayRecorder.Handlers.AspNetCore (2.1.0-beta)
+- Bumped version to address AWSXRayRecorder.Core package change
+
 ## 2.0.1-beta (2018-02-12)
 ### AWSXRayRecorder.Core (2.0.1-beta)
 #### Fixed
