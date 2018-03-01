@@ -17,6 +17,7 @@
 
 using System.Diagnostics;
 using System.Linq;
+using System.Net.Http;
 using System.Reflection;
 using Amazon.XRay.Recorder.Core.Internal.Entities;
 using ThirdParty.LitJson;
@@ -40,6 +41,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Emitters
             JsonMapper.RegisterExporter<ExceptionDescriptor>(ExceptionDescriptorExporter);
             JsonMapper.RegisterExporter<Cause>(CauseExporter);
             JsonMapper.RegisterExporter<Annotations>(AnnotationsExporter);
+            JsonMapper.RegisterExporter<HttpMethod>(HttpMethodExporter);
         }
 
         /// <summary>
@@ -295,6 +297,12 @@ namespace Amazon.XRay.Recorder.Core.Internal.Emitters
             }
 
             writer.WriteObjectEnd();
+        }
+
+
+        private static void HttpMethodExporter(HttpMethod method, JsonWriter writer)
+        {
+            writer.Write(method.Method);
         }
     }
 }
