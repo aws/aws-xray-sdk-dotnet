@@ -72,7 +72,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             var expect = "{\"format\":\"json\",\"version\":1}\n{\"trace_id\":\"1-11111111-111111111111111111111111\",\"id\":\"1111111111111111\",\"start_time\":100,\"end_time\":200,\"name\":\"test\"}";
             var actual = _marshaller.Marshall(segment);
 
-            Assert.AreEqual(actual, expect);
+            Assert.AreEqual(expect, actual);
         }
 
         [TestMethod]
