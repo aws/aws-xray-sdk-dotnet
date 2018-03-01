@@ -38,8 +38,6 @@ namespace Amazon.XRay.Recorder.UnitTests
         {
             _marshaller = new JsonSegmentMarshaller();
         }
-        
-        
 
         [TestMethod]
         public void TestMarshallHttpMethod()

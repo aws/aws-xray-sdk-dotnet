@@ -299,7 +299,6 @@ namespace Amazon.XRay.Recorder.Core.Internal.Emitters
             writer.WriteObjectEnd();
         }
 
-
         private static void HttpMethodExporter(HttpMethod method, JsonWriter writer)
         {
             writer.Write(method.Method);
