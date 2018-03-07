@@ -19,6 +19,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
 using System.Reflection;
+using Amazon.Runtime;
 using Amazon.XRay.Recorder.Core.Internal.Entities;
 using ThirdParty.LitJson;
 
@@ -42,6 +43,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Emitters
             JsonMapper.RegisterExporter<Cause>(CauseExporter);
             JsonMapper.RegisterExporter<Annotations>(AnnotationsExporter);
             JsonMapper.RegisterExporter<HttpMethod>(HttpMethodExporter);
+            JsonMapper.RegisterExporter<ConstantClass>(ConstantClassExporter);
         }
 
         /// <summary>
@@ -302,6 +304,11 @@ namespace Amazon.XRay.Recorder.Core.Internal.Emitters
         private static void HttpMethodExporter(HttpMethod method, JsonWriter writer)
         {
             writer.Write(method.Method);
+        }
+
+        private static void ConstantClassExporter(ConstantClass constantClass, JsonWriter writer)
+        {
+            writer.Write(constantClass.Value);
         }
     }
 }
