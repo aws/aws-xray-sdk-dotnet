@@ -171,7 +171,7 @@ namespace Amazon.XRay.Recorder.Handlers.AspNet
         private static void ProcessRequestAttributes(HttpRequest request, Dictionary<string, object> requestAttributes)
         {
             requestAttributes["url"] = request.Url.AbsoluteUri;
-            requestAttributes["user_agent"] = request.UserAgent.ToString();
+            requestAttributes["user_agent"] = request.UserAgent;
             requestAttributes["method"] = request.HttpMethod;
             string xForwardedFor = GetXForwardedFor(request);
 
