@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
 using Amazon.XRay.Recorder.Core;
 using Amazon.XRay.Recorder.Core.Internal.Entities;
 using Amazon.XRay.Recorder.Core.Internal.Utils;
@@ -94,6 +91,5 @@ namespace Amazon.XRay.Recorder.Handlers.System.Net.Utils
                 AWSXRayRecorder.Instance.AddHttpInformation("response", responseInformation);
             }
         }
-
     }
 }

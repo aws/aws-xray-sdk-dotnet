@@ -16,12 +16,9 @@
 //-----------------------------------------------------------------------------
 
 using System;
-using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using Amazon.XRay.Recorder.Core;
-using Amazon.XRay.Recorder.Core.Internal.Entities;
-using Amazon.XRay.Recorder.Core.Internal.Utils;
 using Amazon.XRay.Recorder.Handlers.System.Net.Utils;
 
 namespace Amazon.XRay.Recorder.Handlers.System.Net
