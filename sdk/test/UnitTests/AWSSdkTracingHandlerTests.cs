@@ -253,6 +253,9 @@ namespace Amazon.XRay.Recorder.UnitTests
             var segment = TraceContext.GetEntity();
             AWSXRayRecorder.Instance.EndSegment();
             Assert.AreEqual("S3", segment.Subsegments[0].Name);
+            Assert.IsTrue(segment.Subsegments[0].Aws.ContainsKey("version_id"));
+            Assert.AreEqual(segment.Subsegments[0].Aws["bucket_name"],"testBucket");
+            Assert.AreEqual(segment.Subsegments[0].Aws["operation"], "GetObject");
         }
 
         [TestMethod]

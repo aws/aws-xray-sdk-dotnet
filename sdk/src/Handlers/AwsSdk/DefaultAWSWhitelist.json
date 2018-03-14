@@ -181,6 +181,7 @@
                     "AttributesToGet",
                     "ConsistentRead",
                     "IndexName",
+                    "Select",
                     "Limit",
                     "ProjectionExpression",
                     "ScanIndexForward",
@@ -396,6 +397,7 @@
             "Invoke": {
                 "request_parameters": [
                     "FunctionName",
+                     "InvocationType",
                      "LogType",
                      "Qualifier"
                 ],
@@ -413,5 +415,409 @@
                 ]
             }
         }
+     },
+      "S3": {
+      "operations": {
+        "CopyObject": {
+          "request_parameters": [
+            "SourceBucketName",
+            "SourceKey",
+            "DestinationBucketName",
+            "DestinationKey"
+          ]
+        },
+        "CopyPart": {
+          "request_parameters": [
+            "SourceBucketName",
+            "SourceKey",
+            "DestinationBucketName",
+            "DestinationKey"
+          ]
+        },
+        "GetObject": {
+          "request_parameters": [
+            "Key",
+            "VersionId",
+            "BucketName"
+          ]
+        },
+        "PutObject": {
+          "request_parameters": [
+            "Key",
+            "BucketName"
+          ]
+        },
+        "GetObjectAcl": {
+          "request_parameters": [
+            "Key",
+            "VersionId",
+            "BucketName"
+          ]
+        },
+        "CreateBucket": {
+          "request_parameters": [
+            "BucketName"
+          ]
+        },
+        "ListObjectsV2": {
+          "request_parameters": [
+            "Prefix",
+            "BucketName"
+          ]
+        },
+        "ListObjects": {
+          "request_parameters": [
+            "Prefix",
+            "BucketName"
+          ]
+        },
+        "GetObjectTagging": {
+          "request_parameters": [
+            "Key",
+            "VersionId",
+            "BucketName"
+          ]
+        },
+        "SetObjectTagging": {
+          "request_parameters": [
+            "Key",
+            "VersionId",
+            "BucketName"
+          ]
+        },
+        "ListVersions": {
+          "request_parameters": [
+            "Prefix",
+            "BucketName"
+          ]
+        },
+        "SetObjectAcl": {
+          "request_parameters": [
+            "Key",
+            "VersionId",
+            "BucketName"
+          ]
+        },
+        "GetBucketAcl": {
+          "request_parameters": [
+            "BucketName"
+          ]
+        },
+        "SetBucketAcl": {
+          "request_parameters": [
+            "BucketName"
+          ]
+        },
+        "HeadBucket": {
+          "request_parameters": [
+            "BucketName"
+          ]
+        },
+        "UploadPart": {
+          "request_parameters": [
+            "Key",
+            "BucketName"
+          ]
+        },
+        "DeleteObject": {
+          "request_parameters": [
+            "Key",
+            "BucketName"
+          ]
+        },
+        "DeleteBucket": {
+          "request_parameters": [
+            "BucketName"
+          ]
+        },
+        "DeleteObjects": {
+          "request_parameters": [
+            "BucketName"
+          ]
+        },
+        "DeleteVersion": {
+          "request_parameters": [
+            "Key",
+            "VersionId",
+            "BucketName"
+          ]
+        },
+        "GetBucketPolicy": {
+          "request_parameters": [
+            "BucketName"
+          ]
+        },
+        "SetBucketPolicy": {
+          "request_parameters": [
+            "BucketName"
+          ]
+        },
+        "ListParts": {
+          "request_parameters": [
+            "Key",
+            "BucketName"
+          ]
+        },
+        "RestoreObject": {
+          "request_parameters": [
+            "Key",
+            "VersionId",
+            "BucketName"
+          ]
+        },
+        "RestoreObjectV2": {
+          "request_parameters": [
+            "Key",
+            "VersionId",
+            "BucketName"
+          ]
+        },
+        "SetBucketNotificationConfiguration": {
+          "request_parameters": [
+            "BucketName"
+          ]
+        },
+        "DeleteBucketLifecycleConfiguration": {
+          "request_parameters": [
+            "BucketName"
+          ]
+        },
+        "GetBucketNotificationConfiguration": {
+          "request_parameters": [
+            "BucketName"
+          ]
+        },
+        "DeleteBucketCrossOriginConfiguration": {
+          "request_parameters": [
+            "BucketName"
+          ]
+        },
+        "SetBucketCrossOriginConfiguration": {
+          "request_parameters": [
+            "BucketName"
+          ]
+        },
+        "GetBucketCrossOriginConfiguration": {
+          "request_parameters": [
+            "BucketName"
+          ]
+        },
+        "ListBucketInventoryConfigurations": {
+          "request_parameters": [
+            "BucketName"
+          ]
+        },
+        "GetBucketReplicationConfiguration": {
+          "request_parameters": [
+            "BucketName"
+          ]
+        },
+        "SetBucketReplicationConfiguration": {
+          "request_parameters": [
+            "BucketName"
+          ]
+        },
+        "DeleteBucketReplicationConfiguration": {
+          "request_parameters": [
+            "BucketName"
+          ]
+        },
+        "DeleteBucketAnalyticsConfiguration": {
+          "request_parameters": [
+            "BucketName"
+          ]
+        },
+        "DeleteBucketInventoryConfiguration": {
+          "request_parameters": [
+            "BucketName"
+          ]
+        },
+        "ListBucketAnalyticsConfigurations": {
+          "request_parameters": [
+            "BucketName"
+          ]
+        },
+        "DeleteObjectTagging": {
+          "request_parameters": [
+            "Key",
+            "VersionId",
+            "BucketName"
+          ]
+        },
+        "SetBucketVersioningConfiguration": {
+          "request_parameters": [
+            "BucketName"
+          ]
+        },
+        "GetBucketVersioningConfiguration": {
+          "request_parameters": [
+            "BucketName"
+          ]
+        },
+        "GetBucketWebsiteConfiguration": {
+          "request_parameters": [
+            "BucketName"
+          ]
+        },
+        "GetBucketLifecycleConfiguration": {
+          "request_parameters": [
+            "BucketName"
+          ]
+        },
+        "SetBucketLifecycleConfiguration": {
+          "request_parameters": [
+            "BucketName"
+          ]
+        },
+        "GetBucketTaggingConfiguration": {
+          "request_parameters": [
+            "BucketName"
+          ]
+        },
+        "SetBucketTaggingConfiguration": {
+          "request_parameters": [
+            "BucketName"
+          ]
+        },
+        "GetObjectMetadata": {
+          "request_parameters": [
+            "Key",
+            "VersionId",
+            "BucketName"
+          ]
+        },
+        "GetBucketLocation": {
+          "request_parameters": [
+            "BucketName"
+          ]
+        },
+        "GetBucketLoggingConfiguration": {
+          "request_parameters": [
+            "BucketName"
+          ]
+        },
+        "ListMultipartUploads": {
+          "request_parameters": [
+            "Prefix",
+            "BucketName"
+          ]
+        },
+        "DeleteBucketPolicy": {
+          "request_parameters": [
+            "BucketName"
+          ]
+        },
+        "DeleteBucketEncryption": {
+          "request_parameters": [
+            "BucketName"
+          ]
+        },
+        "SetBucketAccelerateConfiguration": {
+          "request_parameters": [
+            "BucketName"
+          ]
+        },
+        "SetBucketWebsiteConfiguration": {
+          "request_parameters": [
+            "BucketName"
+          ]
+        },
+        "CompleteMultipartUpload": {
+          "request_parameters": [
+            "Key",
+            "BucketName"
+          ]
+        },
+        "InitiateMultipartUpload": {
+          "request_parameters": [
+            "Key",
+            "BucketName"
+          ]
+        },
+        "SetBucketEncryption": {
+          "request_parameters": [
+            "BucketName"
+          ]
+        },
+        "SetBucketLoggingConfiguration": {
+          "request_parameters": [
+            "BucketName"
+          ]
+        },
+        "DeleteBucketWebsiteConfiguration": {
+          "request_parameters": [
+            "BucketName"
+          ]
+        },
+        "GetBucketEncryption": {
+          "request_parameters": [
+            "BucketName"
+          ]
+        },
+        "AbortMultipartUpload": {
+          "request_parameters": [
+            "Key",
+            "BucketName"
+          ]
+        },
+        "GeneratePresignedUrl": {
+          "request_parameters": [
+            "Key",
+            "VersionId",
+            "BucketName"
+          ]
+        },
+        "DeleteBucketTaggingConfiguration": {
+          "request_parameters": [
+            "BucketName"
+          ]
+        },
+        "GetBucketAccelerateConfiguration": {
+          "request_parameters": [
+            "BucketName"
+          ]
+        },
+        "GetBucketMetricsConfiguration": {
+          "request_parameters": [
+            "BucketName"
+          ]
+        },
+        "ListBucketMetricsConfigurations": {
+          "request_parameters": [
+            "BucketName"
+          ]
+        },
+        "SetBucketInventoryConfiguration": {
+          "request_parameters": [
+            "BucketName"
+          ]
+        },
+        "SetBucketMetricsConfiguration": {
+          "request_parameters": [
+            "BucketName"
+          ]
+        },
+        "SetBucketAnalyticsConfiguration": {
+          "request_parameters": [
+            "BucketName"
+          ]
+        },
+        "DeleteBucketMetricsConfiguration": {
+          "request_parameters": [
+            "BucketName"
+          ]
+        },
+        "GetBucketAnalyticsConfiguration": {
+          "request_parameters": [
+            "BucketName"
+          ]
+        },
+        "GetBucketInventoryConfiguration": {
+          "request_parameters": [
+            "BucketName"
+          ]
+        }
+      }
     }
-} }
+  }
+}
