@@ -11,7 +11,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Amazon.XRay.Recorder.UnitTests
 {
     [TestClass]
-    public class HttpClientTracingHandlerTests : TestBase
+    public class HttpClientXRayTracingHandlerTests : TestBase
     {
         private const string URL = "https://httpbin.org/";
 
@@ -19,9 +19,9 @@ namespace Amazon.XRay.Recorder.UnitTests
 
         private readonly HttpClient _httpClient;
 
-        public HttpClientTracingHandlerTests()
+        public HttpClientXRayTracingHandlerTests()
         {
-            _httpClient = new HttpClient(new HttpClientTracingHandler(new HttpClientHandler()));
+            _httpClient = new HttpClient(new HttpClientXRayTracingHandler(new HttpClientHandler()));
         }
         
         [TestCleanup]

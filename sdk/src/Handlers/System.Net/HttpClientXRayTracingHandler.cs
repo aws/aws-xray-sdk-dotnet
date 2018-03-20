@@ -27,9 +27,13 @@ namespace Amazon.XRay.Recorder.Handlers.System.Net
     /// <summary>
     /// Wrapper around <see cref="HttpClientHandler"/> for AWS X-Ray tracing of HTTP requests
     /// </summary>
-    public class HttpClientTracingHandler : DelegatingHandler
+    public class HttpClientXRayTracingHandler : DelegatingHandler
     {
-        public HttpClientTracingHandler(HttpMessageHandler innerHandler) : base(innerHandler)
+        public HttpClientXRayTracingHandler() : base()
+        {
+        }
+
+        public HttpClientXRayTracingHandler(HttpMessageHandler innerHandler) : base(innerHandler)
         {
         }
 

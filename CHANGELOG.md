@@ -1,6 +1,31 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 2.2.0-beta (2018-03-20)
+### AWSXRayRecorder.Core (2.2.0-beta)
+#### Fixed
+- .NET and .NET Core : Fixed serialization issue for Http method PR: [#12](https://github.com/aws/aws-xray-sdk-dotnet/pull/12), `Amazon.Util.Internal.ConstantClass` PR: [#16](https://github.com/aws/aws-xray-sdk-dotnet/pull/16)
+- .NET and .NET Core : Setting custom recorder to `AWSXRayRecorder.Instance` (issue: [#18](https://github.com/aws/aws-xray-sdk-dotnet/issues/18))
+
+### AWSXRayRecorder.Handlers.System.Net (2.2.0-beta)
+#### Added
+- .NET and .NET Core: Support for `HttpClient` class (PR: [#5](https://github.com/aws/aws-xray-sdk-dotnet/pull/5))
+
+### AWSXRayRecorder.Handlers.SqlServer (2.2.0-beta)
+- Bumped version to address AWSXRayRecorder.Core package change
+
+### AWSXRayRecorder.Handlers.AwsSdk (2.2.0-beta)
+#### Added : .NET and .NET Core
+- Added AWS S3 service in the AWS service manifest file
+- Added `select` attribute for Dynamo DB and `InvocationType` attribute for Lambda service
+
+### AWSXRayRecorder.Handlers.AspNet (2.2.0-beta)
+#### Fixed
+- Null reference exception for empty user agent. Issue [#14](https://github.com/aws/aws-xray-sdk-dotnet/issues/14), PR [#15](https://github.com/aws/aws-xray-sdk-dotnet/pull/15)
+
+### AWSXRayRecorder.Handlers.AspNetCore (2.2.0-beta)
+- Bumped version to address AWSXRayRecorder.Core package change
+
 ## 2.1.0-beta (2018-02-20)
 ### AWSXRayRecorder.Core (2.1.0-beta)
 #### Changed

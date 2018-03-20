@@ -270,7 +270,7 @@ A handler derived from `DelegatingHandler` is provided to trace the `HttpMessage
 ```csharp
 using AWSXRayRecorder.Handlers.System.Net;
 
-var httpClient = new HttpClient(new HttpClientTracingHandler(new HttpClientHandler()));
+var httpClient = new HttpClient(new HttpClientXRayTracingHandler(new HttpClientHandler()));
 
 // Any other configuration to the client
 
@@ -279,7 +279,7 @@ httpClient.GetAsync(URL);
 
 ### Trace Query to SQL Server (.NET and .NET Core) : [Nuget](https://www.nuget.org/packages/AWSXRayRecorder.Handlers.SqlServer/)
 
-The SDK provides a wrapper class for `Syste.Data.SqlClient.SqlCommand`. The wrapper class can be used interchangable with `SqlCommand` class. By replacing instance of `SqlCommand` to `TraceableSqlCommand`, synchronized/asynchronized method will automatically generate subsegment for the SQL query.
+The SDK provides a wrapper class for `System.Data.SqlClient.SqlCommand`. The wrapper class can be used interchangable with `SqlCommand` class. By replacing instance of `SqlCommand` to `TraceableSqlCommand`, synchronized/asynchronized method will automatically generate subsegment for the SQL query.
 
 #### Synchronous query
 

@@ -20,6 +20,8 @@ using Amazon.XRay.Recorder.Core.Internal.Utils;
 using Microsoft.Extensions.Configuration;
 using System.IO;
 using Amazon.XRay.Recorder.Core;
+using Amazon.XRay.Recorder.Core.Sampling;
+using System.Net.Http;
 
 namespace Amazon.XRay.Recorder.UnitTests
 {
@@ -131,16 +133,16 @@ namespace Amazon.XRay.Recorder.UnitTests
         {
             IConfiguration configuration = BuildConfiguration("DisabledXRayTrue.json");
 
-            AWSXRayRecorder recorder = new AWSXRayRecorder();
-
+            AWSXRayRecorder recorder = BuildAWSXRayRecorder();
+ 
             AWSXRayRecorder.InitializeInstance(configuration, recorder);
             _xRayOptions = recorder.XRayOptions;
-
             Assert.IsTrue(_xRayOptions.IsXRayTracingDisabled);
             Assert.IsNull(_xRayOptions.AwsServiceHandlerManifest);
             Assert.IsNull(_xRayOptions.PluginSetting);
             Assert.IsNull(_xRayOptions.SamplingRuleManifest);
 
+            Assert.AreEqual(AWSXRayRecorder.Instance.SamplingStrategy, recorder.SamplingStrategy); // Custom recorder set in TraceContext
             recorder.Dispose();
         }
 
@@ -152,6 +154,27 @@ namespace Amazon.XRay.Recorder.UnitTests
                               .AddJsonFile(PREFIX + path);
             IConfiguration configuration = builder.Build();
             return configuration;
+        }
+        private static AWSXRayRecorder BuildAWSXRayRecorder()
+        {
+            var builder = new AWSXRayRecorderBuilder()
+                         .WithSamplingStrategy(new TestSamplingStrategy());
+
+            var result = builder.Build();
+
+            return result;
+        }
+    }
+    class TestSamplingStrategy : ISamplingStrategy
+    {
+        public SampleDecision Sample(string serviceName, string path, string method)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public SampleDecision Sample(HttpRequestMessage request)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

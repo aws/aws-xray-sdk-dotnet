@@ -79,6 +79,7 @@ namespace Amazon.XRay.Recorder.Core
             XRayOptions xRayOptions = XRayConfiguration.GetXRayOptions(configuration);
             recorder.XRayOptions = xRayOptions;
             recorder = new AWSXRayRecorderBuilder().WithPluginsFromConfig(xRayOptions).Build(recorder);
+            Instance = recorder;
         }
 
         /// <summary>
