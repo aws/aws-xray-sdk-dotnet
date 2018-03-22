@@ -301,7 +301,7 @@ namespace Amazon.XRay.Recorder.Handlers.AwsSdk
             var serviceName = RemoveAmazonPrefixFromServiceName(args.ServiceName);
             var operation = RemoveSuffix(args.Request.GetType().Name, "Request");
 
-            subsegment.Aws["region"] = client.Config.RegionEndpoint.SystemName;
+            subsegment.Aws["region"] = client.Config.RegionEndpoint?.SystemName;
             subsegment.Aws["operation"] = operation;
             subsegment.Aws["request_id"] = args.Response.ResponseMetadata.RequestId;
 
@@ -338,7 +338,7 @@ namespace Amazon.XRay.Recorder.Handlers.AwsSdk
             var serviceName = RemoveAmazonPrefixFromServiceName(args.ServiceName);
             var operation = RemoveSuffix(args.Request.GetType().Name, "Request");
 
-            subsegment.Aws["region"] = client.Config.RegionEndpoint.SystemName;
+            subsegment.Aws["region"] = client.Config.RegionEndpoint?.SystemName;
             subsegment.Aws["operation"] = operation;
             if (args.Headers.TryGetValue("x-amzn-RequestId", out string requestId))
             {

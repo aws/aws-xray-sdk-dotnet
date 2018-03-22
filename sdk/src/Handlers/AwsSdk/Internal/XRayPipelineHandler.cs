@@ -297,7 +297,7 @@ namespace Amazon.XRay.Recorder.Handlers.AwsSdk.Internal
             var serviceName = RemoveAmazonPrefixFromServiceName(requestContext.Request.ServiceName);
             var operation = RemoveSuffix(requestContext.OriginalRequest.GetType().Name, "Request");
 
-            subsegment.Aws["region"] = client.RegionEndpoint.SystemName;
+            subsegment.Aws["region"] = client.RegionEndpoint?.SystemName;
             subsegment.Aws["operation"] = operation;
             if (responseContext.Response == null)
             {
