@@ -99,7 +99,7 @@ namespace Amazon.XRay.Recorder.Core
         /// </summary>
         /// <param name="emitter">Instance of <see cref="ISegmentEmitter"/>.</param>
         /// <param name="options">Instance of <see cref="XRayOptions"/>.</param>
-        internal AWSXRayRecorder(ISegmentEmitter emitter, XRayOptions options) : base(emitter)
+        public AWSXRayRecorder(ISegmentEmitter emitter, XRayOptions options) : base(emitter)
         {
             XRayOptions = options;
             PopulateContexts();
