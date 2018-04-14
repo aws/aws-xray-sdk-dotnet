@@ -16,6 +16,7 @@
 //-----------------------------------------------------------------------------
 
 using System;
+using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -107,7 +108,8 @@ namespace Amazon.XRay.Recorder.Core.Internal.Emitters
             }
             else
             {
-                _logger.InfoFormat("Ignoring call to setDaemonAddress as " + EnvironmentVariableDaemonAddress + " is set.");
+                _logger.InfoFormat("Ignoring call to setDaemonAddress as " + EnvironmentVariableDaemonAddress +
+                                   " is set.");
             }
         }
 
@@ -149,20 +151,25 @@ namespace Amazon.XRay.Recorder.Core.Internal.Emitters
 
         private void SetEndPointOrDefault(string daemonAddress)
         {
-            IPEndPoint daemonEndPoint;
-
             if (string.IsNullOrEmpty(daemonAddress))
             {
-                 daemonEndPoint = new IPEndPoint(_defaultDaemonAddress, _defaultDaemonPort);
-                _logger.InfoFormat("Using default daemon address: {0}:{1}", daemonEndPoint.Address.ToString(), daemonEndPoint.Port);
+                EndPoint = new IPEndPoint(_defaultDaemonAddress, _defaultDaemonPort);
+                _logger.InfoFormat("Using default daemon address: {0}:{1}", EndPoint.Address.ToString(), EndPoint.Port);
             }
-            else if (!IPEndPointExtension.TryParse(daemonAddress, out daemonEndPoint))
+            else if (IPEndPointExtension.TryParse(daemonAddress, out var daemonEndPoint))
             {
-                daemonEndPoint = new IPEndPoint(_defaultDaemonAddress, _defaultDaemonPort);
-                _logger.InfoFormat("The given daemonAddress ({0}) is invalid, using default daemon address {1}:{2}.", daemonAddress, daemonEndPoint.Address.ToString(), daemonEndPoint.Port);
+                EndPoint = daemonEndPoint;
             }
-
-            EndPoint = daemonEndPoint;
+            else if (HostEndpoint.TryParse(daemonAddress, out var hostEndpoint))
+            {
+                EndPoint = hostEndpoint.GetIPEndPoint();
+            }
+            else
+            {
+                EndPoint = new IPEndPoint(_defaultDaemonAddress, _defaultDaemonPort);
+                _logger.InfoFormat("The given daemonAddress ({0}) is invalid, using default daemon address {1}:{2}.",
+                    daemonAddress, EndPoint.Address.ToString(), EndPoint.Port);
+            }
         }
     }
 }

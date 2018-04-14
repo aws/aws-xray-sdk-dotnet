@@ -55,5 +55,14 @@ namespace Amazon.XRay.Recorder.UnitTests
             Assert.AreEqual(environmentAddress, emitter.EndPoint.ToString());
             Environment.SetEnvironmentVariable(UdpSegmentEmitter.EnvironmentVariableDaemonAddress, null);
         }
+        
+        [TestMethod]
+        public void TestHostnameSupport()
+        {
+            var emitter = new UdpSegmentEmitter();
+            string newAddress = "localhost:2000";
+            emitter.SetDaemonAddress(newAddress);
+            Assert.AreEqual(newAddress, emitter.EndPoint.ToString());
+        }
     }
 }
