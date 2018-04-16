@@ -62,7 +62,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             var emitter = new UdpSegmentEmitter();
             string newAddress = "localhost:2000";
             emitter.SetDaemonAddress(newAddress);
-            Assert.AreEqual(newAddress, emitter.EndPoint.ToString());
+            Assert.AreEqual("127.0.0.1:2000", emitter.EndPoint.ToString());
         }
     }
 }
