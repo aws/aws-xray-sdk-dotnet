@@ -1,5 +1,6 @@
 using System.Linq;
 using System.Net;
+using System.Net.Sockets;
 
 namespace Amazon.XRay.Recorder.Core.Internal.Emitters
 {
@@ -17,7 +18,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Emitters
         public IPEndPoint GetIPEndPoint()
         {
             var ipEntries = Dns.GetHostAddresses(Host);
-            return new IPEndPoint(ipEntries.FirstOrDefault(), Port);
+            return new IPEndPoint(ipEntries.FirstOrDefault(x => x.AddressFamily == AddressFamily.InterNetwork), Port);
         }
         
         public static bool TryParse(string entry, out HostEndpoint hostEndpoint)
