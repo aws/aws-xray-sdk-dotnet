@@ -17,6 +17,7 @@
 
 using System;
 using System.Configuration;
+using System.Globalization;
 using System.Linq;
 using System.Net.Http;
 using System.Threading;
@@ -35,6 +36,11 @@ namespace Amazon.XRay.Recorder.UnitTests
 #if !NET45
         private XRayOptions _xRayOtions = new XRayOptions();
 #endif
+        [TestInitialize]
+        public void TestInitialize()
+        {
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;            
+        }
 
         [TestCleanup]
         public void TestCleanup()

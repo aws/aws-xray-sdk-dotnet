@@ -21,6 +21,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Net.Http;
+using System.Threading;
 using Amazon.DynamoDBv2;
 using Amazon.XRay.Recorder.Core.Internal.Emitters;
 using Amazon.XRay.Recorder.Core.Internal.Entities;
@@ -38,6 +39,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         public void Initialize()
         {
             _marshaller = new JsonSegmentMarshaller();
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
         }
 
         [TestMethod]
@@ -47,19 +49,19 @@ namespace Amazon.XRay.Recorder.UnitTests
             segment.Id = "1111111111111111";
             segment.StartTime = 1;
             segment.EndTime = 2;
-            
+
             // ensure method can be marshalled
             segment.Http["method"] = HttpMethod.Post;
-            
-            
+
+
             _marshaller.Marshall(segment);
 
             var expect = "{\"format\":\"json\",\"version\":1}\n{\"trace_id\":\"1-11111111-111111111111111111111111\",\"id\":\"1111111111111111\",\"start_time\":1,\"end_time\":2,\"name\":\"test\",\"http\":{\"method\":\"POST\"}}";
             var actual = _marshaller.Marshall(segment);
-            
+
             Assert.AreEqual(expect, actual);
         }
-        
+
         [TestMethod]
         public void TestMarshallConstantClass()
         {
@@ -67,16 +69,16 @@ namespace Amazon.XRay.Recorder.UnitTests
             segment.Id = "1111111111111111";
             segment.StartTime = 1;
             segment.EndTime = 2;
-            
+
             // Some random instance of ConstantClass. Their constructor is private so we cant construct one
             segment.Aws["value"] = ReturnConsumedCapacity.INDEXES;
-            
-            
+
+
             _marshaller.Marshall(segment);
 
             var expect = "{\"format\":\"json\",\"version\":1}\n{\"trace_id\":\"1-11111111-111111111111111111111111\",\"id\":\"1111111111111111\",\"start_time\":1,\"end_time\":2,\"name\":\"test\",\"aws\":{\"value\":\"INDEXES\"}}";
             var actual = _marshaller.Marshall(segment);
-            
+
             Assert.AreEqual(expect, actual);
         }
 
