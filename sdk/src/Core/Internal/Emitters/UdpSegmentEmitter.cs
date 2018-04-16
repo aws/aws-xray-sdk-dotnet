@@ -162,7 +162,16 @@ namespace Amazon.XRay.Recorder.Core.Internal.Emitters
             }
             else if (HostEndpoint.TryParse(daemonAddress, out var hostEndpoint))
             {
-                EndPoint = hostEndpoint.GetIPEndPoint();
+                try
+                {
+                    EndPoint = hostEndpoint.GetIPEndPoint();
+                }
+                catch (SocketException)
+                {
+                    EndPoint = new IPEndPoint(_defaultDaemonAddress, _defaultDaemonPort);
+                    _logger.InfoFormat("The given daemonAddress ({0}) is invalid, using default daemon address {1}:{2}.",
+                        daemonAddress, EndPoint.Address.ToString(), EndPoint.Port);
+                }
             }
             else
             {

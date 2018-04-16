@@ -64,5 +64,14 @@ namespace Amazon.XRay.Recorder.UnitTests
             emitter.SetDaemonAddress(newAddress);
             Assert.AreEqual("127.0.0.1:2000", emitter.EndPoint.ToString());
         }
+
+        [TestMethod]
+        public void TestHostnameSupportWhenHostnameNotFound()
+        {
+            var emitter = new UdpSegmentEmitter();
+            string newAddress = "an-unknown-hostname-123:2000";
+            emitter.SetDaemonAddress(newAddress);
+            Assert.AreEqual("127.0.0.1:2000", emitter.EndPoint.ToString());
+        }
     }
 }
