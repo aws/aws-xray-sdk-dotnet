@@ -25,6 +25,8 @@ using Amazon.XRay.Recorder.Core.Sampling;
 using Amazon.XRay.Recorder.Core.Strategies;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
+using Amazon.XRay.Recorder.Core.Internal.Emitters;
+using System;
 
 
 #if !NET45
@@ -134,6 +136,29 @@ namespace Amazon.XRay.Recorder.UnitTests
             Assert.AreEqual(ContextMissingStrategy.LOG_ERROR, recorder.ContextMissingStrategy);
         }
 
+        [TestMethod]
+        public void TestSetEmitter()
+        {
+            var recorder = new AWSXRayRecorderBuilder().WithContextMissingStrategy(ContextMissingStrategy.LOG_ERROR).WithSegmentEmitter(new DummyEmitter()).Build();
+            Assert.AreEqual(typeof(DummyEmitter).FullName, recorder.Emitter.GetType().FullName);
+        }
+
+        [TestMethod]
+        public void TestSetDefaultEmitter()
+        {
+            var recorder = new AWSXRayRecorderBuilder().WithContextMissingStrategy(ContextMissingStrategy.LOG_ERROR).Build(); // set defualt UDP emitter
+            Assert.AreEqual(typeof(UdpSegmentEmitter).FullName, recorder.Emitter.GetType().FullName);
+        }
+
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void TestSetNullEmitter()
+        {
+            var recorder = new AWSXRayRecorderBuilder().WithContextMissingStrategy(ContextMissingStrategy.LOG_ERROR).WithSegmentEmitter(null).Build();
+            Assert.Fail();
+        }
+
         private class DummySamplingStrategy : ISamplingStrategy
         {
             public SampleDecision Sample(string serviceName, string path, string method)
@@ -170,6 +195,21 @@ namespace Amazon.XRay.Recorder.UnitTests
                 context = new Dictionary<string, object>();
                 context.Add("key1", "value1");
                 return true;
+            }
+        }
+
+        private class DummyEmitter : ISegmentEmitter
+        {
+            public void Dispose()
+            {
+            }
+
+            public void Send(Entity segment)
+            {
+            }
+
+            public void SetDaemonAddress(string daemonAddress)
+            {
             }
         }
     }

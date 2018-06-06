@@ -47,14 +47,14 @@ namespace Amazon.XRay.Recorder.Core
 
         protected const long MaxSubsegmentSize = 100;
 
-        private readonly ISegmentEmitter emitter;
+        private ISegmentEmitter _emitter;
         private bool disposed;
         protected ContextMissingStrategy cntxtMissingStrategy = ContextMissingStrategy.RUNTIME_ERROR;
         private Dictionary<string, object> serviceContext = new Dictionary<string, object>();
 
         protected AWSXRayRecorderImpl(ISegmentEmitter emitter)
         {
-            this.emitter = emitter;
+            this._emitter = emitter;
         }
 
         /// <summary>
@@ -103,7 +103,7 @@ namespace Amazon.XRay.Recorder.Core
         /// </summary>
         public IDictionary<string, object> RuntimeContext { get; protected set; }
 
-        protected ISegmentEmitter Emitter => emitter;
+        public ISegmentEmitter Emitter { get => _emitter; set => _emitter = value; }
 
         protected bool Disposed { get => disposed; set => disposed = value; }
 

@@ -22,6 +22,8 @@ using System.IO;
 using Amazon.XRay.Recorder.Core;
 using Amazon.XRay.Recorder.Core.Sampling;
 using System.Net.Http;
+using Amazon.XRay.Recorder.Core.Internal.Emitters;
+using Amazon.XRay.Recorder.Core.Internal.Entities;
 
 namespace Amazon.XRay.Recorder.UnitTests
 {
@@ -124,16 +126,17 @@ namespace Amazon.XRay.Recorder.UnitTests
             Assert.IsNull(_xRayOptions.AwsServiceHandlerManifest);
             Assert.IsNull(_xRayOptions.PluginSetting);
             Assert.IsNull(_xRayOptions.SamplingRuleManifest);
+            Assert.AreEqual(typeof(UdpSegmentEmitter), AWSXRayRecorder.Instance.Emitter.GetType()); // Default emitter set
 
             AWSXRayRecorder.Instance.Dispose();
         }
 
         [TestMethod]
-        public void TestInitializeInstanceWithRecorder()
+        public void TestInitializeInstanceWithRecorder1()
         {
             IConfiguration configuration = BuildConfiguration("DisabledXRayTrue.json");
 
-            AWSXRayRecorder recorder = BuildAWSXRayRecorder();
+            AWSXRayRecorder recorder = BuildAWSXRayRecorder(new TestSamplingStrategy());
  
             AWSXRayRecorder.InitializeInstance(configuration, recorder);
             _xRayOptions = recorder.XRayOptions;
@@ -143,6 +146,26 @@ namespace Amazon.XRay.Recorder.UnitTests
             Assert.IsNull(_xRayOptions.SamplingRuleManifest);
 
             Assert.AreEqual(AWSXRayRecorder.Instance.SamplingStrategy, recorder.SamplingStrategy); // Custom recorder set in TraceContext
+            Assert.AreEqual(typeof(UdpSegmentEmitter), recorder.Emitter.GetType()); // Default emitter set
+            recorder.Dispose();
+        }
+
+        [TestMethod]
+        public void TestInitializeInstanceWithRecorder2()
+        {
+            IConfiguration configuration = BuildConfiguration("DisabledXRayTrue.json");
+
+            AWSXRayRecorder recorder = BuildAWSXRayRecorder(new TestSamplingStrategy(), new DummyEmitter());
+
+            AWSXRayRecorder.InitializeInstance(configuration, recorder);
+            _xRayOptions = recorder.XRayOptions;
+            Assert.IsTrue(_xRayOptions.IsXRayTracingDisabled);
+            Assert.IsNull(_xRayOptions.AwsServiceHandlerManifest);
+            Assert.IsNull(_xRayOptions.PluginSetting);
+            Assert.IsNull(_xRayOptions.SamplingRuleManifest);
+
+            Assert.AreEqual(AWSXRayRecorder.Instance.SamplingStrategy, recorder.SamplingStrategy); // Custom recorder set in TraceContext
+            Assert.AreEqual(typeof(DummyEmitter), recorder.Emitter.GetType()); // custom emitter set
             recorder.Dispose();
         }
 
@@ -155,10 +178,18 @@ namespace Amazon.XRay.Recorder.UnitTests
             IConfiguration configuration = builder.Build();
             return configuration;
         }
-        private static AWSXRayRecorder BuildAWSXRayRecorder()
+        private static AWSXRayRecorder BuildAWSXRayRecorder(ISamplingStrategy samplingStrategy, ISegmentEmitter segmentEmitter=null)
         {
-            var builder = new AWSXRayRecorderBuilder()
-                         .WithSamplingStrategy(new TestSamplingStrategy());
+            AWSXRayRecorderBuilder builder;
+            if (segmentEmitter != null){
+                 builder = new AWSXRayRecorderBuilder()
+                        .WithSamplingStrategy(samplingStrategy).WithSegmentEmitter(segmentEmitter);
+            }
+            else
+            {
+                 builder = new AWSXRayRecorderBuilder()
+                        .WithSamplingStrategy(samplingStrategy);
+            }
 
             var result = builder.Build();
 
@@ -175,6 +206,21 @@ namespace Amazon.XRay.Recorder.UnitTests
         public SampleDecision Sample(HttpRequestMessage request)
         {
             throw new System.NotImplementedException();
+        }
+    }
+
+    class DummyEmitter : ISegmentEmitter
+    {
+        public void Dispose()
+        {
+        }
+
+        public void Send(Entity segment)
+        {
+        }
+
+        public void SetDaemonAddress(string daemonAddress)
+        {
         }
     }
 }

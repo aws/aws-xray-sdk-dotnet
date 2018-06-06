@@ -18,6 +18,7 @@
 using System;
 using System.Collections.Generic;
 using Amazon.Runtime.Internal.Util;
+using Amazon.XRay.Recorder.Core.Internal.Emitters;
 using Amazon.XRay.Recorder.Core.Internal.Utils;
 using Amazon.XRay.Recorder.Core.Plugins;
 using Amazon.XRay.Recorder.Core.Sampling;
@@ -37,6 +38,7 @@ namespace Amazon.XRay.Recorder.Core
         private readonly List<IPlugin> _plugins = new List<IPlugin>();
         private ISamplingStrategy _samplingStrategy;
         private ContextMissingStrategy _contextMissingStrategy = ContextMissingStrategy.RUNTIME_ERROR;
+        private ISegmentEmitter _segmentEmitter;
 
         /// <summary>
         /// Gets a read-only copy of current plugins in the builder
@@ -139,7 +141,7 @@ namespace Amazon.XRay.Recorder.Core
         /// <returns>The builder with sampling strategy added.</returns>
         public AWSXRayRecorderBuilder WithSamplingStrategy(ISamplingStrategy newStrategy)
         {
-            _samplingStrategy = newStrategy;
+            _samplingStrategy = newStrategy ?? throw new ArgumentNullException("SamplingStrategy");
             return this;
         }
 
@@ -155,6 +157,17 @@ namespace Amazon.XRay.Recorder.Core
         }
 
         /// <summary>
+        /// Adds the provided <see cref="ISegmentEmitter"/> instance.
+        /// </summary>
+        /// <param name="segmentEmitter">The provided <see cref="ISegmentEmitter"/> instance.</param>
+        /// <returns>The builder with ISegmentEmitter added.</returns>
+        public AWSXRayRecorderBuilder WithSegmentEmitter(ISegmentEmitter segmentEmitter)
+        {
+            _segmentEmitter = segmentEmitter ?? throw new ArgumentNullException("SegmentEmitter");
+            return this;
+        }
+
+        /// <summary>
         /// Build a instance of <see cref="AWSXRayRecorder"/> with existing configuration added to the builder.
         /// </summary>
         /// <returns>A new instance of <see cref="AWSXRayRecorder"/>.</returns>
@@ -163,7 +176,7 @@ namespace Amazon.XRay.Recorder.Core
             var recorder = new AWSXRayRecorder();
 
             PopulateRecorder(recorder);
-
+            
             return recorder;
         }
 
@@ -216,6 +229,11 @@ namespace Amazon.XRay.Recorder.Core
             }
 
             recorder.ContextMissingStrategy = _contextMissingStrategy;
+
+            if(_segmentEmitter != null)
+            {
+                recorder.Emitter = _segmentEmitter;
+            }
         }
     }
 }

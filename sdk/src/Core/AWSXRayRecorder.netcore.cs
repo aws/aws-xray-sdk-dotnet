@@ -99,13 +99,12 @@ namespace Amazon.XRay.Recorder.Core
         /// </summary>
         /// <param name="emitter">Instance of <see cref="ISegmentEmitter"/>.</param>
         /// <param name="options">Instance of <see cref="XRayOptions"/>.</param>
-        public AWSXRayRecorder(ISegmentEmitter emitter, XRayOptions options) : base(emitter)
+        internal AWSXRayRecorder(ISegmentEmitter emitter, XRayOptions options) : base(emitter)
         {
             XRayOptions = options;
             PopulateContexts();
             SamplingStrategy = new LocalizedSamplingStrategy(options.SamplingRuleManifest);
         }
-
         /// <summary>
         /// Gets the singleton instance of <see cref="AWSXRayRecorder"/> with default configuration.
         /// </summary>
