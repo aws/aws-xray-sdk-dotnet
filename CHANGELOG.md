@@ -1,6 +1,28 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 2.2.1-beta (2018-06-11)
+### AWSXRayRecorder.Core (2.2.1-beta)
+#### Added
+- .NET and .NET Core : Added `WithSegmentEmitter()` on `AwsXrayRecorderBuilder` class to accept custom `ISegmentEmitter` instance
+- .NET and .NET Core : `WithSamplingStrategy` throws `ArgumentNullException` on null argument
+
+### AWSXRayRecorder.Handlers.System.Net (2.2.1-beta)
+- Bumped version to address AWSXRayRecorder.Core package change
+
+### AWSXRayRecorder.Handlers.SqlServer (2.2.1-beta)
+- Bumped version to address AWSXRayRecorder.Core package change
+
+### AWSXRayRecorder.Handlers.AwsSdk (2.2.1-beta)
+#### Fixed : .NET and .NET Core
+- Handling null value for `RegionEndpoint` of AWS SDK client PR: [#22](https://github.com/aws/aws-xray-sdk-dotnet/pull/22)
+
+### AWSXRayRecorder.Handlers.AspNet (2.2.1-beta)
+- Bumped version to address AWSXRayRecorder.Core package change
+
+### AWSXRayRecorder.Handlers.AspNetCore (2.2.1-beta)
+- Bumped version to address AWSXRayRecorder.Core package change
+
 ## 2.2.0-beta (2018-03-20)
 ### AWSXRayRecorder.Core (2.2.0-beta)
 #### Fixed
