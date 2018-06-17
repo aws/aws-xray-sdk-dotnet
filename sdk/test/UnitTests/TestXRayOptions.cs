@@ -126,6 +126,8 @@ namespace Amazon.XRay.Recorder.UnitTests
             Assert.IsNull(_xRayOptions.AwsServiceHandlerManifest);
             Assert.IsNull(_xRayOptions.PluginSetting);
             Assert.IsNull(_xRayOptions.SamplingRuleManifest);
+            Assert.IsTrue(_xRayOptions.UseRuntimeErrors);
+
             Assert.AreEqual(typeof(UdpSegmentEmitter), AWSXRayRecorder.Instance.Emitter.GetType()); // Default emitter set
 
             AWSXRayRecorder.Instance.Dispose();
@@ -144,6 +146,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             Assert.IsNull(_xRayOptions.AwsServiceHandlerManifest);
             Assert.IsNull(_xRayOptions.PluginSetting);
             Assert.IsNull(_xRayOptions.SamplingRuleManifest);
+            Assert.IsTrue(_xRayOptions.UseRuntimeErrors);
 
             Assert.AreEqual(AWSXRayRecorder.Instance.SamplingStrategy, recorder.SamplingStrategy); // Custom recorder set in TraceContext
             Assert.AreEqual(typeof(UdpSegmentEmitter), recorder.Emitter.GetType()); // Default emitter set
@@ -163,10 +166,38 @@ namespace Amazon.XRay.Recorder.UnitTests
             Assert.IsNull(_xRayOptions.AwsServiceHandlerManifest);
             Assert.IsNull(_xRayOptions.PluginSetting);
             Assert.IsNull(_xRayOptions.SamplingRuleManifest);
+            Assert.IsTrue(_xRayOptions.UseRuntimeErrors);
 
             Assert.AreEqual(AWSXRayRecorder.Instance.SamplingStrategy, recorder.SamplingStrategy); // Custom recorder set in TraceContext
             Assert.AreEqual(typeof(DummyEmitter), recorder.Emitter.GetType()); // custom emitter set
             recorder.Dispose();
+        }
+        
+        [TestMethod]
+        public void TestUseRuntimeErrorsFalse()
+        {
+            IConfiguration configuration = BuildConfiguration("UseRuntimeErrorsFalse.json");
+
+            _xRayOptions = XRayConfiguration.GetXRayOptions(configuration);
+            Assert.IsFalse(_xRayOptions.UseRuntimeErrors);
+        }
+
+        [TestMethod]
+        public void TestUseRuntimeErrorsTrue()
+        {
+            IConfiguration configuration = BuildConfiguration("UseRuntimeErrorsTrue.json");
+
+            _xRayOptions = XRayConfiguration.GetXRayOptions(configuration);
+            Assert.IsTrue(_xRayOptions.UseRuntimeErrors);
+        }
+
+        [TestMethod]
+        public void TestUseRuntimeErrorsDefaultsTrue_WhenNotSpecifiedInJson()
+        {
+            IConfiguration configuration = BuildConfiguration("DisabledXRayMissing.json");
+
+            _xRayOptions = XRayConfiguration.GetXRayOptions(configuration);
+            Assert.IsTrue(_xRayOptions.UseRuntimeErrors);
         }
 
         // Creating custom configuration

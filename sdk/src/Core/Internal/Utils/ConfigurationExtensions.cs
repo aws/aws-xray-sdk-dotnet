@@ -30,6 +30,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
         private const string SamplingRuleManifestKey = "SamplingRuleManifest";
         private const string AWSServiceHandlerManifestKey = "AWSServiceHandlerManifest";
         private const string DisableXRayTracingKey = "DisableXRayTracing";
+        private const string UseRuntimeErrorsKey = "UseRuntimeErrors";
 
         /// <summary>
         /// Reads configuration from <see cref="IConfiguration"/> object for X-Ray.
@@ -61,6 +62,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
             options.SamplingRuleManifest = GetSetting(SamplingRuleManifestKey, section);
             options.AwsServiceHandlerManifest =GetSetting(AWSServiceHandlerManifestKey, section);
             options.IsXRayTracingDisabled = GetSettingBool(DisableXRayTracingKey,section);
+            options.UseRuntimeErrors = GetSettingBool(UseRuntimeErrorsKey, section, defaultValue: true);
             return options;
         }
 
