@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Diagnostics;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.Threading.Tasks;
 using Amazon.XRay.Recorder.Core;
@@ -38,7 +39,7 @@ namespace Amazon.XRay.Recorder.UnitTests
     public class AwsXrayRecorderTests : TestBase
     {
         private const string DisableXRayTracingKey = "DisableXRayTracing";
-        private AWSXRayRecorderImpl _recorder;
+        private AWSXRayRecorder _recorder;
 #if !NET45
         private XRayOptions _xRayOptions = new XRayOptions();
 #endif
@@ -87,6 +88,26 @@ namespace Amazon.XRay.Recorder.UnitTests
         public void TestSegmentAndSubsegmentsWithNoTraceId()
         {
             _recorder.BeginSegment("parent");
+
+            Segment parent = (Segment)TraceContext.GetEntity();
+
+            _recorder.BeginSubsegment("child");
+            Subsegment child = (Subsegment)TraceContext.GetEntity();
+
+            _recorder.EndSubsegment();
+            Assert.ReferenceEquals(TraceContext.GetEntity(), parent);
+
+            _recorder.EndSegment();
+
+            Assert.AreEqual(SampleDecision.Sampled, parent.Sampled);
+            Assert.ReferenceEquals(parent, child.Parent);
+            Assert.IsTrue(parent.Subsegments.Contains(child));
+        }
+
+        [TestMethod]
+        public void TestSegmentAndSubsegmentsWithNullSampleResponse()
+        {
+            _recorder.BeginSegment("parent", samplingResponse:null);
 
             Segment parent = (Segment)TraceContext.GetEntity();
 
@@ -476,7 +497,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             var mockEmitter = new Mock<ISegmentEmitter>();
             using (var recorder = AWSXRayRecorderFactory.CreateAWSXRayRecorder(mockEmitter.Object))
             {
-                recorder.BeginSegment("test", TraceId, sampleDecision: SampleDecision.NotSampled);
+                recorder.BeginSegment("test", TraceId, samplingResponse: new SamplingResponse(SampleDecision.NotSampled));
                 var segment = TraceContext.GetEntity();
 
                 // BeginSubsegment shouldn't overwrite the segment in trace context
@@ -773,7 +794,8 @@ namespace Amazon.XRay.Recorder.UnitTests
         [TestMethod]
         public void TestNotInitializeSamplingStrategy()
         {
-            _recorder.SamplingStrategy.Sample("randomName", "testPath", "get");
+            SamplingInput input = new SamplingInput("randomName", "testPath", "get","test","*");
+            _recorder.SamplingStrategy.ShouldTrace(input);
         }
 
         [TestMethod]
@@ -886,6 +908,111 @@ namespace Amazon.XRay.Recorder.UnitTests
             }
         }
 
+        [TestMethod]
+        public void TestInitializeInstanceWithRecorder1()
+        {
+            AWSXRayRecorder recorder = BuildAWSXRayRecorder(new TestSamplingStrategy());
+#if NET45
+            AWSXRayRecorder.InitializeInstance(recorder);
+#else
+            AWSXRayRecorder.InitializeInstance(recorder: recorder);
+#endif
+            Assert.AreEqual(AWSXRayRecorder.Instance.SamplingStrategy, recorder.SamplingStrategy); // Custom recorder set in TraceContext
+            Assert.AreEqual(typeof(TestSamplingStrategy), recorder.SamplingStrategy.GetType()); // custom strategy set
+            Assert.AreEqual(typeof(UdpSegmentEmitter), recorder.Emitter.GetType()); // Default emitter set
+            recorder.Dispose();
+        }
+
+        [TestMethod]
+        public void TestInitializeInstanceWithRecorder2() // setting custom daemon address
+        {
+            string daemonAddress = "udp:127.0.0.2:2001 tcp:127.0.0.1:2000";
+            IPEndPoint expectedUDPEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.2"), 2001);
+            IPEndPoint expectedTCPEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 2000);
+            AWSXRayRecorder recorder = BuildAWSXRayRecorder(new TestSamplingStrategy(), daemonAddress: daemonAddress);
+#if NET45
+            AWSXRayRecorder.InitializeInstance(recorder);
+#else
+            AWSXRayRecorder.InitializeInstance(recorder: recorder);
+#endif
+            Assert.AreEqual(AWSXRayRecorder.Instance.SamplingStrategy, recorder.SamplingStrategy);
+            Assert.AreEqual(typeof(TestSamplingStrategy), recorder.SamplingStrategy.GetType()); // custom strategy set
+            Assert.AreEqual(typeof(UdpSegmentEmitter), recorder.Emitter.GetType()); // Default emitter set
+
+            var udpEmitter = (UdpSegmentEmitter) recorder.Emitter;
+            Assert.AreEqual(expectedUDPEndpoint, udpEmitter.EndPoint);
+            recorder.Dispose();
+        }
+
+        [TestMethod]
+        public void TestInitializeInstanceWithRecorder3() // setting custom daemon address to DefaultSamplingStrategy()
+        {
+            string daemonAddress = "udp:127.0.0.2:2001 tcp:127.0.0.1:2000";
+            IPEndPoint expectedUDPEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.2"), 2001);
+            IPEndPoint expectedTCPEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 2000);
+            AWSXRayRecorder recorder = BuildAWSXRayRecorder(daemonAddress: daemonAddress);
+#if NET45
+            AWSXRayRecorder.InitializeInstance(recorder);
+#else
+            AWSXRayRecorder.InitializeInstance(recorder: recorder);
+#endif
+            Assert.AreEqual(AWSXRayRecorder.Instance.SamplingStrategy, recorder.SamplingStrategy);
+            Assert.AreEqual(typeof(DefaultSamplingStrategy), recorder.SamplingStrategy.GetType()); // Default startegy set
+            Assert.AreEqual(typeof(UdpSegmentEmitter), recorder.Emitter.GetType()); // Default emitter set
+
+            var udpEmitter = (UdpSegmentEmitter) recorder.Emitter;
+            Assert.AreEqual(expectedUDPEndpoint, udpEmitter.EndPoint);
+
+            var defaultStartegy = (DefaultSamplingStrategy) recorder.SamplingStrategy;
+            Assert.AreEqual(expectedUDPEndpoint,defaultStartegy.DaemonCfg.UDPEndpoint);
+            Assert.AreEqual(expectedTCPEndpoint, defaultStartegy.DaemonCfg.TCPEndpoint);
+
+            recorder.Dispose();
+        }
+        public static AWSXRayRecorder BuildAWSXRayRecorder(ISamplingStrategy samplingStrategy = null, ISegmentEmitter segmentEmitter = null, string daemonAddress = null)
+        {
+            AWSXRayRecorderBuilder builder = new AWSXRayRecorderBuilder();
+           
+            if (samplingStrategy != null)
+            {
+                builder.WithSamplingStrategy(samplingStrategy);
+            }
+            if (segmentEmitter != null)
+            {
+                builder.WithSegmentEmitter(segmentEmitter);
+            }
+            if (!string.IsNullOrEmpty(daemonAddress))
+            {
+                builder.WithDaemonAddress(daemonAddress);
+            }
+
+            var result = builder.Build();
+
+            return result;
+        }
+
+        public class TestSamplingStrategy : ISamplingStrategy
+        {
+            public SamplingResponse ShouldTrace(SamplingInput input)
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public class DummyEmitter : ISegmentEmitter
+        {
+            public void Dispose()
+            {
+            }
+
+            public void Send(Entity segment)
+            {
+            }
+
+            public void SetDaemonAddress(string daemonAddress)
+            {
+            }
+        }
         private int PlusOneReturn(int count)
         {
             return count + 1;

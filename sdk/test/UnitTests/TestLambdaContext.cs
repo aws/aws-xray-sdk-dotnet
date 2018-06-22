@@ -122,7 +122,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         {
             try
             {
-                _recorder.BeginSegment("test", null, null);
+                _recorder.BeginSegment("test");
                 Assert.Fail();
             }
             catch (UnsupportedOperationException)

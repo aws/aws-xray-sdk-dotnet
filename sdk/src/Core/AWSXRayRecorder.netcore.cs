@@ -21,7 +21,7 @@ using Amazon.XRay.Recorder.Core.Internal.Emitters;
 using Amazon.XRay.Recorder.Core.Internal.Entities;
 using Amazon.XRay.Recorder.Core.Internal.Utils;
 using Amazon.XRay.Recorder.Core.Sampling;
-using Amazon.XRay.Recorder.Core.Strategies;
+using Amazon.XRay.Recorder.Core.Sampling.Local;
 using Microsoft.Extensions.Configuration;
 namespace Amazon.XRay.Recorder.Core
 {
@@ -78,30 +78,27 @@ namespace Amazon.XRay.Recorder.Core
         /// </summary>
         /// <param name="configuration">Instance of <see cref="IConfiguration"/>.</param>
         /// <param name="recorder">Instance of <see cref="AWSXRayRecorder"/>.</param>
-        public static void InitializeInstance(IConfiguration configuration, AWSXRayRecorder recorder)
+        public static void InitializeInstance(IConfiguration configuration = null, AWSXRayRecorder recorder = null)
         {
             XRayOptions xRayOptions = XRayConfiguration.GetXRayOptions(configuration);
-            recorder.XRayOptions = xRayOptions;
-
             var recorderBuilder = GetBuilder(xRayOptions);
 
-            recorder = recorderBuilder.Build(recorder);
+            if (recorder != null)
+            {
+                recorder.XRayOptions = xRayOptions;
+                recorder = recorderBuilder.Build(recorder);
+            }
+            else
+            {
+                recorder = recorderBuilder.Build(xRayOptions);
+            }
+           
             Instance = recorder;
         }
 
         private static AWSXRayRecorderBuilder GetBuilder(XRayOptions xRayOptions)
         {
-            var recorderBuilder = new AWSXRayRecorderBuilder().WithPluginsFromConfig(xRayOptions);
-
-            if (xRayOptions.UseRuntimeErrors)
-            {
-                recorderBuilder.WithContextMissingStrategy(ContextMissingStrategy.RUNTIME_ERROR);
-            }
-            else
-            {
-                recorderBuilder.WithContextMissingStrategy(ContextMissingStrategy.LOG_ERROR);
-            }
-
+            var recorderBuilder = new AWSXRayRecorderBuilder().WithPluginsFromConfig(xRayOptions).WithContextMissingStrategyFromConfig(xRayOptions);
             return recorderBuilder;
         }
 
@@ -113,7 +110,15 @@ namespace Amazon.XRay.Recorder.Core
         internal AWSXRayRecorder(ISegmentEmitter emitter) : base(emitter)
         {
             PopulateContexts();
-            SamplingStrategy = new LocalizedSamplingStrategy(XRayOptions.SamplingRuleManifest);
+
+            if (IsLambda())
+            {
+                SamplingStrategy = new LocalizedSamplingStrategy();
+            }
+            else
+            {
+                SamplingStrategy = new DefaultSamplingStrategy();
+            }
         }
 
         /// <summary>
@@ -126,7 +131,15 @@ namespace Amazon.XRay.Recorder.Core
         {
             XRayOptions = options;
             PopulateContexts();
-            SamplingStrategy = new LocalizedSamplingStrategy(options.SamplingRuleManifest);
+
+            if (IsLambda())
+            {
+                SamplingStrategy = new LocalizedSamplingStrategy(options.SamplingRuleManifest);
+            }
+            else
+            {
+                SamplingStrategy = new DefaultSamplingStrategy(options.SamplingRuleManifest);
+            }
         }
         /// <summary>
         /// Gets the singleton instance of <see cref="AWSXRayRecorder"/> with default configuration.
@@ -153,73 +166,6 @@ namespace Amazon.XRay.Recorder.Core
         /// Instance of <see cref="XRayOptions"/> class.
         /// </summary>
         public XRayOptions XRayOptions { get => _xRayOptions; set => _xRayOptions = value; }
-
-        /// <summary>
-        /// Begin a tracing segment. A new tracing segment will be created and started.
-        /// </summary>
-        /// <param name="name">The name of the segment</param>
-        /// <param name="traceId">Trace id of the segment</param>
-        /// <param name="parentId">Unique id of the upstream remote segment or subsegment where the downstream call originated from.</param>
-        /// <param name="sampleDecision">Sample decision for the segment from upstream service.</param>
-        /// <exception cref="ArgumentNullException">The argument has a null value.</exception>
-        public override void BeginSegment(string name, string traceId = null, string parentId = null, SampleDecision sampleDecision = SampleDecision.Sampled)
-        {
-            Segment newSegment;
-
-            if (IsLambda())
-            {
-                throw new UnsupportedOperationException("Cannot override Facade Segment. New segment not created.");
-            }
-            else
-            {
-                newSegment = new Segment(name, traceId, parentId);
-            }
-
-            if (!IsTracingDisabled())
-            {
-                newSegment.SetStartTimeToNow();
-                PopulateNewSegmentAttributes(newSegment);
-            }
-
-            newSegment.Sampled = sampleDecision;
-
-            TraceContext.SetEntity(newSegment);
-        }
-
-        /// <summary>
-        /// End a tracing segment. If all operations of the segments are finished, the segment will be emitted.
-        /// </summary>
-        /// <exception cref="EntityNotAvailableException">Entity is not available in trace context.</exception>
-        public override void EndSegment()
-        {
-            if (IsLambda())
-            {
-                throw new UnsupportedOperationException("Cannot override Facade Segment. New segment not created.");
-            }
-
-            try
-            {
-                // If the request is not sampled, a segment will still be available in TraceContext.
-                // Need to clean up the segment, but do not emit it.
-                Segment segment = (Segment)TraceContext.GetEntity();
-
-                if (!IsTracingDisabled())
-                {
-                    segment.SetEndTimeToNow();
-                    ProcessEndSegment(segment);
-                }
-
-                TraceContext.ClearEntity();
-            }
-            catch (EntityNotAvailableException e)
-            {
-                HandleEntityNotAvailableException(e, "Failed to end segment because cannot get the segment from trace context.");
-            }
-            catch (InvalidCastException e)
-            {
-                HandleEntityNotAvailableException(new EntityNotAvailableException("Failed to cast the entity to Segment.", e), "Failed to cast the entity to Segment.");
-            }
-        }
 
         /// <summary>
         /// Begin a tracing subsegment. A new segment will be created and added as a subsegment to previous segment/subsegment.

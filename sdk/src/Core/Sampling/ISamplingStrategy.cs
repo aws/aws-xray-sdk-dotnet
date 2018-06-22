@@ -15,8 +15,6 @@
 // </copyright>
 //-----------------------------------------------------------------------------
 
-using System.Net.Http;
-
 namespace Amazon.XRay.Recorder.Core.Sampling
 {
     /// <summary>
@@ -26,21 +24,10 @@ namespace Amazon.XRay.Recorder.Core.Sampling
     public interface ISamplingStrategy
     {
         /// <summary>
-        /// Apply the default sampling rule to make the sample decision
+        /// Apply the first matched sampling rule for the given input to make the sample decision. The evaluation order will be determined by the implementation.
         /// </summary>
-        /// <param name="serviceName">Name of the service.</param>
-        /// <param name="path">The path of request.</param>
-        /// <param name="method">The HTTP method.</param>
-        /// <returns>
-        /// The sample decision made for this call
-        /// </returns>
-        SampleDecision Sample(string serviceName, string path, string method);
-
-        /// <summary>
-        /// Apply the first matched sampling rule for the given request to make the sample decision. The evaluation order will be determined by the implementation.
-        /// </summary>
-        /// <param name="request">The Http request that a sample decision will be made against.</param>
-        /// <returns>The sample decision made for the request.</returns>
-        SampleDecision Sample(HttpRequestMessage request);
+        /// <param name="input">An instance of <see cref="SamplingInput"/>.</param>
+        /// <returns>The <see cref="SamplingResponse"/> which contains sampling decision and rule name made for the request.</returns>
+        SamplingResponse ShouldTrace(SamplingInput input);
     }
 }

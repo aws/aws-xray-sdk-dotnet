@@ -39,6 +39,7 @@ namespace Amazon.XRay.Recorder.UnitTests
     public class AwsXrayRecorderBuilderTests : TestBase
     {
         private const string PluginKey = "AWSXRayPlugins";
+        private const string UseRuntimeErrors = "UseRuntimeErrors";
 #if !NET45
         private XRayOptions _xRayOptions = new XRayOptions();
 #endif
@@ -49,6 +50,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             base.TestCleanup();
 #if NET45
             ConfigurationManager.AppSettings[PluginKey] = null;
+            ConfigurationManager.AppSettings[UseRuntimeErrors] = null;
             AppSettings.Reset();
 #else
             _xRayOptions = new XRayOptions();
@@ -137,6 +139,51 @@ namespace Amazon.XRay.Recorder.UnitTests
         }
 
         [TestMethod]
+        public void TestSetContextMissingUsingConfiguration1() // Contextmissing startegy set to log error from configuration
+        {
+#if NET45
+            ConfigurationManager.AppSettings[UseRuntimeErrors] = "false";
+            AppSettings.Reset();
+            AWSXRayRecorderBuilder builder = new AWSXRayRecorderBuilder().WithContextMissingStrategyFromAppSettings();
+#else
+            _xRayOptions.UseRuntimeErrors = false;
+            AWSXRayRecorderBuilder builder = new AWSXRayRecorderBuilder().WithContextMissingStrategyFromConfig(_xRayOptions);
+#endif
+            AWSXRayRecorder recorder = builder.Build();
+            Assert.AreEqual(ContextMissingStrategy.LOG_ERROR, recorder.ContextMissingStrategy);
+        }
+
+        [TestMethod]
+        public void TestSetContextMissingUsingConfiguration2() // Contextmissing startegy not set
+        {
+#if NET45
+            AppSettings.Reset();
+            AWSXRayRecorderBuilder builder = new AWSXRayRecorderBuilder().WithContextMissingStrategyFromAppSettings();
+#else
+            AWSXRayRecorderBuilder builder = new AWSXRayRecorderBuilder().WithContextMissingStrategyFromConfig(_xRayOptions);
+#endif
+            AWSXRayRecorder recorder = builder.Build();
+            Assert.AreEqual(ContextMissingStrategy.RUNTIME_ERROR, recorder.ContextMissingStrategy); // Default context missing strategy is set
+        }
+
+        [TestMethod]
+        public void TestSetContextMissingUsingConfiguration3() // Contextmissing startegy is set through environment and configurations
+        {
+            Environment.SetEnvironmentVariable(AWSXRayRecorder.EnvironmentVariableContextMissingStrategy, "LOG_ERROR");
+#if NET45
+            ConfigurationManager.AppSettings[UseRuntimeErrors] = "true";
+            AppSettings.Reset();
+            AWSXRayRecorderBuilder builder = new AWSXRayRecorderBuilder().WithContextMissingStrategyFromAppSettings();
+#else
+            _xRayOptions.UseRuntimeErrors = true;
+            AWSXRayRecorderBuilder builder = new AWSXRayRecorderBuilder().WithContextMissingStrategyFromConfig(_xRayOptions);
+#endif
+            AWSXRayRecorder recorder = builder.Build();
+            Assert.AreEqual(ContextMissingStrategy.LOG_ERROR, recorder.ContextMissingStrategy); // Preference given to environment variable
+            Environment.SetEnvironmentVariable(AWSXRayRecorder.EnvironmentVariableContextMissingStrategy, null);
+        }
+
+        [TestMethod]
         public void TestSetEmitter()
         {
             var recorder = new AWSXRayRecorderBuilder().WithContextMissingStrategy(ContextMissingStrategy.LOG_ERROR).WithSegmentEmitter(new DummyEmitter()).Build();
@@ -146,7 +193,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         [TestMethod]
         public void TestSetDefaultEmitter()
         {
-            var recorder = new AWSXRayRecorderBuilder().WithContextMissingStrategy(ContextMissingStrategy.LOG_ERROR).Build(); // set defualt UDP emitter
+            var recorder = new AWSXRayRecorderBuilder().WithContextMissingStrategy(ContextMissingStrategy.LOG_ERROR).Build(); // set default UDP emitter
             Assert.AreEqual(typeof(UdpSegmentEmitter).FullName, recorder.Emitter.GetType().FullName);
         }
 
@@ -161,14 +208,9 @@ namespace Amazon.XRay.Recorder.UnitTests
 
         private class DummySamplingStrategy : ISamplingStrategy
         {
-            public SampleDecision Sample(string serviceName, string path, string method)
+            public SamplingResponse ShouldTrace(SamplingInput input)
             {
-                throw new System.NotImplementedException();
-            }
-
-            public SampleDecision Sample(System.Net.Http.HttpRequestMessage request)
-            {
-                throw new System.NotImplementedException();
+                throw new NotImplementedException();
             }
         }
 

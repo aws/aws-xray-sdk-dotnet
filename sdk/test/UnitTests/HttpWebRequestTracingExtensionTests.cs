@@ -33,11 +33,25 @@ namespace Amazon.XRay.Recorder.UnitTests
 
         private const string URL404 = "https://httpbin.org/404";
 
+        private static AWSXRayRecorder _recorder;
+
+        [TestInitialize]
+        public void TestInitialize()
+        {
+            _recorder = new AWSXRayRecorder();
+#if NET45
+            AWSXRayRecorder.InitializeInstance(_recorder);
+#else
+            AWSXRayRecorder.InitializeInstance(recorder: _recorder);
+# endif
+        }
+
         [TestCleanup]
         public new void TestCleanup()
         {
             base.TestCleanup();
-            AWSXRayRecorder.Instance.Dispose();
+            _recorder.Dispose();
+            _recorder = null;
         }
 
         [TestMethod]

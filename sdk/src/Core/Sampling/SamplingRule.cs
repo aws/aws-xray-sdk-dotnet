@@ -14,127 +14,185 @@
 //      permissions and limitations under the License.
 // </copyright>
 //-----------------------------------------------------------------------------
-
-using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
-using System.Text.RegularExpressions;
 using Amazon.Runtime.Internal.Util;
 using Amazon.XRay.Recorder.Core.Internal.Utils;
-
-[module: SuppressMessage("Microsoft.Design", "CA1036:OverrideMethodsOnComparableTypes", Scope = "type", Target = "Amazon.XRay.Recorder.Core.Sampling.SamplingRule", Justification = "Only used for sorting")]
+using System;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace Amazon.XRay.Recorder.Core.Sampling
 {
     /// <summary>
     /// It represents the Rules used for sampling.
-    /// </summary>    
-    public class SamplingRule
+    /// </summary> 
+    public class SamplingRule : IComparable<SamplingRule>
     {
         private static readonly Logger _logger = Logger.GetLogger(typeof(SamplingRule));
-        private int _fixedTarget;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="SamplingRule"/> class.
-        /// </summary>
-        public SamplingRule()
-        {
-            _fixedTarget = -1;
-            this.Rate = -1d;
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="SamplingRule"/> class.
-        /// </summary>
-        /// <param name="serviceName">Name of the service. The value can include a multi-character match wildcard(*) or a single-character match wildcard (?) anywhere in the string.</param>
-        /// <param name="urlPath">The URL path. The value can include a multi-character match wildcard(*) or a single-character match wildcard (?) anywhere in the string.</param>
-        /// <param name="httpMethod">Http method. The value can be a multi-character match wildcard(*) to match any method.</param>
-        /// <param name="fixedTarget">It defines a trace collection target for a rule with no sampling in the unit of traces per second. Before the threshold is met, all request will be traced. After the threshold is met, sampling rate is triggered.</param>
-        /// <param name="rate">The rate at which request will be sampled. E.g. with 5% sampling rate, average 5 request out of 100 will be traced.</param>
-        /// <param name="description">Description of the sampling rule.</param>
-        public SamplingRule(string serviceName, string urlPath, string httpMethod, int fixedTarget, double rate, string description = null)
-        {
-            this.ServiceName = serviceName;
-            this.HttpMethod = httpMethod;
-            this.UrlPath = urlPath;
-            this.FixedTarget = fixedTarget;
-            this.Rate = rate;
-            this.Description = description;
-        }
-
-        /// <summary>
-        /// Gets or sets the service name of the rule
-        /// </summary>
+        public string Host { get; set; }
+        public string RuleName { get; set; }
+        public int Priority { get; set; }
+        public Reservior Reservior { get; set; }
+        public double Rate { get; private set; }
+        public int ReservoirSize { get; private set; }
+        public string HTTPMethod { get; set; }
         public string ServiceName { get; set; }
+        public string URLPath { get; private set; }
+        public string ServiceType { get; private set; }
+        public string ResourceARN { get; private set; }
+        public Dictionary<string, string> Attributes { get; private set; }
 
-        /// <summary>
-        /// Gets or sets the http method of the rule
-        /// </summary>
-        public string HttpMethod { get; set; }
+        public Statistics Statistics;
+        public bool CanBorrow { get; set; }
 
-        /// <summary>
-        /// Gets or sets the url path of the rule
-        /// </summary>
-        public string UrlPath { get; set; }
+        private readonly ReaderWriterLockSlim _lock = new ReaderWriterLockSlim();
 
-        /// <summary>
-        /// Gets or sets the fixed target rate of the rule in the unit of traces/second
-        /// </summary>
-        public int FixedTarget
+        public const String Default = "Default"; // Reserved keyword by X-Ray service
+
+        public SamplingRule(string ruleName, int priority, double fixedRate, int reservoirSize, string host, string serviceName, string httpMethod, string urlPath, string serviceType, string resourceARN, Dictionary<string,string> attributes)
         {
-            get
-            {
-                return _fixedTarget;
-            }
+            RuleName = ruleName;
+            Priority = priority;
+            Rate = fixedRate;
+            ReservoirSize = reservoirSize;
+            CanBorrow = reservoirSize > 0;
+            ServiceName = serviceName;
+            HTTPMethod = httpMethod;
+            URLPath = urlPath;
+            Host = host;
+            ServiceType = serviceType;
+            ResourceARN = resourceARN;
+            Attributes = attributes;
+            Reservior = new Reservior();
+            Statistics = new Statistics();
+        }
 
-            set
-            {
-                _fixedTarget = value;
-                RateLimiter = new RateLimiter(value);
-            }
+        internal void IncrementRequestCount()
+        {
+            Statistics.IncrementRequestCount();
+        }
+
+        internal void IncrementBorrowCount()
+        {
+            Statistics.IncrementBorrowCount();
+        } 
+
+        internal void IncrementSampledCount()
+        {
+            Statistics.IncrementSampledCount();
         }
 
         /// <summary>
-        /// Gets the rate limiter which had the limit set to fixed target rate
+        /// Validates sampling rule. ResourceARN with "*" value is valid. SDK doesn't support Atrributes parameter with any value.
         /// </summary>
-        public RateLimiter RateLimiter { get; private set; }
+        /// <param name ="rule">Instance of <see cref="Model.SamplingRule"/></param>
+        /// <returns> True, if the rule is valid else false.</returns>
+        internal static bool IsValid(Model.SamplingRule rule)
+        {
+            if (!string.Equals(rule.ResourceARN, "*"))
+            {
+                return false;
+            }
+
+            if (rule.Attributes != null && rule.Attributes.Count > 0)
+            { 
+                return false;
+            }
+
+            return true;
+        }
+
+        internal bool IsDefault()
+        {
+            return RuleName.Equals(Default);
+        }
 
         /// <summary>
-        /// Gets or sets the sampling rate
+        /// Determines whether or not this sampling rule applies to the incoming
+        /// request based on some of the request's parameters.
         /// </summary>
-        public double Rate { get; set; }
-
-        /// <summary>
-        /// Gets or sets the description.
-        /// </summary>
-        public string Description { get; set; }
-
-        /// <summary>
-        /// Given the service name, http method and url path of a http request, check whether the rule matches the request 
-        /// </summary>
-        /// <param name="serviceNameToMatch">service name of the request</param>
-        /// <param name="urlPathToMatch">url path of the request</param>
-        /// <param name="httpMethodToMatch">http method of the request</param>
-        /// <returns>It returns true if the rule matches the request, otherwise it returns false.</returns>
-        public bool IsMatch(string serviceNameToMatch, string urlPathToMatch, string httpMethodToMatch)
+        /// <param name="input">Instance of <see cref="SamplingInput"/>.</param>
+        /// <returns>True if the rule matches.</returns>
+        internal bool Match(SamplingInput input)
         {
             try
             {
-                return serviceNameToMatch.WildcardMatch(ServiceName) && httpMethodToMatch.WildcardMatch(HttpMethod) && urlPathToMatch.WildcardMatch(UrlPath);
+                return StringExtension.IsMatch(input.ServiceName, ServiceName) && StringExtension.IsMatch(input.Method, HTTPMethod) && StringExtension.IsMatch(input.Url, URLPath) && StringExtension.IsMatch(input.Host, Host) && StringExtension.IsMatch(input.ServiceType, ServiceType);
             }
             catch (RegexMatchTimeoutException e)
             {
-                _logger.Error(e, "Match rule timeout. Rule: serviceNameToMatch = {0}, urlPathToMatch = {1}, httpMethodToMatch = {2}. Input: serviceNameToMatch = {3}, urlPathToMatch = {4}, httpMethodToMatch = {5}.", ServiceName, UrlPath, HttpMethod, serviceNameToMatch, urlPathToMatch, httpMethodToMatch);
+                _logger.Error(e, "Match rule timeout. Rule: serviceName = {0}, urlPath = {1}, httpMethod = {2}, host = {3}, serviceType = {4}. Input: serviceNameToMatch = {5}, urlPathToMatch = {6}, httpMethodToMatch = {7}, hostToMatch = {8}, serviceTypeToMatch = {9}.", ServiceName, URLPath,
+                    HTTPMethod, Host, ServiceType, input.ServiceName, input.Url, input.Method, input.Host, input.ServiceType);
+
                 return false;
             }
         }
 
-        /// <summary>
-        /// Generate a string out of this instance of the class
-        /// </summary>
-        /// <returns>The string generated from current object</returns>
-        public override string ToString()
+        internal void SetRate(double fixedRate)
         {
-            return string.Format(CultureInfo.InvariantCulture, "serviceNameToMatch={0}, httpMethodToMatch={1}, urlPathToMatch={2}, fixedTarget={3}, rate={4}, description={5}", ServiceName, HttpMethod, UrlPath, FixedTarget, Rate, Description);
+            _lock.EnterWriteLock();
+            try
+            {
+                Rate = fixedRate;
+            }
+            finally
+            {
+                _lock.ExitWriteLock();
+            }
+        }
+
+        internal double GetRate()
+        {
+            _lock.EnterReadLock();
+            try
+            {
+                return Rate;
+            }
+            finally
+            {
+                _lock.ExitReadLock();
+            }
+        }
+
+        internal bool ShouldReport(TimeStamp now)
+        {
+            if (EverMatched() && Reservior.ShouldReport(now))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        internal bool EverMatched()
+        {
+            return Statistics.GetRequestCount() > 0;
+        }
+
+        // Migrate all stateful attributes from the old rule
+        internal void Merge(SamplingRule oldRule)
+        {
+            Statistics.CopyFrom(oldRule.Statistics);
+            Reservior.CopyFrom(oldRule.Reservior);
+            oldRule = null;
+        }
+
+        /// <summary>
+        /// Returns current state of <see cref="Sampling.Statistics"/>.
+        /// </summary>
+        /// <returns>Instance of <see cref="Sampling.Statistics"/>.</returns>
+        internal Statistics SnapShotStatistics()
+        {
+            return Statistics.GetSnapShot();
+        }
+
+        public int CompareTo(SamplingRule y)
+        {
+            int result = this.Priority.CompareTo(y.Priority);
+            if (result == 0)
+            {
+                result = this.RuleName.CompareTo(y.RuleName);
+            }
+            return result;
         }
     }
 }

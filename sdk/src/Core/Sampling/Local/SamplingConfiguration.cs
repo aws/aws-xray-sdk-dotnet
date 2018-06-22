@@ -17,7 +17,7 @@
 
 using System.Collections.Generic;
 
-namespace Amazon.XRay.Recorder.Core.Sampling
+namespace Amazon.XRay.Recorder.Core.Sampling.Local
 {
     /// <summary>
     /// Manifest of the sampling Rules in config file

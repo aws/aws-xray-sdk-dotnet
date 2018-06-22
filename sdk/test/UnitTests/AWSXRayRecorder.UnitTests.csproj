@@ -37,11 +37,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AWSSDK.Core" Version="3.3.21.8" />
-    <PackageReference Include="AWSSDK.DynamoDBv2" Version="3.3.4.17" />
-    <PackageReference Include="AWSSDK.Lambda" Version="3.3.8" />
-    <PackageReference Include="AWSSDK.S3" Version="3.3.11" />
-    <PackageReference Include="AWSSDK.XRay" Version="3.3.1.6" />
+    <PackageReference Include="AWSSDK.Core" Version="3.3.25.1" />
+    <PackageReference Include="AWSSDK.DynamoDBv2" Version="3.3.13.1" />
+    <PackageReference Include="AWSSDK.Lambda" Version="3.3.15.5" />
+    <PackageReference Include="AWSSDK.S3" Version="3.3.21.1" />
+    <PackageReference Include="AWSSDK.XRay" Version="3.3.3.0" />
     <PackageReference Include="Moq" Version="4.7.137" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.0'">
@@ -113,6 +113,12 @@
     <None Update="JSONs\AWSRequestInfoWithLambda.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="JSONs\SamplingRules1.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="JSONs\DefaultSamplingRules1.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="JSONs\DefaultSamplingRules.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -120,6 +126,12 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="JSONs\InvalidSamplingRules.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="JSONs\SamplingRulesInvalidV2.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="JSONs\SamplingRulesInvalidV1.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="JSONs\SamplingRulesWithoutDefault.json">

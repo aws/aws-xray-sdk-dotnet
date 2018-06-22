@@ -1,0 +1,25 @@
+﻿{
+  "version": 2,
+  "default": {
+    "fixed_target": 1,
+    "rate": 0.05
+  },
+  "rules": [
+    {
+      "service_name": "checkout",
+      "http_method": "POST",
+      "url_path": "/checkout",
+      "fixed_target": 10,
+      "rate": 0.3,
+      "description": "This is the first rule."
+    },
+    {
+      "service_name": "base.com",
+      "http_method": "GET",
+      "url_path": "*",
+      "fixed_target": 100,
+      "rate": 0.5,
+      "description": "Rule for base.com"
+    }
+  ]
+}

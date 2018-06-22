@@ -62,6 +62,7 @@ You can configure X-Ray in the `appsettings` of your `App.config` or `Web.config
     <add key="AWSXRayPlugins" value="EC2Plugin, ECSPlugin, ElasticBeanstalkPlugin"/>
     <add key="SamplingRuleManifest" value="JSONs\DefaultSamplingRules.json"/>
     <add key="AwsServiceHandlerManifest" value="JSONs\AWSRequestInfo.json"/>
+    <add key="UseRuntimeErrors" value="true"/>
   </appSettings>
 </configuration>
 ```
@@ -78,7 +79,8 @@ a) In `appsettings.json` file, configure items under `XRay` key
     "DisableXRayTracing": "false",
     "SamplingRuleManifest": "SamplingRules.json",
     "AWSXRayPlugins": "EC2Plugin, ECSPlugin, ElasticBeanstalkPlugin",
-    "AwsServiceHandlerManifest": "JSONs\AWSRequestInfo.json"
+    "AwsServiceHandlerManifest": "JSONs\AWSRequestInfo.json",
+    "UseRuntimeErrors":"true"
   }
 }
 ```

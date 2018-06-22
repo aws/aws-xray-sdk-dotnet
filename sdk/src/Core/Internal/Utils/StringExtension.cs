@@ -176,5 +176,16 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
         {
             return pattern.Length == 1 && pattern[0] == '*';
         }
+
+        /// <summary>
+        /// Used to match incoming request and sampling rule parameters.
+        /// </summary>
+        /// <param name="parameterToMatch">Parameter of incoming request.</param>
+        /// <param name="ruleParameter">Instance member of sampling rule to match.</param>
+        /// <returns>True, if the two parameter matches else false.</returns>
+        public static bool IsMatch(string parameterToMatch, string ruleParameter)
+        {
+            return (string.IsNullOrEmpty(parameterToMatch) || parameterToMatch.WildcardMatch(ruleParameter));
+        }
     }
 }

@@ -69,6 +69,7 @@
           <assemblyBinding />
           <ignoreIfUnresolved>
             <assemblyIdentity name="AWSSDK.Core" />
+            <assemblyIdentity name="AWSSDK.XRay" />
             <assemblyIdentity name="BusinessObjects.Licensing.KeycodeDecoder" />
             <assemblyIdentity name="Microsoft.AspNetCore.Http.Abstractions" />
             <assemblyIdentity name="Microsoft.Extensions.Configuration.Abstractions" />
@@ -81,48 +82,73 @@
     </PlugInConfigurations>
     <ApiFilter>
       <Filter entryType="Namespace" fullName="" isExposed="False" />
-      <Filter entryType="Namespace" fullName="Amazon.XRay.Recorder.Core" isExposed="True">
-        <Filter entryType="Class" fullName="Amazon.XRay.Recorder.Core.AWSXRayRecorder" filterName="AWSXRayRecorder" isExposed="True">
-          <Filter entryType="Method" fullName="Amazon.XRay.Recorder.Core.AWSXRayRecorder.AddFacadeSegment" filterName="AddFacadeSegment" isExposed="False" />
-          <Filter entryType="Method" fullName="Amazon.XRay.Recorder.Core.AWSXRayRecorder.IsLambda" filterName="IsLambda" isExposed="False" />
-          <Filter entryType="Property" fullName="Amazon.XRay.Recorder.Core.AWSXRayRecorder.XRayOptions" filterName="XRayOptions" isExposed="False" />
-          <Filter entryType="Field" fullName="Amazon.XRay.Recorder.Core.AWSXRayRecorder.LambdaTaskRootKey" filterName="LambdaTaskRootKey" isExposed="False" />
-          <Filter entryType="Field" fullName="Amazon.XRay.Recorder.Core.AWSXRayRecorder.LambdaTraceHeaderKey" filterName="LambdaTraceHeaderKey" isExposed="False" />
-        </Filter>
-        <Filter entryType="Class" fullName="Amazon.XRay.Recorder.Core.AWSXRayRecorderImpl" filterName="AWSXRayRecorderImpl" isExposed="True">
-          <Filter entryType="Method" fullName="Amazon.XRay.Recorder.Core.AWSXRayRecorderImpl.GetSubsegmentsToStream" filterName="GetSubsegmentsToStream" isExposed="False" />
-          <Filter entryType="Method" fullName="Amazon.XRay.Recorder.Core.AWSXRayRecorderImpl.PopulateContexts" filterName="PopulateContexts" isExposed="False" />
-          <Filter entryType="Method" fullName="Amazon.XRay.Recorder.Core.AWSXRayRecorderImpl.PopulateNewSegmentAttributes" filterName="PopulateNewSegmentAttributes" isExposed="False" />
-          <Filter entryType="Method" fullName="Amazon.XRay.Recorder.Core.AWSXRayRecorderImpl.PrepEndSegment" filterName="PrepEndSegment" isExposed="False" />
-          <Filter entryType="Method" fullName="Amazon.XRay.Recorder.Core.AWSXRayRecorderImpl.ProcessEndSegment" filterName="ProcessEndSegment" isExposed="False" />
-          <Filter entryType="Method" fullName="Amazon.XRay.Recorder.Core.AWSXRayRecorderImpl.ProcessEndSubsegment" filterName="ProcessEndSubsegment" isExposed="False" />
-          <Filter entryType="Method" fullName="Amazon.XRay.Recorder.Core.AWSXRayRecorderImpl.ShouldStreamSubsegments" filterName="ShouldStreamSubsegments" isExposed="False" />
-          <Filter entryType="Method" fullName="Amazon.XRay.Recorder.Core.AWSXRayRecorderImpl.StreamSubsegments" filterName="StreamSubsegments" isExposed="False" />
-          <Filter entryType="Property" fullName="Amazon.XRay.Recorder.Core.AWSXRayRecorderImpl.Disposed" filterName="Disposed" isExposed="False" />
-          <Filter entryType="Property" fullName="Amazon.XRay.Recorder.Core.AWSXRayRecorderImpl.Emitter" filterName="Emitter" isExposed="False" />
-          <Filter entryType="Property" fullName="Amazon.XRay.Recorder.Core.AWSXRayRecorderImpl.ServiceContext" filterName="ServiceContext" isExposed="False" />
-          <Filter entryType="Field" fullName="Amazon.XRay.Recorder.Core.AWSXRayRecorderImpl.cntxtMissingStrategy" filterName="cntxtMissingStrategy" isExposed="False" />
-          <Filter entryType="Field" fullName="Amazon.XRay.Recorder.Core.AWSXRayRecorderImpl.EnvironmentVariableContextMissingStrategy" filterName="EnvironmentVariableContextMissingStrategy" isExposed="False" />
-          <Filter entryType="Field" fullName="Amazon.XRay.Recorder.Core.AWSXRayRecorderImpl.MaxSubsegmentSize" filterName="MaxSubsegmentSize" isExposed="False" />
-        </Filter>
-      </Filter>
-      <Filter entryType="Namespace" fullName="Amazon.XRay.Recorder.Core.Internal.Entities" isExposed="True">
-        <Filter entryType="Class" fullName="Amazon.XRay.Recorder.Core.Internal.Entities.Annotations" filterName="Annotations" isExposed="False" />
-        <Filter entryType="Class" fullName="Amazon.XRay.Recorder.Core.Internal.Entities.Cause" filterName="Cause" isExposed="False" />
-        <Filter entryType="Class" fullName="Amazon.XRay.Recorder.Core.Internal.Entities.ExceptionDescriptor" filterName="ExceptionDescriptor" isExposed="False" />
-        <Filter entryType="Class" fullName="Amazon.XRay.Recorder.Core.Internal.Entities.FacadeSegment" filterName="FacadeSegment" isExposed="False" />
-      </Filter>
-      <Filter entryType="Namespace" fullName="Amazon.XRay.Recorder.Core.Internal.Utils" isExposed="False">
-        <Filter entryType="Class" fullName="Amazon.XRay.Recorder.Core.Internal.Utils.TraceContext" filterName="TraceContext" isExposed="True" />
-        <Filter entryType="Class" fullName="Amazon.XRay.Recorder.Core.Internal.Utils.XRayOptions" filterName="XRayOptions" isExposed="True" />
-      </Filter>
-      <Filter entryType="Namespace" fullName="Amazon.XRay.Recorder.Handlers.AwsSdk.Internal" isExposed="False">
-        <Filter entryType="Class" fullName="Amazon.XRay.Recorder.Handlers.AwsSdk.Internal.XRayPipelineHandler" filterName="XRayPipelineHandler" isExposed="True">
-          <Filter entryType="Property" fullName="Amazon.XRay.Recorder.Handlers.AwsSdk.Internal.XRayPipelineHandler.AWSServiceHandlerManifest" filterName="AWSServiceHandlerManifest" isExposed="False" />
-        </Filter>
-      </Filter>
-      <Filter entryType="Namespace" fullName="ThirdParty.LitJson" isExposed="False" />
-    </ApiFilter>
+<Filter entryType="Namespace" fullName="Amazon.XRay.Recorder.Core" isExposed="True">
+  <Filter entryType="Class" fullName="Amazon.XRay.Recorder.Core.AWSXRayRecorder" filterName="AWSXRayRecorder" isExposed="True">
+    <Filter entryType="Method" fullName="Amazon.XRay.Recorder.Core.AWSXRayRecorder.AddFacadeSegment" filterName="AddFacadeSegment" isExposed="False" />
+    <Filter entryType="Method" fullName="Amazon.XRay.Recorder.Core.AWSXRayRecorder.IsLambda" filterName="IsLambda" isExposed="False" />
+    <Filter entryType="Property" fullName="Amazon.XRay.Recorder.Core.AWSXRayRecorder.XRayOptions" filterName="XRayOptions" isExposed="False" />
+    <Filter entryType="Field" fullName="Amazon.XRay.Recorder.Core.AWSXRayRecorder.LambdaTaskRootKey" filterName="LambdaTaskRootKey" isExposed="False" />
+    <Filter entryType="Field" fullName="Amazon.XRay.Recorder.Core.AWSXRayRecorder.LambdaTraceHeaderKey" filterName="LambdaTraceHeaderKey" isExposed="False" />
+  </Filter>
+  <Filter entryType="Class" fullName="Amazon.XRay.Recorder.Core.AWSXRayRecorderImpl" filterName="AWSXRayRecorderImpl" isExposed="True">
+    <Filter entryType="Method" fullName="Amazon.XRay.Recorder.Core.AWSXRayRecorderImpl.GetSubsegmentsToStream" filterName="GetSubsegmentsToStream" isExposed="False" />
+    <Filter entryType="Method" fullName="Amazon.XRay.Recorder.Core.AWSXRayRecorderImpl.PopulateContexts" filterName="PopulateContexts" isExposed="False" />
+    <Filter entryType="Method" fullName="Amazon.XRay.Recorder.Core.AWSXRayRecorderImpl.PopulateNewSegmentAttributes" filterName="PopulateNewSegmentAttributes" isExposed="False" />
+    <Filter entryType="Method" fullName="Amazon.XRay.Recorder.Core.AWSXRayRecorderImpl.PrepEndSegment" filterName="PrepEndSegment" isExposed="False" />
+    <Filter entryType="Method" fullName="Amazon.XRay.Recorder.Core.AWSXRayRecorderImpl.ProcessEndSegment" filterName="ProcessEndSegment" isExposed="False" />
+    <Filter entryType="Method" fullName="Amazon.XRay.Recorder.Core.AWSXRayRecorderImpl.ProcessEndSubsegment" filterName="ProcessEndSubsegment" isExposed="False" />
+    <Filter entryType="Method" fullName="Amazon.XRay.Recorder.Core.AWSXRayRecorderImpl.ShouldStreamSubsegments" filterName="ShouldStreamSubsegments" isExposed="False" />
+    <Filter entryType="Method" fullName="Amazon.XRay.Recorder.Core.AWSXRayRecorderImpl.StreamSubsegments" filterName="StreamSubsegments" isExposed="False" />
+    <Filter entryType="Property" fullName="Amazon.XRay.Recorder.Core.AWSXRayRecorderImpl.Disposed" filterName="Disposed" isExposed="False" />
+    <Filter entryType="Property" fullName="Amazon.XRay.Recorder.Core.AWSXRayRecorderImpl.Emitter" filterName="Emitter" isExposed="False" />
+    <Filter entryType="Property" fullName="Amazon.XRay.Recorder.Core.AWSXRayRecorderImpl.ServiceContext" filterName="ServiceContext" isExposed="False" />
+    <Filter entryType="Field" fullName="Amazon.XRay.Recorder.Core.AWSXRayRecorderImpl.cntxtMissingStrategy" filterName="cntxtMissingStrategy" isExposed="False" />
+    <Filter entryType="Field" fullName="Amazon.XRay.Recorder.Core.AWSXRayRecorderImpl.EnvironmentVariableContextMissingStrategy" filterName="EnvironmentVariableContextMissingStrategy" isExposed="False" />
+    <Filter entryType="Field" fullName="Amazon.XRay.Recorder.Core.AWSXRayRecorderImpl.MaxSubsegmentSize" filterName="MaxSubsegmentSize" isExposed="False" />
+  </Filter>
+</Filter>
+<Filter entryType="Namespace" fullName="Amazon.XRay.Recorder.Core.Internal.Entities" isExposed="True">
+  <Filter entryType="Class" fullName="Amazon.XRay.Recorder.Core.Internal.Entities.Annotations" filterName="Annotations" isExposed="False" />
+  <Filter entryType="Class" fullName="Amazon.XRay.Recorder.Core.Internal.Entities.Cause" filterName="Cause" isExposed="False" />
+  <Filter entryType="Class" fullName="Amazon.XRay.Recorder.Core.Internal.Entities.ExceptionDescriptor" filterName="ExceptionDescriptor" isExposed="False" />
+  <Filter entryType="Class" fullName="Amazon.XRay.Recorder.Core.Internal.Entities.FacadeSegment" filterName="FacadeSegment" isExposed="False" />
+</Filter>
+<Filter entryType="Namespace" fullName="Amazon.XRay.Recorder.Core.Internal.Utils" isExposed="False">
+  <Filter entryType="Class" fullName="Amazon.XRay.Recorder.Core.Internal.Utils.TraceContext" filterName="TraceContext" isExposed="True" />
+  <Filter entryType="Class" fullName="Amazon.XRay.Recorder.Core.Internal.Utils.XRayOptions" filterName="XRayOptions" isExposed="True" />
+</Filter>
+<Filter entryType="Namespace" fullName="Amazon.XRay.Recorder.Core.Sampling" isExposed="True">
+  <Filter entryType="Interface" fullName="Amazon.XRay.Recorder.Core.Sampling.IConnector" filterName="IConnector" isExposed="False" />
+  <Filter entryType="Class" fullName="Amazon.XRay.Recorder.Core.Sampling.Reservior" filterName="Reservior" isExposed="False">
+    <Filter entryType="Constructor" fullName="Amazon.XRay.Recorder.Core.Sampling.Reservior.#ctor" filterName=".ctor" isExposed="True" />
+    <Filter entryType="Method" fullName="Amazon.XRay.Recorder.Core.Sampling.Reservior.BorrowOrTake" filterName="BorrowOrTake" isExposed="True" />
+    <Filter entryType="Method" fullName="Amazon.XRay.Recorder.Core.Sampling.Reservior.LoadQuota" filterName="LoadQuota" isExposed="True" />
+  </Filter>
+  <Filter entryType="Class" fullName="Amazon.XRay.Recorder.Core.Sampling.RulePoller" filterName="RulePoller" isExposed="False">
+    <Filter entryType="Constructor" fullName="Amazon.XRay.Recorder.Core.Sampling.RulePoller.#ctor" filterName=".ctor" isExposed="True" />
+    <Filter entryType="Method" fullName="Amazon.XRay.Recorder.Core.Sampling.RulePoller.WakeUp" filterName="WakeUp" isExposed="True" />
+  </Filter>
+  <Filter entryType="Class" fullName="Amazon.XRay.Recorder.Core.Sampling.Statistics" filterName="Statistics" isExposed="False">
+    <Filter entryType="Property" fullName="Amazon.XRay.Recorder.Core.Sampling.Statistics.BorrowCount" filterName="BorrowCount" isExposed="True" />
+    <Filter entryType="Property" fullName="Amazon.XRay.Recorder.Core.Sampling.Statistics.RequestCount" filterName="RequestCount" isExposed="True" />
+    <Filter entryType="Property" fullName="Amazon.XRay.Recorder.Core.Sampling.Statistics.SampledCount" filterName="SampledCount" isExposed="True" />
+  </Filter>
+  <Filter entryType="Class" fullName="Amazon.XRay.Recorder.Core.Sampling.TargetPoller" filterName="TargetPoller" isExposed="False">
+    <Filter entryType="Constructor" fullName="Amazon.XRay.Recorder.Core.Sampling.TargetPoller.#ctor" filterName=".ctor" isExposed="True" />
+  </Filter>
+  <Filter entryType="Class" fullName="Amazon.XRay.Recorder.Core.Sampling.TimeStamp" filterName="TimeStamp" isExposed="False">
+    <Filter entryType="Constructor" fullName="Amazon.XRay.Recorder.Core.Sampling.TimeStamp.#ctor" filterName=".ctor" isExposed="True" />
+    <Filter entryType="Method" fullName="Amazon.XRay.Recorder.Core.Sampling.TimeStamp.CurrentDateTime" filterName="CurrentDateTime" isExposed="True" />
+    <Filter entryType="Method" fullName="Amazon.XRay.Recorder.Core.Sampling.TimeStamp.CurrentTime" filterName="CurrentTime" isExposed="True" />
+    <Filter entryType="Method" fullName="Amazon.XRay.Recorder.Core.Sampling.TimeStamp.ToUnixSeconds" filterName="ToUnixSeconds" isExposed="True" />
+  </Filter>
+</Filter>
+<Filter entryType="Namespace" fullName="Amazon.XRay.Recorder.Handlers.AwsSdk.Internal" isExposed="False">
+  <Filter entryType="Class" fullName="Amazon.XRay.Recorder.Handlers.AwsSdk.Internal.XRayPipelineHandler" filterName="XRayPipelineHandler" isExposed="True">
+    <Filter entryType="Property" fullName="Amazon.XRay.Recorder.Handlers.AwsSdk.Internal.XRayPipelineHandler.AWSServiceHandlerManifest" filterName="AWSServiceHandlerManifest" isExposed="False" />
+  </Filter>
+</Filter>
+<Filter entryType="Namespace" fullName="ThirdParty.LitJson" isExposed="False" /></ApiFilter>
     <FooterText>&amp;lt%3bscript src=&amp;quot%3b/SdkStatic/sdk-priv.js&amp;quot%3b async=&amp;quot%3btrue&amp;quot%3b&amp;gt%3b&amp;lt%3b/script&amp;gt%3b</FooterText>
   </PropertyGroup>
   <!-- There are no properties for these groups.  AnyCPU needs to appear in order for Visual Studio to perform

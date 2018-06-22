@@ -19,7 +19,7 @@ using System;
 using System.Threading;
 using Amazon.XRay.Recorder.Core.Internal.Utils;
 
-namespace Amazon.XRay.Recorder.Core.Sampling
+namespace Amazon.XRay.Recorder.Core.Sampling.Local
 {
     /// <summary>
     /// The RateLimiter will distribute permit to the first <see cref="LimitPerSecond"/> requests arrives in every epoch second, and block any request that comes later in that second.

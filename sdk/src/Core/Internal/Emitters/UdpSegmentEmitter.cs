@@ -31,17 +31,10 @@ namespace Amazon.XRay.Recorder.Core.Internal.Emitters
     /// </summary>
     public class UdpSegmentEmitter : ISegmentEmitter
     {
-        /// <summary>
-        /// The environment variable for daemon address
-        /// </summary>
-        public const string EnvironmentVariableDaemonAddress = "AWS_XRAY_DAEMON_ADDRESS";
-
         private static readonly Logger _logger = Logger.GetLogger(typeof(UdpSegmentEmitter));
-        private readonly int _defaultDaemonPort = 2000;
         private readonly IPAddress _defaultDaemonAddress = IPAddress.Loopback;
         private readonly ISegmentMarshaller _marshaller;
         private readonly UdpClient _udpClient;
-
         private bool _disposed;
 
         /// <summary>
@@ -55,8 +48,8 @@ namespace Amazon.XRay.Recorder.Core.Internal.Emitters
         {
             _marshaller = marshaller;
             _udpClient = new UdpClient();
-
-            SetEndPointOrDefault(Environment.GetEnvironmentVariable(EnvironmentVariableDaemonAddress));
+            DaemonConfig daemonEndPoint = DaemonConfig.GetEndPoint();
+            EndPoint = daemonEndPoint.UDPEndpoint;
         }
 
         /// <summary>
@@ -101,13 +94,13 @@ namespace Amazon.XRay.Recorder.Core.Internal.Emitters
         /// <param name="daemonAddress">The daemon address.</param>
         public void SetDaemonAddress(string daemonAddress)
         {
-            if (Environment.GetEnvironmentVariable(EnvironmentVariableDaemonAddress) == null)
+            if (Environment.GetEnvironmentVariable(DaemonConfig.EnvironmentVariableDaemonAddress) == null)
             {
                 SetEndPointOrDefault(daemonAddress);
             }
             else
             {
-                _logger.InfoFormat("Ignoring call to setDaemonAddress as " + EnvironmentVariableDaemonAddress + " is set.");
+                _logger.InfoFormat("Ignoring call to SetDaemonAddress as " + DaemonConfig.EnvironmentVariableDaemonAddress + " is set.");
             }
         }
 
@@ -149,20 +142,8 @@ namespace Amazon.XRay.Recorder.Core.Internal.Emitters
 
         private void SetEndPointOrDefault(string daemonAddress)
         {
-            IPEndPoint daemonEndPoint;
-
-            if (string.IsNullOrEmpty(daemonAddress))
-            {
-                 daemonEndPoint = new IPEndPoint(_defaultDaemonAddress, _defaultDaemonPort);
-                _logger.InfoFormat("Using default daemon address: {0}:{1}", daemonEndPoint.Address.ToString(), daemonEndPoint.Port);
-            }
-            else if (!IPEndPointExtension.TryParse(daemonAddress, out daemonEndPoint))
-            {
-                daemonEndPoint = new IPEndPoint(_defaultDaemonAddress, _defaultDaemonPort);
-                _logger.InfoFormat("The given daemonAddress ({0}) is invalid, using default daemon address {1}:{2}.", daemonAddress, daemonEndPoint.Address.ToString(), daemonEndPoint.Port);
-            }
-
-            EndPoint = daemonEndPoint;
+            DaemonConfig daemonEndPoint = DaemonConfig.GetEndPoint(daemonAddress);
+            EndPoint = daemonEndPoint.UDPEndpoint;
         }
     }
 }

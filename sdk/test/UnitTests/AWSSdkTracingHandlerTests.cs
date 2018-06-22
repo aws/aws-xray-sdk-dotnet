@@ -48,19 +48,17 @@ namespace Amazon.XRay.Recorder.UnitTests
 #else
         private XRayOptions _xRayOptions = new XRayOptions();
 #endif
-        [ClassInitialize]
-        public static void ClassInit(TestContext context)
+
+        [TestInitialize]
+        public void TestInitialize()
         {
             _recorder = new AWSXRayRecorder();
 #if NET45
             _handler = new AWSSdkTracingHandler(_recorder, _path);
-#endif
-        }
-
-        [ClassCleanup]
-        public static void ClassCleanup()
-        {
-            _recorder.Dispose();
+            AWSXRayRecorder.InitializeInstance(_recorder);
+#else
+            AWSXRayRecorder.InitializeInstance(recorder: _recorder);
+# endif
         }
 
         [TestCleanup]
@@ -74,7 +72,10 @@ namespace Amazon.XRay.Recorder.UnitTests
             _xRayOptions.AwsServiceHandlerManifest = null;
             _xRayOptions = new XRayOptions();
 #endif
+            _recorder.Dispose();
+            _recorder = null;
         }
+
 #if NET45
         [TestMethod]
         public void TestAddEventHandlerToDynamoDBClient()
@@ -184,7 +185,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             new AWSSdkTracingHandler(AWSXRayRecorder.Instance).AddEventHandler(lambda);
             CustomResponses.SetResponse(lambda, null, null, true);
 
-            AWSXRayRecorder.Instance.BeginSegment("lambda", TraceId);
+            _recorder.BeginSegment("lambda", TraceId);
 
             lambda.Invoke(new InvokeRequest
             {
@@ -192,7 +193,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             });
 
             var segment = TraceContext.GetEntity();
-            AWSXRayRecorder.Instance.EndSegment();
+            _recorder.EndSegment();
 
             Assert.AreEqual("Invoke", segment.Subsegments[0].Aws["operation"]);
             Assert.AreEqual("testFunction", segment.Subsegments[0].Aws["function_name"]);
@@ -205,12 +206,12 @@ namespace Amazon.XRay.Recorder.UnitTests
             new AWSSdkTracingHandler(AWSXRayRecorder.Instance).AddEventHandler(dynamo);
             CustomResponses.SetResponse(dynamo, null, null, true);
 
-            AWSXRayRecorder.Instance.BeginSegment("test dynamo", TraceId);
+            _recorder.BeginSegment("test dynamo", TraceId);
 
             dynamo.ListTables();
 
             var segment = TraceContext.GetEntity();
-            AWSXRayRecorder.Instance.EndSegment();
+            _recorder.EndSegment();
 
             Assert.AreEqual("DynamoDBv2", segment.Subsegments[0].Name);
         }
@@ -222,12 +223,12 @@ namespace Amazon.XRay.Recorder.UnitTests
             new AWSSdkTracingHandler(AWSXRayRecorder.Instance).AddEventHandler(s3);
             CustomResponses.SetResponse(s3, null, null, true);
 
-            AWSXRayRecorder.Instance.BeginSegment("test s3", TraceId);
+            _recorder.BeginSegment("test s3", TraceId);
 
             s3.GetObject("testBucket", "testKey");
 
             var segment = TraceContext.GetEntity();
-            AWSXRayRecorder.Instance.EndSegment();
+            _recorder.EndSegment();
 
             Assert.AreEqual("S3", segment.Subsegments[0].Name);
         }
@@ -244,14 +245,14 @@ namespace Amazon.XRay.Recorder.UnitTests
             var s3 = new AmazonS3Client(new AnonymousAWSCredentials(), RegionEndpoint.USEast1);
             CustomResponses.SetResponse(s3, null, null, true);
 
-            AWSXRayRecorder.Instance.BeginSegment("test s3", TraceId);
+            _recorder.BeginSegment("test s3", TraceId);
 #if NET45
             s3.GetObject("testBucket", "testKey");
 #else
             s3.GetObjectAsync("testBucket", "testKey").Wait();
 #endif
             var segment = TraceContext.GetEntity();
-            AWSXRayRecorder.Instance.EndSegment();
+            _recorder.EndSegment();
             Assert.AreEqual("S3", segment.Subsegments[0].Name);
             Assert.IsTrue(segment.Subsegments[0].Aws.ContainsKey("version_id"));
             Assert.AreEqual(segment.Subsegments[0].Aws["bucket_name"],"testBucket");
@@ -378,14 +379,14 @@ namespace Amazon.XRay.Recorder.UnitTests
         {
             var dynamo = new AmazonDynamoDBClient(new AnonymousAWSCredentials(), RegionEndpoint.USEast1);
             CustomResponses.SetResponse(dynamo, null, null, true);
-            AWSXRayRecorder.Instance.BeginSegment("test dynamo", TraceId);
+            _recorder.BeginSegment("test dynamo", TraceId);
 #if NET45
             dynamo.ListTables();
 #else
             dynamo.ListTablesAsync().Wait();
 #endif
             var segment = TraceContext.GetEntity();
-            AWSXRayRecorder.Instance.EndSegment();
+            _recorder.EndSegment();
 
             Assert.AreEqual("DynamoDBv2", segment.Subsegments[0].Name);
         }
@@ -395,7 +396,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         {
             var lambda = new AmazonLambdaClient(new AnonymousAWSCredentials(), RegionEndpoint.USEast1);
             CustomResponses.SetResponse(lambda, null, null, true);
-            AWSXRayRecorder.Instance.BeginSegment("lambda", TraceId);
+            _recorder.BeginSegment("lambda", TraceId);
 #if NET45
             lambda.Invoke(new InvokeRequest
             {
@@ -408,7 +409,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             }).Wait();
 #endif
             var segment = TraceContext.GetEntity();
-            AWSXRayRecorder.Instance.EndSegment();
+            _recorder.EndSegment();
             Assert.IsFalse(segment.Subsegments[0].Aws.ContainsKey("function_name"));
         }
 
@@ -419,7 +420,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             AWSSDKHandler.RegisterXRayManifest(temp_path);
             var lambda = new AmazonLambdaClient(new AnonymousAWSCredentials(), RegionEndpoint.USEast1);
             CustomResponses.SetResponse(lambda, null, null, true);
-            AWSXRayRecorder.Instance.BeginSegment("lambda", TraceId);
+            _recorder.BeginSegment("lambda", TraceId);
 #if NET45
             lambda.Invoke(new InvokeRequest
             {
@@ -432,7 +433,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             }).Wait();
 #endif
             var segment = TraceContext.GetEntity();
-            AWSXRayRecorder.Instance.EndSegment();
+            _recorder.EndSegment();
 
             Assert.AreEqual("Invoke", segment.Subsegments[0].Aws["operation"]);
             Assert.AreEqual("testFunction", segment.Subsegments[0].Aws["function_name"]);

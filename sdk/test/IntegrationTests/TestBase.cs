@@ -17,6 +17,7 @@
 
 using System.Collections.Generic;
 using System.Threading;
+using Amazon.XRay;
 using Amazon.XRay.Model;
 using Amazon.XRay.Recorder.Core;
 

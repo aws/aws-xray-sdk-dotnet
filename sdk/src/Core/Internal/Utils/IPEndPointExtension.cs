@@ -16,6 +16,7 @@
 //-----------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Net;
 using System.Text.RegularExpressions;
@@ -30,6 +31,10 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
     {
         private const string Ipv4Address = @"^\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3}:\d{1,5}$";
         private static readonly Logger _logger = Logger.GetLogger(typeof(IPEndPointExtension));
+        private const char _addressDelimiter = ' '; // UDP and TCP address 
+        private const char _addressPortDelimiter = ':';
+        private const string _udpKey = "udp";
+        private const string _tcpKey = "tcp";
 
         /// <summary>
         /// Tries to parse a string to <see cref="System.Net.IPEndPoint"/>.
@@ -52,7 +57,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
             }
             catch (RegexMatchTimeoutException e)
             {
-                _logger.Error(e, "Failed to parse IPEndPoint because of matach timeout. ({0})", input);
+                _logger.Error(e, "Failed to parse IPEndPoint because of match timeout. ({0})", input);
                 return false;
             }
 
@@ -82,7 +87,6 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
             {
                 // Validate port number is in valid range
                 endPoint = new IPEndPoint(ip, port);
-                _logger.InfoFormat("Using custom daemon address: {0}:{1}", endPoint.Address.ToString(), endPoint.Port);
                 return true;
             }
             catch (ArgumentOutOfRangeException e)
@@ -90,6 +94,94 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
                 _logger.Error(e, "Failed to parse IPEndPoint because argument to IPEndPoint is invalid. ({0}", input);
                 return false;
             }
+        }
+
+        /// <summary>
+        /// Tries to parse a string to <see cref="DaemonConfig"/>.
+        /// </summary>
+        /// <param name="daemonAddress">The input string.</param>
+        /// <param name="daemonEndPoint">The parsed <see cref="DaemonConfig"/> instance.</param>
+        /// <returns></returns>
+        public static bool TryParse(string daemonAddress, out DaemonConfig daemonEndPoint)
+        {
+            daemonEndPoint = null;
+
+            if (string.IsNullOrEmpty(daemonAddress))
+            {
+                return false;
+            }
+
+            try
+            {
+              string[] ep = daemonAddress.Split(_addressDelimiter);
+              return TryParseDaemonAddress(ep, out daemonEndPoint);
+            }
+            catch (Exception e)
+            {
+                _logger.Error(e, "Invalid daemon address. ({0})", daemonAddress);
+                return false;
+            }
+        }
+
+        private static bool TryParseDaemonAddress(string[] daemonAddress, out DaemonConfig endPoint)
+        {
+            endPoint = null;
+            if (daemonAddress.Length == 1)
+            {
+                return ParseSingleForm(daemonAddress, out endPoint);
+            }
+            else if (daemonAddress.Length == 2)
+            {
+                return ParseDoubleForm(daemonAddress, out endPoint);
+            }
+
+            return false;
+        }
+
+        private static bool ParseSingleForm(string[] daemonAddress, out DaemonConfig endPoint)
+        {
+            IPEndPoint udpEndpoint = null;
+            endPoint = new DaemonConfig();
+
+            if (TryParse(daemonAddress[0], out udpEndpoint))
+            {
+                endPoint.UDPEndpoint = udpEndpoint;
+                endPoint.TCPEndpoint = udpEndpoint;
+                _logger.InfoFormat("Using custom daemon address for UDP and TCP: {0}:{1}", endPoint.UDPEndpoint.Address.ToString(), endPoint.UDPEndpoint.Port);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        private static bool ParseDoubleForm(string[] daemonAddress, out DaemonConfig endPoint)
+        {
+            endPoint = new DaemonConfig();
+            IPEndPoint udpEndpoint = null;
+            IPEndPoint tcpEndpoint = null;
+            IDictionary<string, string> addressMap = new Dictionary<string, string>();
+            string[] address1 = daemonAddress[0].Split(_addressPortDelimiter); // tcp:127.0.0.1:2000 udp:127.0.0.2:2001
+            string[] address2 = daemonAddress[1].Split(_addressPortDelimiter);
+
+            addressMap[address1[0]] = address1[1] + _addressPortDelimiter + address1[2];
+            addressMap[address2[0]] = address2[1] + _addressPortDelimiter + address2[2];
+
+            string udpAddress = null;
+            string tcpAddress = null;
+
+            udpAddress = addressMap[_udpKey];
+            tcpAddress = addressMap[_tcpKey];
+
+            if (TryParse(udpAddress, out udpEndpoint) && TryParse(tcpAddress, out tcpEndpoint))
+            {
+                endPoint.UDPEndpoint = udpEndpoint;
+                endPoint.TCPEndpoint = tcpEndpoint;
+                _logger.InfoFormat("Using custom daemon address for UDP {0}:{1} and TCP {2}:{3}", endPoint.UDPEndpoint.Address.ToString(), endPoint.UDPEndpoint.Port, endPoint.TCPEndpoint.Address.ToString(), endPoint.TCPEndpoint.Port);
+                return true;
+            }
+
+            return false;
         }
     }
 }

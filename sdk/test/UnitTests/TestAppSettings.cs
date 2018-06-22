@@ -25,6 +25,7 @@ namespace Amazon.XRay.Recorder.UnitTests
     public class TestAppSettings
     {
         private const string DisableXRayTracingKey = "DisableXRayTracing";
+        private const string UseRuntimeErrors = "UseRuntimeErrors";
 
         [TestCleanup]
         public void TestCleanup()
@@ -62,6 +63,30 @@ namespace Amazon.XRay.Recorder.UnitTests
             ConfigurationManager.AppSettings[DisableXRayTracingKey] = "invalid";
             AppSettings.Reset();
             Assert.IsFalse(AppSettings.IsXRayTracingDisabled);
+        }
+
+        [TestMethod]
+        public void TestUseRuntimeErrorsSetToTrue()
+        {
+            ConfigurationManager.AppSettings[UseRuntimeErrors] = "true";
+            AppSettings.Reset();
+            Assert.IsTrue(AppSettings.UseRuntimeErrors);
+        }
+
+        [TestMethod]
+        public void TestUseRuntimeErrorsSetToFalse()
+        {
+            ConfigurationManager.AppSettings[UseRuntimeErrors] = "false";
+            AppSettings.Reset();
+            Assert.IsFalse(AppSettings.UseRuntimeErrors);
+        }
+
+        [TestMethod]
+        public void TestUseRuntimeErrorsInvalid()
+        {
+            ConfigurationManager.AppSettings[UseRuntimeErrors] = "XYZ";
+            AppSettings.Reset();
+            Assert.IsTrue(AppSettings.UseRuntimeErrors);
         }
     }
 }

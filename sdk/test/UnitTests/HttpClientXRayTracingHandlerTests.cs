@@ -19,17 +19,30 @@ namespace Amazon.XRay.Recorder.UnitTests
 
         private readonly HttpClient _httpClient;
 
+        private static AWSXRayRecorder _recorder;
+
         public HttpClientXRayTracingHandlerTests()
         {
             _httpClient = new HttpClient(new HttpClientXRayTracingHandler(new HttpClientHandler()));
         }
-        
+
+        [TestInitialize]
+        public void TestInitialize()
+        {
+            _recorder = new AWSXRayRecorder();
+#if NET45
+            AWSXRayRecorder.InitializeInstance(_recorder);
+#else
+            AWSXRayRecorder.InitializeInstance(recorder: _recorder);
+# endif
+        }
+
         [TestCleanup]
         public new void TestCleanup()
         {
             base.TestCleanup();
-            AWSXRayRecorder.Instance.Dispose();
-            _httpClient.Dispose();
+            _recorder.Dispose();
+            _recorder = null;
         }
 
         [TestMethod]

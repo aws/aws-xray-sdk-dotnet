@@ -26,6 +26,27 @@ namespace Amazon.XRay.Recorder.UnitTests
     [TestClass]
     public class CauseTest : TestBase
     {
+        private static AWSXRayRecorder _recorder;
+
+        [TestInitialize]
+        public void TestInitialize()
+        {
+            _recorder = new AWSXRayRecorder();
+#if NET45
+            AWSXRayRecorder.InitializeInstance(_recorder);
+#else
+            AWSXRayRecorder.InitializeInstance(recorder: _recorder);
+# endif
+        }
+
+        [TestCleanup]
+        public new void TestCleanup()
+        {
+            base.TestCleanup();
+            _recorder.Dispose();
+            _recorder = null;
+        }
+
         [TestMethod]
         public void TestMultipleInnerException()
         {

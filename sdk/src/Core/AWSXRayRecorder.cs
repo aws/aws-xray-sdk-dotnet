@@ -22,6 +22,7 @@ using Amazon.XRay.Recorder.Core.Internal.Emitters;
 using Amazon.XRay.Recorder.Core.Internal.Entities;
 using Amazon.XRay.Recorder.Core.Internal.Utils;
 using Amazon.XRay.Recorder.Core.Sampling;
+
 namespace Amazon.XRay.Recorder.Core
 {
     /// <summary>
@@ -49,9 +50,8 @@ namespace Amazon.XRay.Recorder.Core
         internal AWSXRayRecorder(ISegmentEmitter emitter):base(emitter)
         {
             PopulateContexts();
-            SamplingStrategy = new LocalizedSamplingStrategy(AppSettings.SamplingRuleManifest);
+            SamplingStrategy = new DefaultSamplingStrategy(AppSettings.SamplingRuleManifest);
         }
-
 
         /// <summary>
         /// Gets the singleton instance of <see cref="AWSXRayRecorder"/> with default configuration.
@@ -65,57 +65,20 @@ namespace Amazon.XRay.Recorder.Core
             {
                 return LazyDefaultRecorder.Value;
             }
+
+            private set
+            {
+                LazyDefaultRecorder = new Lazy<AWSXRayRecorder>(() => value);
+            }
         }
 
         /// <summary>
-        /// Begin a tracing segment. A new tracing segment will be created and started.
+        /// Sets provided instance of the <see cref="AWSXRayRecorder" /> to AWSXRayRecorder.Instance
         /// </summary>
-        /// <param name="name">The name of the segment.</param>
-        /// <param name="traceId">Trace id of the segment.</param>
-        /// <param name="parentId">Unique id of the upstream remote segment or subsegment where the downstream call originated from.</param>
-        /// <param name="sampleDecision">Sample decision for the segment from upstream service.</param>
-        /// <exception cref="ArgumentNullException">The argument has a null value.</exception>
-        public override void BeginSegment(string name, string traceId=null, string parentId = null, SampleDecision sampleDecision = SampleDecision.Sampled)
+        /// <param name="recorder">Instance of <see cref="AWSXRayRecorder"/>.</param>
+        public static void InitializeInstance(AWSXRayRecorder recorder)
         {
-            Segment newSegment = new Segment(name, traceId, parentId);
-            if (!IsTracingDisabled())
-            {
-                newSegment.SetStartTimeToNow(); //sets current timestamp
-                PopulateNewSegmentAttributes(newSegment);
-            }
-
-            newSegment.Sampled = sampleDecision;
-            TraceContext.SetEntity(newSegment);
-        }
-
-        /// <summary>
-        /// End a tracing segment. If all operations of the segments are finished, the segment will be emitted.
-        /// </summary>
-        /// <exception cref="EntityNotAvailableException">Entity is not available in trace context.</exception>
-        public override void EndSegment()
-        {
-            try
-            {
-                // If the request is not sampled, a segment will still be available in TraceContext.
-                // Need to clean up the segment, but do not emit it.
-                Segment segment = (Segment)TraceContext.GetEntity();
-
-                if (!IsTracingDisabled())
-                {
-                    segment.SetEndTimeToNow(); //sets end time to current time
-                    ProcessEndSegment(segment);
-                }
-
-                TraceContext.ClearEntity();
-            }
-            catch (EntityNotAvailableException e)
-            {
-                HandleEntityNotAvailableException(e, "Failed to end segment because cannot get the segment from trace context.");
-            }
-            catch (InvalidCastException e)
-            {
-                HandleEntityNotAvailableException(new EntityNotAvailableException("Failed to cast the entity to Segment.", e), "Failed to cast the entity to Segment.");
-            }
+            Instance = recorder;
         }
 
         /// <summary>

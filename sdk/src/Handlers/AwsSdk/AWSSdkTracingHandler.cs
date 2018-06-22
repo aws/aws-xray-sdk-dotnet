@@ -22,10 +22,12 @@ using System.IO;
 using System.Reflection;
 using Amazon.Runtime;
 using Amazon.Runtime.Internal.Util;
+using Amazon.Util;
 using Amazon.XRay.Recorder.Core;
 using Amazon.XRay.Recorder.Core.Internal.Entities;
 using Amazon.XRay.Recorder.Core.Internal.Utils;
 using Amazon.XRay.Recorder.Handlers.AwsSdk.Entities;
+using Amazon.XRay.Recorder.Handlers.AwsSdk.Internal;
 using ThirdParty.LitJson;
 
 namespace Amazon.XRay.Recorder.Handlers.AwsSdk
@@ -283,7 +285,6 @@ namespace Amazon.XRay.Recorder.Handlers.AwsSdk
                 return;
             }
 
-            var subsegment = TraceContext.GetEntity();
             var args = e as WebServiceResponseEventArgs;
             if (args == null)
             {
@@ -300,6 +301,13 @@ namespace Amazon.XRay.Recorder.Handlers.AwsSdk
 
             var serviceName = RemoveAmazonPrefixFromServiceName(args.ServiceName);
             var operation = RemoveSuffix(args.Request.GetType().Name, "Request");
+
+            if (AWSXRaySDKUtils.IsBlacklistedOperation(serviceName,operation))
+            {
+                return;
+            }
+
+            var subsegment = TraceContext.GetEntity();
 
             subsegment.Aws["region"] = client.Config.RegionEndpoint?.SystemName;
             subsegment.Aws["operation"] = operation;
@@ -318,8 +326,7 @@ namespace Amazon.XRay.Recorder.Handlers.AwsSdk
                 _logger.DebugFormat("X-Ray tracing is disabled, do not handle AWSSDK exception.");
                 return;
             }
-
-            var subsegment = TraceContext.GetEntity();
+   
             var args = e as WebServiceExceptionEventArgs;
 
             if (args == null)
@@ -338,6 +345,13 @@ namespace Amazon.XRay.Recorder.Handlers.AwsSdk
             var serviceName = RemoveAmazonPrefixFromServiceName(args.ServiceName);
             var operation = RemoveSuffix(args.Request.GetType().Name, "Request");
 
+            if (AWSXRaySDKUtils.IsBlacklistedOperation(serviceName, operation))
+            {
+                return;
+            }
+
+            var subsegment = TraceContext.GetEntity();
+
             subsegment.Aws["region"] = client.Config.RegionEndpoint?.SystemName;
             subsegment.Aws["operation"] = operation;
             if (args.Headers.TryGetValue("x-amzn-RequestId", out string requestId))
@@ -350,6 +364,7 @@ namespace Amazon.XRay.Recorder.Handlers.AwsSdk
             subsegment.AddException(args.Exception);
             _recorder.EndSubsegment();
         }
+
 
         private void AddRequestSpecificInformation(string serviceName, string operation, AmazonWebServiceRequest request, IDictionary<string, object> aws)
         {

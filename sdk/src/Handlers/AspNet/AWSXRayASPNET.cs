@@ -141,6 +141,8 @@ namespace Amazon.XRay.Recorder.Handlers.AspNet
         {
             var context = ((HttpApplication)sender).Context;
 
+            string ruleName = null;
+
             if (context.Items.Contains(XRayEntity))
             {
                 return; // Do not override segment for the current request
@@ -149,14 +151,18 @@ namespace Amazon.XRay.Recorder.Handlers.AspNet
             var request = context.Request;
             TraceHeader traceHeader = GetTraceHeader(context);
 
+            var segmentName = GetSegmentNamingStrategy().GetSegmentName(request);
             // Make sample decision
             if (traceHeader.Sampled == SampleDecision.Unknown || traceHeader.Sampled == SampleDecision.Requested)
             {
-                SetSamplingDecision(request, traceHeader);
+                SamplingResponse response = MakeSamplingDecision(request, traceHeader,segmentName);
+                ruleName = response.RuleName;
             }
 
-            var timestamp = context.Timestamp.ToUniversalTime().ToUnixTimeSeconds(); // Gets initial timestamp of current HTTP Request
-            _recorder.BeginSegment(GetSegmentNamingStrategy().GetSegmentName(request), traceHeader.RootTraceId, timestamp, traceHeader.ParentId, traceHeader.Sampled);
+            var timestamp = context.Timestamp.ToUniversalTime(); // Gets initial timestamp of current HTTP Request
+
+            SamplingResponse samplingResponse = new SamplingResponse(ruleName, traceHeader.Sampled); // get final ruleName and SampleDecision
+            _recorder.BeginSegment(segmentName, traceHeader.RootTraceId, traceHeader.ParentId, samplingResponse, timestamp);
 
             if (!AWSXRayRecorder.Instance.IsTracingDisabled())
             {
@@ -269,12 +275,15 @@ namespace Amazon.XRay.Recorder.Handlers.AspNet
             }
         }
 
-        private static void SetSamplingDecision(HttpRequest request, TraceHeader traceHeader)
+        private static SamplingResponse MakeSamplingDecision(HttpRequest request, TraceHeader traceHeader, string name)
         {
-            string serviceName = request.Headers.Get("Host");
+            string host = request.Headers.Get("Host");
             string url = request.Url.AbsolutePath;
             string method = request.HttpMethod;
-            traceHeader.Sampled = _recorder.SamplingStrategy.Sample(serviceName, url, method);
+            SamplingInput samplingInput = new SamplingInput(host, url, method, name, _recorder.Origin);
+            SamplingResponse sampleResponse = _recorder.SamplingStrategy.ShouldTrace(samplingInput);
+            traceHeader.Sampled = sampleResponse.SampleDecision;
+            return sampleResponse;
         }
 
         /// <summary>

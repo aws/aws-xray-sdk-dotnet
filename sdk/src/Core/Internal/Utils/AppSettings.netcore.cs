@@ -25,7 +25,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
         private string _samplingRuleManifest;
         private string _awsServiceHandlerManifest;
         private bool _isXRayTracingDisabled;
-        private bool _useRuntimeErrors;
+        private bool _useRuntimeErrors = true;
 
         /// <summary>
         /// Default constructor.

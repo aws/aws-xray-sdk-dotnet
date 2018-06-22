@@ -28,11 +28,13 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
         private const string SamplingRuleManifestKey = "SamplingRuleManifest";
         private const string AWSServiceHandlerManifestKey = "AWSServiceHandlerManifest";
         private const string DisableXRayTracingKey = "DisableXRayTracing";
+        private const string UseRuntimeErrorsKey = "UseRuntimeErrors";
 
         private static string _pluginSetting = GetSetting(PluginSettingKey);
         private static string _samplingRuleManifest = GetSetting(SamplingRuleManifestKey);
         private static string _awsServiceHandlerManifest = GetSetting(AWSServiceHandlerManifestKey);
         private static bool _isXRayTracingDisabled = GetSettingBool(DisableXRayTracingKey);
+        private static bool _useRuntimeErrors = GetSettingBool(UseRuntimeErrorsKey);
 
         /// <summary>
         /// Gets the plugin setting from app settings
@@ -82,6 +84,11 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
         }
 
         /// <summary>
+        /// Gets context missing strategy setting from the app setting.
+        /// </summary>
+        public static bool UseRuntimeErrors { get => _useRuntimeErrors;}
+
+        /// <summary>
         /// Resets this instance.
         /// </summary>
         public static void Reset()
@@ -90,6 +97,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
             _samplingRuleManifest = GetSetting(SamplingRuleManifestKey);
             _awsServiceHandlerManifest = GetSetting(AWSServiceHandlerManifestKey);
             _isXRayTracingDisabled = GetSettingBool(DisableXRayTracingKey);
+            _useRuntimeErrors = GetSettingBoolForRuntimeError(UseRuntimeErrorsKey);
         }
 
         private static string GetSetting(string key)
@@ -105,6 +113,19 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
         }
 
         private static bool GetSettingBool(string key, bool defaultValue = false)
+        {
+            string value = GetSetting(key);
+            bool result;
+            if (bool.TryParse(value, out result))
+            {
+                return result;
+            }
+
+            return defaultValue;
+        }
+
+        // If the key not present, default value set to true.
+        private static bool GetSettingBoolForRuntimeError(string key, bool defaultValue = true)
         {
             string value = GetSetting(key);
             bool result;

@@ -79,7 +79,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         {
             try
             {
-                _facadeSegment.SetStartTime(0);
+                _facadeSegment.SetStartTime(DateTime.Now);
                 Assert.Fail();
             }
             catch (UnsupportedOperationException)
@@ -107,7 +107,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         {
             try
             {
-                _facadeSegment.SetEndTime(0);
+                _facadeSegment.SetEndTime(DateTime.Now);
                 Assert.Fail();
             }
             catch (UnsupportedOperationException)

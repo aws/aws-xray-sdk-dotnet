@@ -15,6 +15,8 @@
 // </copyright>
 //-----------------------------------------------------------------------------
 
+using Amazon.Runtime.Internal.Util;
+using Amazon.XRay.Recorder.Core.Sampling;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -39,7 +41,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Entities
         /// <param name="name">Name of the node or service component.</param>
         /// <param name="traceId">Unique id for the trace.</param>
         /// <param name="parentId">Unique id of the upstream segment.</param>
-        public Segment(string name, string traceId=null, string parentId = null) : base(name)
+        public Segment(string name, string traceId = null, string parentId = null) : base(name)
         {
             if (traceId != null)
             {
@@ -135,7 +137,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Entities
         /// </summary>
         public void SetStartTime(decimal timestamp)
         {
-            StartTime = timestamp;
+            StartTime = timestamp; 
         }
         /// <summary>
         /// Sets end time of the segment to the provided timestamp.
@@ -143,6 +145,22 @@ namespace Amazon.XRay.Recorder.Core.Internal.Entities
         public void SetEndTime(decimal timestamp)
         {
             EndTime = timestamp;
+        }
+
+        /// <summary>
+        /// Sets start time of the segment to the provided timestamp.
+        /// </summary>
+        public void SetStartTime(DateTime timestamp)
+        {
+            StartTime = TimeStamp.ToUnixSeconds(timestamp);
+        }
+
+        /// <summary>
+        /// Sets end time of the segment to the provided timestamp.
+        /// </summary>
+        public void SetEndTime(DateTime timestamp)
+        {
+            EndTime = TimeStamp.ToUnixSeconds(timestamp);
         }
     }
 }

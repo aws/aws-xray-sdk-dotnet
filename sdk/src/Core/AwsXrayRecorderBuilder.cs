@@ -39,6 +39,7 @@ namespace Amazon.XRay.Recorder.Core
         private ISamplingStrategy _samplingStrategy;
         private ContextMissingStrategy _contextMissingStrategy = ContextMissingStrategy.RUNTIME_ERROR;
         private ISegmentEmitter _segmentEmitter;
+        private string _daemonAddress;
 
         /// <summary>
         /// Gets a read-only copy of current plugins in the builder
@@ -70,6 +71,21 @@ namespace Amazon.XRay.Recorder.Core
 
             return this;
         }
+
+        /// <summary>
+        /// Reads useRuntimeErrors settings from app settings, and adds into the builder.
+        /// If the useRuntimeErrors settings doesn't exist, it defaults to true and ContextMissingStrategy.RUNTIME_ERROR is used.
+        /// </summary>
+        /// <returns>The builder with context missing strategy set.</returns>
+        public AWSXRayRecorderBuilder WithContextMissingStrategyFromAppSettings()
+        {
+            bool useRuntimeErrors = AppSettings.UseRuntimeErrors;
+            if (useRuntimeErrors)
+            {
+                return WithContextMissingStrategy(ContextMissingStrategy.RUNTIME_ERROR);
+            }
+            return WithContextMissingStrategy(ContextMissingStrategy.LOG_ERROR);
+        }
 #else
         /// <summary>
         /// Builds <see cref="AWSXRayRecorderBuilder"/> instance with xrayoptions.
@@ -88,6 +104,23 @@ namespace Amazon.XRay.Recorder.Core
             PopulatePlugins(setting);
 
             return this;
+        }
+
+        /// <summary>
+        /// Reads useRuntimeErrors settings from config instance, and adds into the builder.
+        /// If the useRuntimeErrors settings doesn't exist, it defaults to true and ContextMissingStrategy.RUNTIME_ERROR is used.
+        /// </summary>
+        /// <returns>The builder with context missing strategy set.</returns>
+        public AWSXRayRecorderBuilder WithContextMissingStrategyFromConfig(XRayOptions xRayOptions)
+        {
+            if (xRayOptions.UseRuntimeErrors)
+            {
+                return WithContextMissingStrategy(ContextMissingStrategy.RUNTIME_ERROR);
+            }
+            else
+            {
+                return WithContextMissingStrategy(ContextMissingStrategy.LOG_ERROR);
+            }
         }
 
         /// <summary>
@@ -130,6 +163,22 @@ namespace Amazon.XRay.Recorder.Core
             }
 
             _plugins.Add(plugin);
+            return this;
+        }
+
+        /// <summary>
+        /// Adds the given plugin to builder
+        /// </summary>
+        /// <param name="plugin">A specific plugin to add.</param>
+        /// <returns>The builder with plugin added.</returns>
+        public AWSXRayRecorderBuilder WithDaemonAddress(String address)
+        {
+            if (String.IsNullOrEmpty(address))
+            {
+                throw new ArgumentNullException("DaemonAddress");
+            }
+
+            _daemonAddress = address;
             return this;
         }
 
@@ -221,6 +270,13 @@ namespace Amazon.XRay.Recorder.Core
                     recorder.RuntimeContext.Add(plugin.ServiceName, pluginContext);
                     recorder.Origin = plugin.Origin;
                 }
+            }      
+
+            recorder.ContextMissingStrategy = _contextMissingStrategy;
+
+            if(_segmentEmitter != null)
+            {
+                recorder.Emitter = _segmentEmitter;
             }
 
             if (_samplingStrategy != null)
@@ -228,11 +284,9 @@ namespace Amazon.XRay.Recorder.Core
                 recorder.SamplingStrategy = _samplingStrategy;
             }
 
-            recorder.ContextMissingStrategy = _contextMissingStrategy;
-
-            if(_segmentEmitter != null)
+            if (_daemonAddress != null) 
             {
-                recorder.Emitter = _segmentEmitter;
+                recorder.SetDaemonAddress(_daemonAddress);
             }
         }
     }

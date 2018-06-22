@@ -17,6 +17,7 @@
 
 using System;
 using Amazon.XRay.Recorder.Core.Internal.Emitters;
+using Amazon.XRay.Recorder.Core.Internal.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Amazon.XRay.Recorder.UnitTests
@@ -48,12 +49,12 @@ namespace Amazon.XRay.Recorder.UnitTests
             var environmentAddress = "1.1.1.1:123";
             var localAddress = "2.2.2.2:456";
 
-            Environment.SetEnvironmentVariable(UdpSegmentEmitter.EnvironmentVariableDaemonAddress, environmentAddress);
+            Environment.SetEnvironmentVariable(DaemonConfig.EnvironmentVariableDaemonAddress, environmentAddress);
             var emitter = new UdpSegmentEmitter();
             emitter.SetDaemonAddress(localAddress);
 
             Assert.AreEqual(environmentAddress, emitter.EndPoint.ToString());
-            Environment.SetEnvironmentVariable(UdpSegmentEmitter.EnvironmentVariableDaemonAddress, null);
+            Environment.SetEnvironmentVariable(DaemonConfig.EnvironmentVariableDaemonAddress, null);
         }
     }
 }

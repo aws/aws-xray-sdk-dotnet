@@ -1,6 +1,52 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 2.3.0-beta (2018-08-28)
+### AWSXRayRecorder.Core (2.3.0-beta)
+#### Breaking Change - .NET and .NET Core
+- The default sampling strategy now uses [sampling rules](https://docs.aws.amazon.com/xray/latest/devguide/xray-sdk-dotnet-configuration.html#xray-sdk-dotnet-configuration-sampling). The strategy now runs background tasks that poll X-Ray for updated sampling rules and targets. If you currently use a configuration file to define local sampling rules, the SDK will use those rules as a backup to rules that are defined in the console. To use only local rules, build the recorder with a `LocalizedSamplingStrategy`.
+
+- Removed `SampleDecision Sample(string serviceName, string path, string method);` and `SampleDecision Sample(HttpRequestMessage request);` from `ISamplingStrategy` interface.
+
+- Renamed  namespace for`LocalizedSamplingStartegy.cs` from `Amazon.XRay.Recorder.Core.Sampling` to `Amazon.XRay.Recorder.Core.Sampling.Local`
+
+- Changed constant `UdpSegmentEmitter.EnvironmentVariableDaemonAddress` to `DaemonConfig.EnvironmentVariableDaemonAddress` 
+
+- Changed `void BeginSegment(string name, string traceId, string parentId = null, SampleDecision sampleDecision = SampledDecision.Sampled);` to `void BeginSegment(string name, string traceId = null, string parentId = null, SamplingResponse? samplingResponse = null, DateTime? timestamp = null););` of `IAWSXRayRecorder` interface and `AWSXRayRecorder` class.
+
+- The `BeginSegment()` method now uses the recorder's sampling strategy to make a sampling decision if `SampleDecision` is not present in `SamplingResponse` instance as an argument. Previously, the segment would be sampled by default.
+
+- Removed `EndSegment()`, `EndSegment(decimal timestamp)` and added `void EndSegment(DateTime? timestamp = null);` on `IAWSXRayRecorder` interface and `AWSXRayRecorder` class.
+
+- Removed ` public void BeginSegment(string name, string traceId, decimal timestamp, string parentId = null, SampleDecision? sampleDecision = null)` on `AWSXRayRecorder` instance.
+
+- .NET Core : Changed method from `AWSXRayRecorder.InitializeInstance(IConfiguration configuration, AWSXRayRecorder recorder)` to `AWSXRayRecorder.InitializeInstance(IConfiguration configuration = null, AWSXRayRecorder recorder = null)`
+
+#### Added
+##### .NET and .NET Core 
+- Added `ShoudTrace()` method to `ISamplingStartegy` interface
+
+- Environment variable `AWS_TRACING_DAEMON_ADDRESS` and `WithDaemonAddress()` on `AwsXrayRecorderBuilder.cs` class can now take a value of the form `127.0.0.1:2000` or `tcp:127.0.0.1:2000 udp:127.0.0.2:2001` or `udp:127.0.0.1:2000 tcp:127.0.0.2:2001`. The former one means UDP and TCP are running at the same address and the later ones specify individual addresses for tcp and udp. By default it assumes a X-Ray daemon running at 127.0.0.1:2000 listening to both UDP and TCP traffic.
+
+- Update DefaultSamplingRules.json file. i.e. `service_name` has been replaced to `host` and version changed to `2`. SDK still supports v1 JSON file.
+ 
+- Adding support for reading context missing startegy setting from IConfiguration : PR [#35](https://github.com/aws/aws-xray-sdk-dotnet/pull/35) for .NET Core and from Appsettings.json for .NET
+
+### AWSXRayRecorder.Handlers.System.Net (2.3.0-beta)
+- Bumped version to address AWSXRayRecorder.Core package change
+
+### AWSXRayRecorder.Handlers.SqlServer (2.3.0-beta)
+- Bumped version to address AWSXRayRecorder.Core package change
+
+### AWSXRayRecorder.Handlers.AwsSdk (2.3.0-beta)
+- Bumped version to address AWSXRayRecorder.Core package change
+
+### AWSXRayRecorder.Handlers.AspNet (2.3.0-beta)
+- Bumped version to address AWSXRayRecorder.Core package change
+
+### AWSXRayRecorder.Handlers.AspNetCore (2.3.0-beta)
+- Bumped version to address AWSXRayRecorder.Core package change
+
 ## 2.2.1-beta (2018-06-11)
 ### AWSXRayRecorder.Core (2.2.1-beta)
 #### Added

@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using Amazon.XRay.Recorder.Core.Sampling;
 using Amazon.XRay.Recorder.Core.Strategies;
 using System.Threading.Tasks;
+using Amazon.XRay.Recorder.Core.Exceptions;
 
 namespace Amazon.XRay.Recorder.Core
 {
@@ -49,18 +50,22 @@ namespace Amazon.XRay.Recorder.Core
         IDictionary<string, object> RuntimeContext { get; }
 
         /// <summary>
-        /// Start tracing of given segment
+        /// Begin a tracing segment. A new tracing segment will be created and started.
         /// </summary>
         /// <param name="name">The name of the segment</param>
         /// <param name="traceId">Trace id of the segment</param>
-        /// <param name="parendId">Unique id of the upstream remote segment or subsegment where the downstream call originated from.</param>
-        /// <param name="sampleDecision">Sample decision for the segment from upstream service.</param>
-        void BeginSegment(string name, string traceId, string parendId = null, SampleDecision sampleDecision = SampleDecision.Sampled);
+        /// <param name="parentId">Unique id of the upstream remote segment or subsegment where the downstream call originated from.</param>
+        /// <param name="samplingResponse">Instance  of <see cref="SamplingResponse"/>, contains sampling decision for the segment from upstream service. If not passed, sampling decision is made based on <see cref="SamplingStrategy"/> set with the recorder instance.</param>
+        /// <param name="timestamp">If not null, sets the start time for the segment else current time is set.</param>
+        /// <exception cref="ArgumentNullException">The argument has a null value.</exception>
+        void BeginSegment(string name, string traceId = null, string parentId = null, SamplingResponse samplingResponse = null, DateTime? timestamp = null);
 
         /// <summary>
-        /// End tracing of a given segment
+        /// End tracing of a given segment.
         /// </summary>
-        void EndSegment();
+        /// <param name="timestamp">If not null, set as endtime for the current segment.</param>
+        /// <exception cref="EntityNotAvailableException">Entity is not available in trace context.</exception>
+        void EndSegment(DateTime? timestamp = null);
 
         /// <summary>
         /// Start a subsegment with a given segment

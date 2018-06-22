@@ -87,6 +87,7 @@ namespace Amazon.XRay.Recorder.Handlers.AspNet
         protected async override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, System.Threading.CancellationToken cancellationToken)
         {
             string headerSring = null;
+            string ruleName = null;
             if (request.Headers.TryGetValues(TraceHeader.HeaderKey, out IEnumerable<string> headerValue))
             {
                 headerSring = headerValue.First();
@@ -106,13 +107,22 @@ namespace Amazon.XRay.Recorder.Handlers.AspNet
 
             bool isSampleDecisionRequested = traceHeader.Sampled == SampleDecision.Requested;
 
+            string segmentName = SegmentNamingStrategy.GetSegmentName(request);
+
             // Make sample decision
             if (traceHeader.Sampled == SampleDecision.Unknown || traceHeader.Sampled == SampleDecision.Requested)
             {
-                traceHeader.Sampled = _recorder.SamplingStrategy.Sample(request);
+                string host = request.Headers.Host;
+                string url = request.RequestUri.AbsolutePath;
+                string method = request.Method.Method;
+                SamplingInput samplingInput = new SamplingInput(host, url, method, segmentName, _recorder.Origin);
+                SamplingResponse s = _recorder.SamplingStrategy.ShouldTrace(samplingInput);
+                traceHeader.Sampled = s.SampleDecision;
+                ruleName = s.RuleName;
             }
 
-            _recorder.BeginSegment(SegmentNamingStrategy.GetSegmentName(request), traceHeader.RootTraceId, traceHeader.ParentId, traceHeader.Sampled);
+            SamplingResponse samplingResponse = new SamplingResponse(ruleName,traceHeader.Sampled); // get final ruleName and SampleDecision
+            _recorder.BeginSegment(segmentName, traceHeader.RootTraceId, traceHeader.ParentId, samplingResponse);
 
             if (!AppSettings.IsXRayTracingDisabled)
             {

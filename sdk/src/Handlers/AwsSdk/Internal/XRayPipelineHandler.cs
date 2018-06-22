@@ -245,12 +245,6 @@ namespace Amazon.XRay.Recorder.Handlers.AwsSdk.Internal
         /// </summary>
         private void ProcessBeginRequest(IExecutionContext executionContext)
         {
-            if (AWSXRayRecorder.Instance.IsTracingDisabled())
-            {
-                _logger.DebugFormat("X-Ray tracing is disabled, do not handle AWSSDK request.");
-                return;
-            }
-
             var request = executionContext.RequestContext.Request;
 
             if (TraceHeader.TryParse(TraceContext.GetEntity(), out TraceHeader traceHeader))
@@ -271,12 +265,7 @@ namespace Amazon.XRay.Recorder.Handlers.AwsSdk.Internal
         /// </summary>
         private void ProcessEndRequest(IExecutionContext executionContext)
         {
-            if (AWSXRayRecorder.Instance.IsTracingDisabled())
-            {
-                _logger.DebugFormat("X-Ray tracing is disabled, do not handle AWSSDK response.");
-                return;
-            }
-
+           
             var subsegment = TraceContext.GetEntity();
             var responseContext = executionContext.ResponseContext;
             var requestContext = executionContext.RequestContext;
@@ -527,30 +516,56 @@ namespace Amazon.XRay.Recorder.Handlers.AwsSdk.Internal
         /// </summary>
         public override void InvokeSync(IExecutionContext executionContext)
         {
-            ProcessBeginRequest(executionContext);
-
-            try
+            if (IsTracingDisabled() || ExcludeServiceOperation(executionContext))
             {
                 base.InvokeSync(executionContext);
             }
-
-            catch (Exception e)
+            else
             {
-                var subsegment = TraceContext.GetEntity();
-                subsegment.AddException(e); // record exception 
+                ProcessBeginRequest(executionContext);
 
-                if (e is AmazonServiceException amazonServiceException)
+                try
                 {
-                    ProcessException(amazonServiceException, subsegment);
+                    base.InvokeSync(executionContext);
                 }
 
-                throw;
-            }
+                catch (Exception e)
+                {
+                    var subsegment = TraceContext.GetEntity();
+                    subsegment.AddException(e); // record exception 
 
-            finally
-            {
-                ProcessEndRequest(executionContext);
+                    if (e is AmazonServiceException amazonServiceException)
+                    {
+                        ProcessException(amazonServiceException, subsegment);
+                    }
+
+                    throw;
+                }
+
+                finally
+                {
+                    ProcessEndRequest(executionContext);
+                }
             }
+        }
+
+        private bool ExcludeServiceOperation(IExecutionContext executionContext)
+        {
+            var requestContext = executionContext.RequestContext;
+            var serviceName = RemoveAmazonPrefixFromServiceName(requestContext.Request.ServiceName);
+            var operation = RemoveSuffix(requestContext.OriginalRequest.GetType().Name, "Request");
+
+            return AWSXRaySDKUtils.IsBlacklistedOperation(serviceName,operation);
+        }
+
+        private bool IsTracingDisabled()
+        {
+            if (AWSXRayRecorder.Instance.IsTracingDisabled())
+            {
+                _logger.DebugFormat("X-Ray tracing is disabled, do not handle AWSSDK request / response.");
+                return true;
+            }
+            return false;
         }
 
         /// <summary>
@@ -559,30 +574,41 @@ namespace Amazon.XRay.Recorder.Handlers.AwsSdk.Internal
         /// </summary>
         public override async Task<T> InvokeAsync<T>(IExecutionContext executionContext)
         {
-            ProcessBeginRequest(executionContext);
-
             T ret = null;
 
-            try
+            if (IsTracingDisabled() || ExcludeServiceOperation(executionContext))
             {
                 ret = await base.InvokeAsync<T>(executionContext).ConfigureAwait(false);
             }
-            catch (Exception e)
+            else
             {
-                var subsegment = TraceContext.GetEntity();
-                subsegment.AddException(e); // record exception 
+                ProcessBeginRequest(executionContext);
 
-                if (e is AmazonServiceException amazonServiceException)
+                try
                 {
-                    ProcessException(amazonServiceException, subsegment);
+                    ret = await base.InvokeAsync<T>(executionContext).ConfigureAwait(false);
+                }
+                catch (Exception e)
+                {
+                    if (!AWSXRayRecorder.Instance.IsTracingDisabled())
+                    {
+                        var subsegment = TraceContext.GetEntity();
+                        subsegment.AddException(e); // record exception 
+
+                        if (e is AmazonServiceException amazonServiceException)
+                        {
+                            ProcessException(amazonServiceException, subsegment);
+                        }
+                    }
+
+                    throw;
                 }
 
-                throw;
-            }
+                finally
+                {
+                    ProcessEndRequest(executionContext);
+                }
 
-            finally
-            {
-                ProcessEndRequest(executionContext);
             }
 
             return ret;
@@ -599,7 +625,7 @@ namespace Amazon.XRay.Recorder.Handlers.AwsSdk.Internal
         private Boolean registerAll;
         private List<Type> types = new List<Type>();
         private String path;
-        private static ReaderWriterLockSlim rwLock = new ReaderWriterLockSlim();
+        private ReaderWriterLockSlim rwLock = new ReaderWriterLockSlim();
 
         public bool RegisterAll { get => registerAll; set => registerAll = value; }
         public string Path { get => path; set => path = value; }

@@ -24,6 +24,7 @@ using Amazon.XRay.Recorder.Core.Sampling;
 using System.Net.Http;
 using Amazon.XRay.Recorder.Core.Internal.Emitters;
 using Amazon.XRay.Recorder.Core.Internal.Entities;
+using static Amazon.XRay.Recorder.UnitTests.AwsXrayRecorderTests;
 
 namespace Amazon.XRay.Recorder.UnitTests
 {
@@ -139,7 +140,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             IConfiguration configuration = BuildConfiguration("DisabledXRayTrue.json");
 
             AWSXRayRecorder recorder = BuildAWSXRayRecorder(new TestSamplingStrategy());
- 
+
             AWSXRayRecorder.InitializeInstance(configuration, recorder);
             _xRayOptions = recorder.XRayOptions;
             Assert.IsTrue(_xRayOptions.IsXRayTracingDisabled);
@@ -172,7 +173,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             Assert.AreEqual(typeof(DummyEmitter), recorder.Emitter.GetType()); // custom emitter set
             recorder.Dispose();
         }
-        
+
         [TestMethod]
         public void TestUseRuntimeErrorsFalse()
         {
@@ -208,50 +209,6 @@ namespace Amazon.XRay.Recorder.UnitTests
                               .AddJsonFile(PREFIX + path);
             IConfiguration configuration = builder.Build();
             return configuration;
-        }
-        private static AWSXRayRecorder BuildAWSXRayRecorder(ISamplingStrategy samplingStrategy, ISegmentEmitter segmentEmitter=null)
-        {
-            AWSXRayRecorderBuilder builder;
-            if (segmentEmitter != null){
-                 builder = new AWSXRayRecorderBuilder()
-                        .WithSamplingStrategy(samplingStrategy).WithSegmentEmitter(segmentEmitter);
-            }
-            else
-            {
-                 builder = new AWSXRayRecorderBuilder()
-                        .WithSamplingStrategy(samplingStrategy);
-            }
-
-            var result = builder.Build();
-
-            return result;
-        }
-    }
-    class TestSamplingStrategy : ISamplingStrategy
-    {
-        public SampleDecision Sample(string serviceName, string path, string method)
-        {
-            throw new System.NotImplementedException();
-        }
-
-        public SampleDecision Sample(HttpRequestMessage request)
-        {
-            throw new System.NotImplementedException();
-        }
-    }
-
-    class DummyEmitter : ISegmentEmitter
-    {
-        public void Dispose()
-        {
-        }
-
-        public void Send(Entity segment)
-        {
-        }
-
-        public void SetDaemonAddress(string daemonAddress)
-        {
         }
     }
 }

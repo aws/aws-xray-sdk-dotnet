@@ -97,6 +97,24 @@ namespace Amazon.XRay.Recorder.Core.Internal.Entities
         {
             throw new UnsupportedOperationException(_mutationUnsupportedMessage);
         }
+
+        /// <summary>
+        /// Unsupported as Facade segment cannot be mutated.
+        /// </summary>
+        /// <exception cref="UnsupportedOperationException">FacadeSegments cannot be mutated.</exception>
+        public new void SetStartTime(DateTime timestamp)
+        {
+            throw new UnsupportedOperationException(_mutationUnsupportedMessage);
+        }
+
+        /// <summary>
+        /// Unsupported as Facade segment cannot be mutated.
+        /// </summary>
+        /// <exception cref="UnsupportedOperationException">FacadeSegments cannot be mutated.</exception>
+        public new void SetEndTime(DateTime timestamp)
+        {
+            throw new UnsupportedOperationException(_mutationUnsupportedMessage);
+        }
     
         /// <summary>
         /// Unsupported as Facade segment cannot be mutated.

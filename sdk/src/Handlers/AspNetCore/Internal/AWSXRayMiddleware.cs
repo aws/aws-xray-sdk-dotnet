@@ -212,23 +212,30 @@ namespace Amazon.XRay.Recorder.Handlers.AspNetCore.Internal
                 };
             }
 
+            var segmentName = SegmentNamingStrategy.GetSegmentName(request);
             bool isSampleDecisionRequested = traceHeader.Sampled == SampleDecision.Requested;
+
+            string ruleName = null;
             // Make sample decision
             if (traceHeader.Sampled == SampleDecision.Unknown || traceHeader.Sampled == SampleDecision.Requested)
             {
-                string serviceName = request.Host.Host;
+                string host = request.Host.Host;
                 string url = request.Path;
                 string method = request.Method;
-                traceHeader.Sampled = _recorder.SamplingStrategy.Sample(serviceName, url, method);
+                SamplingInput samplingInput = new SamplingInput(host, url, method, segmentName, _recorder.Origin);
+                SamplingResponse sampleResponse = _recorder.SamplingStrategy.ShouldTrace(samplingInput);
+                traceHeader.Sampled = sampleResponse.SampleDecision;
+                ruleName = sampleResponse.RuleName;
             }
 
             if (AWSXRayRecorder.Instance.IsLambda())
             {
-                _recorder.BeginSubsegment(SegmentNamingStrategy.GetSegmentName(request));
+                _recorder.BeginSubsegment(segmentName);
             }
             else
             {
-                _recorder.BeginSegment(SegmentNamingStrategy.GetSegmentName(request), traceHeader.RootTraceId, traceHeader.ParentId, traceHeader.Sampled);
+                SamplingResponse samplingResponse = new SamplingResponse(ruleName, traceHeader.Sampled); // get final ruleName and SampleDecision
+                _recorder.BeginSegment(SegmentNamingStrategy.GetSegmentName(request), traceHeader.RootTraceId, traceHeader.ParentId, samplingResponse);
             }
 
             if (!AWSXRayRecorder.Instance.IsTracingDisabled())

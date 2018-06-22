@@ -37,8 +37,18 @@ namespace Amazon.XRay.Recorder.Core
     {
         private static readonly Logger _logger = Logger.GetLogger(typeof(AWSXRayRecorderImpl));
 #if NET45
-        private static readonly Lazy<AWSXRayRecorder> lazyDefaultRecorder = new Lazy<AWSXRayRecorder>(() => new AWSXRayRecorderBuilder().WithPluginsFromAppSettings().Build());
-        protected static Lazy<AWSXRayRecorder> LazyDefaultRecorder => lazyDefaultRecorder;
+        private static Lazy<AWSXRayRecorder> _lazyDefaultRecorder = new Lazy<AWSXRayRecorder>(() => new AWSXRayRecorderBuilder().WithPluginsFromAppSettings().WithContextMissingStrategyFromAppSettings().Build());
+        protected static Lazy<AWSXRayRecorder> LazyDefaultRecorder
+        {
+            get
+            {
+                return _lazyDefaultRecorder;
+            }
+            set
+            {
+                _lazyDefaultRecorder = value;
+            }
+        }
 #endif
         /// <summary>
         /// The environment variable that setting context missing strategy.
@@ -80,19 +90,20 @@ namespace Amazon.XRay.Recorder.Core
             set
             {
                 cntxtMissingStrategy = value;
+                _logger.DebugFormat(string.Format("Context missing mode : {0}", cntxtMissingStrategy));
                 string modeFromEnvironmentVariable = Environment.GetEnvironmentVariable(EnvironmentVariableContextMissingStrategy);
                 if (string.IsNullOrEmpty(modeFromEnvironmentVariable))
                 {
-                    _logger.DebugFormat(string.Format("{0} is not set. Do not override context missing mode.", EnvironmentVariableContextMissingStrategy));
+                    _logger.DebugFormat(string.Format("{0} environment variable is not set. Do not override context missing mode.", EnvironmentVariableContextMissingStrategy));
                 }
                 else if (modeFromEnvironmentVariable.Equals(ContextMissingStrategy.LOG_ERROR.ToString(), StringComparison.OrdinalIgnoreCase))
                 {
-                    _logger.DebugFormat(string.Format("{0} is set to {1}. Override local value.", EnvironmentVariableContextMissingStrategy, modeFromEnvironmentVariable));
+                    _logger.DebugFormat(string.Format("{0} environment variable is set to {1}. Override local value.", EnvironmentVariableContextMissingStrategy, modeFromEnvironmentVariable));
                     cntxtMissingStrategy = ContextMissingStrategy.LOG_ERROR;
                 }
                 else if (modeFromEnvironmentVariable.Equals(ContextMissingStrategy.RUNTIME_ERROR.ToString(), StringComparison.OrdinalIgnoreCase))
                 {
-                    _logger.DebugFormat(string.Format("{0} is set to {1}. Override local value.", EnvironmentVariableContextMissingStrategy, modeFromEnvironmentVariable));
+                    _logger.DebugFormat(string.Format("{0} environment variable is set to {1}. Override local value.", EnvironmentVariableContextMissingStrategy, modeFromEnvironmentVariable));
                     cntxtMissingStrategy = ContextMissingStrategy.RUNTIME_ERROR;
                 }
             }
@@ -112,18 +123,93 @@ namespace Amazon.XRay.Recorder.Core
         /// <summary>
         /// Begin a tracing segment. A new tracing segment will be created and started.
         /// </summary>
-        /// <param name="name">The name of the segment.</param>
-        /// <param name="traceId">Trace id of the segment.</param>
+        /// <param name="name">The name of the segment</param>
+        /// <param name="traceId">Trace id of the segment</param>
         /// <param name="parentId">Unique id of the upstream remote segment or subsegment where the downstream call originated from.</param>
-        /// <param name="sampleDecision">Sample decision for the segment from upstream service.</param>
+        /// <param name="samplingResponse">Instance  of <see cref="SamplingResponse"/>, contains sampling decision for the segment from upstream service. If not passed, sampling decision is made based on <see cref="SamplingStrategy"/> set with the recorder instance.</param>
+        /// <param name="timestamp">If not null, sets the start time for the segment else current time is set.</param>
         /// <exception cref="ArgumentNullException">The argument has a null value.</exception>
-        public abstract void BeginSegment(string name, string traceId = null, string parendId = null, SampleDecision sampleDecision = SampleDecision.Sampled);
+        public void BeginSegment(string name, string traceId = null, string parentId = null, SamplingResponse samplingResponse = null, DateTime? timestamp = null)
+        {
+#if !NET45
+            if (AWSXRayRecorder.Instance.IsLambda())
+            {
+                throw new UnsupportedOperationException("Cannot override Facade Segment. New segment not created.");
+            }
+#endif
+            Segment newSegment = new Segment(name, traceId, parentId);
+
+            if (samplingResponse == null)
+            {
+                SamplingInput samplingInput = new SamplingInput();
+                samplingResponse = SamplingStrategy.ShouldTrace(samplingInput);
+            }
+
+            if (!IsTracingDisabled())
+            {
+                if (timestamp == null)
+                {
+                    newSegment.SetStartTimeToNow();
+                }
+                else
+                {
+                   
+                    newSegment.SetStartTime(timestamp.Value);
+                }
+
+                PopulateNewSegmentAttributes(newSegment, samplingResponse);
+            }
+
+            newSegment.Sampled = samplingResponse.SampleDecision;
+
+            TraceContext.SetEntity(newSegment);
+        }
+
 
         /// <summary>
-        /// End a tracing segment. If all operations of the segments are finished, the segment will be emitted.
+        /// End tracing of a given segment.
         /// </summary>
+        /// <param name="timestamp">If not null, set as endtime for the current segment.</param>
         /// <exception cref="EntityNotAvailableException">Entity is not available in trace context.</exception>
-        public abstract void EndSegment();
+        public void EndSegment(DateTime? timestamp = null)
+        {
+#if !NET45
+            if (AWSXRayRecorder.Instance.IsLambda())
+            {
+                throw new UnsupportedOperationException("Cannot override Facade Segment. New segment not created.");
+            }
+#endif
+            try
+            {
+                // If the request is not sampled, a segment will still be available in TraceContext.
+                // Need to clean up the segment, but do not emit it.
+                Segment segment = (Segment)TraceContext.GetEntity();
+
+                if (!IsTracingDisabled())
+                {
+                    if (timestamp == null)
+                    {
+                        segment.SetEndTimeToNow();
+                    }
+                    else
+                    {
+                        segment.SetEndTime(timestamp.Value); // sets custom endtime
+                    }
+                    
+                    ProcessEndSegment(segment);
+                }
+
+                TraceContext.ClearEntity();
+            }
+            catch (EntityNotAvailableException e)
+            {
+                HandleEntityNotAvailableException(e, "Failed to end segment because cannot get the segment from trace context.");
+            }
+            catch (InvalidCastException e)
+            {
+                HandleEntityNotAvailableException(new EntityNotAvailableException("Failed to cast the entity to Segment.", e), "Failed to cast the entity to Segment.");
+            }
+        }
 
         /// <summary>
         /// Begin a tracing subsegment. A new segment will be created and added as a subsegment to previous segment.
@@ -229,6 +315,60 @@ namespace Amazon.XRay.Recorder.Core
             {
                 newSegment.Service[keyValuePair.Key] = keyValuePair.Value;
             }
+        }
+
+        /// <summary>
+        /// Populates runtime and service contexts for the segment.
+        /// </summary>
+        /// <param name="newSegment">Instance of <see cref="Segment"/>.</param>
+        protected void PopulateNewSegmentAttributes(Segment newSegment, SamplingResponse sampleResponse)
+        {
+            if (RuntimeContext != null)
+            {
+                foreach (var keyValuePair in RuntimeContext)
+                {
+                    newSegment.Aws[keyValuePair.Key] =  keyValuePair.Value;
+                }
+            }
+
+            AddRuleName(newSegment,sampleResponse);
+
+            if (Origin != null)
+            {
+                newSegment.Origin = Origin;
+            }
+
+            foreach (var keyValuePair in ServiceContext)
+            {
+                newSegment.Service[keyValuePair.Key] = keyValuePair.Value;
+            }
+        }
+
+        /// <summary>
+        /// If non null, adds given rulename to the segment..
+        /// </summary>
+        private void AddRuleName(Segment newSegment, SamplingResponse sampleResponse)
+        {
+            var ruleName = sampleResponse.RuleName;
+
+            if (string.IsNullOrEmpty(ruleName))
+            {
+                return;
+            }
+            IDictionary<string, string> xrayContext;
+            if (newSegment.Aws.TryGetValue("xray", out object value))
+            {
+                IDictionary<string, string> tempXrayContext = (Dictionary<string, string>) value;
+                xrayContext = new Dictionary<string, string>(tempXrayContext); // deep copy for thread safety
+                xrayContext["rule_name"] = ruleName;
+            }
+            else
+            {
+                xrayContext = new Dictionary<string, string>();
+                xrayContext["rule_name"] = ruleName;
+            }
+
+            newSegment.Aws["xray"] = xrayContext;
         }
 
         /// <summary>
@@ -473,17 +613,26 @@ namespace Amazon.XRay.Recorder.Core
         }
 
         /// <summary>
-        /// Sets the daemon address.
-        /// The daemon address should be in format "IPAddress:Port", i.e. "127.0.0.1:2000"
+        /// Sets the daemon address for <see cref="Emitter"/> and <see cref="DefaultSamplingStrategy"/> if set.
+        /// A notation of '127.0.0.1:2000' or 'tcp:127.0.0.1:2000 udp:127.0.0.2:2001' or 
+        ///'udp:127.0.0.1:2000 tcp:127.0.0.2:2001'
+        /// are acceptable.The former one means UDP and TCP are running at
+        /// the same address.
         /// If environment variable is set to specific daemon address, the call to this method
         /// will be ignored.
         /// </summary>
         /// <param name="daemonAddress">The daemon address.</param>
-        public void SetDaemonAddress(string daemonAddress)
+        public void SetDaemonAddress(string daemonAddress) 
         {
             if (Emitter != null)
             {
                 Emitter.SetDaemonAddress(daemonAddress);
+            }
+
+            if (SamplingStrategy != null && SamplingStrategy.GetType().Equals(typeof(DefaultSamplingStrategy)))
+            {
+                DefaultSamplingStrategy defaultSampler = (DefaultSamplingStrategy)SamplingStrategy;
+                defaultSampler.LoadDaemonConfig(DaemonConfig.GetEndPoint(daemonAddress));
             }
         }
 
@@ -573,60 +722,6 @@ namespace Amazon.XRay.Recorder.Core
             }
 
             return copy;
-        }
-
-        /// <summary>
-        /// Begin a tracing segment. A new tracing segment will be created and started.
-        /// </summary>
-        /// <param name="name">The name of the segment.</param>
-        /// <param name="timestamp">Start timestamp for the segment to be set, should not be null.</param>
-        /// <param name="traceId">Trace id of the segment.</param>
-        /// <param name="parentId">Unique id of the upstream remote segment or subsegment where the downstream call originated from.</param>
-        /// <param name="sampleDecision">Sample decision for the segment from upstream service.</param>
-        /// <exception cref="ArgumentNullException">The argument has a null value.</exception>
-        public void BeginSegment(string name, string traceId, decimal timestamp, string parentId = null, SampleDecision sampleDecision = SampleDecision.Sampled)
-        {
-            Segment newSegment = new Segment(name, traceId, parentId);
-
-            if (!IsTracingDisabled())
-            {
-                newSegment.SetStartTime(timestamp); //sets custom timestamp passed to function
-                PopulateNewSegmentAttributes(newSegment);
-            }
-
-            newSegment.Sampled = sampleDecision;
-            TraceContext.SetEntity(newSegment);
-        }
-
-        /// <summary>
-        /// End a tracing segment. If all operations of the segments are finished, the segment will be emitted.
-        /// </summary>
-        /// <param name="timestamp">End timestamp for the segment to be set, should not be null.</param>
-        /// <exception cref="EntityNotAvailableException">Entity is not available in trace context.</exception>
-        public void EndSegment(decimal timestamp)
-        {
-            try
-            {
-                // If the request is not sampled, a segment will still be available in TraceContext.
-                // Need to clean up the segment, but do not emit it.
-                Segment segment = (Segment)TraceContext.GetEntity();
-
-                if (!IsTracingDisabled())
-                {
-                    segment.SetEndTime(timestamp); //sets end time to custom timestamp passed to function
-                    ProcessEndSegment(segment);
-                }
-
-                TraceContext.ClearEntity();
-            }
-            catch (EntityNotAvailableException e)
-            {
-                HandleEntityNotAvailableException(e, "Failed to end segment because cannot get the segment from trace context.");
-            }
-            catch (InvalidCastException e)
-            {
-                HandleEntityNotAvailableException(new EntityNotAvailableException("Failed to cast the entity to Segment.", e), "Failed to cast the entity to Segment.");
-            }
         }
 
         /// <summary>
