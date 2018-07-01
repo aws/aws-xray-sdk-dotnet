@@ -84,7 +84,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
         public bool IsXRayTracingDisabled { get => _isXRayTracingDisabled; set => _isXRayTracingDisabled = value; }
 
         /// <summary>
-        /// Determines whether runtime errors should occur when recording of data is attempted and a tracing header is not available, either true or false.
+        /// For missing Segments/Subsegments, if set to true, runtime exception is thrown, if set to false, runtime exceptions are avoided and logged.
         /// </summary>
         public bool UseRuntimeErrors { get => _useRuntimeErrors; set => _useRuntimeErrors = value; }
     }
