@@ -21,10 +21,11 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
     /// </summary>
     public class XRayOptions
     {
-        private  string _pluginSetting;
-        private  string _samplingRuleManifest;
-        private  string _awsServiceHandlerManifest;
-        private  bool _isXRayTracingDisabled ;
+        private string _pluginSetting;
+        private string _samplingRuleManifest;
+        private string _awsServiceHandlerManifest;
+        private bool _isXRayTracingDisabled;
+        private bool _useRuntimeErrors;
 
         /// <summary>
         /// Default constructor.
@@ -40,12 +41,26 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
         /// <param name="samplingRuleManifest">Sampling rule file path</param>
         /// <param name="awsServiceHandlerManifest">AWS Service manifest file path.</param>
         /// <param name="isXRayTracingDisabled">Tracing disabled value, either true or false.</param>
-        public XRayOptions(string pluginSetting, string samplingRuleManifest, string awsServiceHandlerManifest, bool isXRayTracingDisabled)
+        public XRayOptions(string pluginSetting, string samplingRuleManifest, string awsServiceHandlerManifest,
+            bool isXRayTracingDisabled) : this(pluginSetting, samplingRuleManifest, awsServiceHandlerManifest, isXRayTracingDisabled, true)
+        {
+        }
+
+        /// <summary>
+        /// Creates instance of <see cref="XRayOptions"/>
+        /// </summary>
+        /// <param name="pluginSetting">Plugin setting.</param>
+        /// <param name="samplingRuleManifest">Sampling rule file path</param>
+        /// <param name="awsServiceHandlerManifest">AWS Service manifest file path.</param>
+        /// <param name="isXRayTracingDisabled">Tracing disabled value, either true or false.</param>
+        /// <param name="useRuntimeErrors">Should errors be thrown at runtime if segment not started, either true or false.</param>
+        public XRayOptions(string pluginSetting, string samplingRuleManifest, string awsServiceHandlerManifest, bool isXRayTracingDisabled, bool useRuntimeErrors)
         {
             PluginSetting = pluginSetting;
             SamplingRuleManifest = samplingRuleManifest;
             AwsServiceHandlerManifest = awsServiceHandlerManifest;
             IsXRayTracingDisabled = isXRayTracingDisabled;
+            UseRuntimeErrors = useRuntimeErrors;
         }
 
         /// <summary>
@@ -67,5 +82,10 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
         /// Tracing disabled value, either true or false.
         /// </summary>
         public bool IsXRayTracingDisabled { get => _isXRayTracingDisabled; set => _isXRayTracingDisabled = value; }
+
+        /// <summary>
+        /// For missing Segments/Subsegments, if set to true, runtime exception is thrown, if set to false, runtime exceptions are avoided and logged.
+        /// </summary>
+        public bool UseRuntimeErrors { get => _useRuntimeErrors; set => _useRuntimeErrors = value; }
     }
 }

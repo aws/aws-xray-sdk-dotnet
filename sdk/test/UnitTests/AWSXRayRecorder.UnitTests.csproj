@@ -101,6 +101,12 @@
     <None Update="JSONs\Appsetting\DisabledXRayTrue.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="JSONs\Appsetting\UseRuntimeErrorsFalse.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="JSONs\Appsetting\UseRuntimeErrorsTrue.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="JSONs\AWSRequestInfo.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

@@ -21,6 +21,7 @@ using Amazon.XRay.Recorder.Core.Internal.Emitters;
 using Amazon.XRay.Recorder.Core.Internal.Entities;
 using Amazon.XRay.Recorder.Core.Internal.Utils;
 using Amazon.XRay.Recorder.Core.Sampling;
+using Amazon.XRay.Recorder.Core.Strategies;
 using Microsoft.Extensions.Configuration;
 namespace Amazon.XRay.Recorder.Core
 {
@@ -65,7 +66,10 @@ namespace Amazon.XRay.Recorder.Core
         public static void InitializeInstance(IConfiguration configuration)
         {
             XRayOptions xRayOptions = XRayConfiguration.GetXRayOptions(configuration);
-            Instance = new AWSXRayRecorderBuilder().WithPluginsFromConfig(xRayOptions).Build(xRayOptions);
+
+            var recorderBuilder = GetBuilder(xRayOptions);
+
+            Instance = recorderBuilder.Build(xRayOptions);
         }
 
         /// <summary>
@@ -78,8 +82,27 @@ namespace Amazon.XRay.Recorder.Core
         {
             XRayOptions xRayOptions = XRayConfiguration.GetXRayOptions(configuration);
             recorder.XRayOptions = xRayOptions;
-            recorder = new AWSXRayRecorderBuilder().WithPluginsFromConfig(xRayOptions).Build(recorder);
+
+            var recorderBuilder = GetBuilder(xRayOptions);
+
+            recorder = recorderBuilder.Build(recorder);
             Instance = recorder;
+        }
+
+        private static AWSXRayRecorderBuilder GetBuilder(XRayOptions xRayOptions)
+        {
+            var recorderBuilder = new AWSXRayRecorderBuilder().WithPluginsFromConfig(xRayOptions);
+
+            if (xRayOptions.UseRuntimeErrors)
+            {
+                recorderBuilder.WithContextMissingStrategy(ContextMissingStrategy.RUNTIME_ERROR);
+            }
+            else
+            {
+                recorderBuilder.WithContextMissingStrategy(ContextMissingStrategy.LOG_ERROR);
+            }
+
+            return recorderBuilder;
         }
 
         /// <summary>
