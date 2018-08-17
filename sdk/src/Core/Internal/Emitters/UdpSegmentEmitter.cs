@@ -58,6 +58,12 @@ namespace Amazon.XRay.Recorder.Core.Internal.Emitters
         public IPEndPoint EndPoint {
 			get
 			{
+                if(_daemonHost is HostEndPoint host && host.GetIPEndPoint() == null)
+                {
+                    _logger.InfoFormat("No ip cached for {0}, falling back to local host.", _daemonHost);
+                    return _daemonIP;
+                }
+                
 				return _daemonHost?.GetIPEndPoint() ?? _daemonIP;
 			}
 		}
