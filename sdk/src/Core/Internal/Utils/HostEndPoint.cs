@@ -49,30 +49,30 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
 					if (newIP != null)
 					{
 						_timestampOfLastIPCacheUpdate = DateTime.Now;
-						_logger.InfoFormat("IP cache invaild: updated ip cache for {0} to {1}.", Host, newIP);
+						_logger.InfoFormat("IP cache invalid: updated ip cache for {0} to {1}.", Host, newIP);
 						_ipCache = new IPEndPoint(newIP, Port);
 					}
 					else
 					{
-						_logger.InfoFormat("IP cache invaild: DNS responded with zero IP addresses for {1}. Falling back to cached IP, e.g. {0}.", _ipCache, Host);
+						_logger.InfoFormat("IP cache invalid: DNS responded with zero IP addresses for {1}. Falling back to cached IP, e.g. {0}.", _ipCache, Host);
 					}
 				}
 				//Error catching for DNS resolve
 				catch(ArgumentNullException)
 				{
-					_logger.InfoFormat("IP cache invaild: failed to resolve DNS due to host being null. Falling back to cached IP, e.g. {0}.", _ipCache);
+					_logger.InfoFormat("IP cache invalid: failed to resolve DNS due to host being null. Falling back to cached IP, e.g. {0}.", _ipCache);
 				}
 				catch(ArgumentOutOfRangeException)
 				{
-					_logger.InfoFormat("IP cache invaild: failed to resolve DNS due to host being longer than 255 characters. ({0})", Host);
+					_logger.InfoFormat("IP cache invalid: failed to resolve DNS due to host being longer than 255 characters. ({0})", Host);
 				}
 				catch(SocketException)
 				{
-					_logger.InfoFormat("IP cache invaild: failed to resolve DNS. ({0})", Host);
+					_logger.InfoFormat("IP cache invalid: failed to resolve DNS. ({0})", Host);
 				}
 				catch(ArgumentException)
 				{
-					_logger.InfoFormat("IP cache invaild: failed to update cache due to {0} not being a vaild IP.", Host);
+					_logger.InfoFormat("IP cache invalid: failed to update cache due to {0} not being a vaild IP.", Host);
 				}
 			}
 
