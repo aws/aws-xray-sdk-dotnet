@@ -27,7 +27,13 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
 
 		private bool isIPCacheValid()
 		{
-			cacheLock.EnterReadLock();
+			bool entered = cacheLock.TryEnterReadLock(0);
+
+			if (!entered)
+			{
+				//Another thread holds a write lock, i.e. updating the cache => the cache is dirty
+				return false;
+			}
 
 			bool res;
 			
