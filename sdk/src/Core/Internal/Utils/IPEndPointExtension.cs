@@ -186,7 +186,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
             {
                 endPoint.UDPEndpoint = udpEndpoint;
                 endPoint.TCPEndpoint = udpEndpoint;
-                _logger.InfoFormat("Using custom daemon address for UDP and TCP: {0}:{1}", endPoint.UDPEndpoint.GetIPEndPoint().Address.ToString(), endPoint.UDPEndpoint.GetIPEndPoint().Port);
+                _logger.InfoFormat("Using custom daemon address for UDP and TCP: {0}:{1}", endPoint.UDP_IP_Endpoint.Address.ToString(), endPoint.UDP_IP_Endpoint.Port);
                 return true;
             }
             else
@@ -216,7 +216,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
             {
                 endPoint.UDPEndpoint = udpEndpoint;
                 endPoint.TCPEndpoint = tcpEndpoint;
-                _logger.InfoFormat("Using custom daemon address for UDP {0}:{1} and TCP {2}:{3}", endPoint.UDPEndpoint.GetIPEndPoint().Address.ToString(), endPoint.UDPEndpoint.GetIPEndPoint().Port, endPoint.TCPEndpoint.GetIPEndPoint().Address.ToString(), endPoint.TCPEndpoint.GetIPEndPoint().Port);
+                _logger.InfoFormat("Using custom daemon address for UDP {0}:{1} and TCP {2}:{3}", endPoint.UDP_IP_Endpoint.Address.ToString(), endPoint.UDP_IP_Endpoint.Port, endPoint.TCP_IP_Endpoint.Address.ToString(), endPoint.TCP_IP_Endpoint.Port);
                 return true;
             }
 

@@ -48,7 +48,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
         public static readonly IPEndPoint DefaultEndpoint = new IPEndPoint(_defaultDaemonAddress, _defaultDaemonPort);
 
         /// <summary>
-        /// Gets aor sets UDP endpoint.
+        /// Gets or sets UDP endpoint.
         /// </summary>
         public EndPoint UDPEndpoint { get; set; }
 
@@ -56,11 +56,26 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
         /// Gets or sets TCP endpoint.
         /// </summary>
         public EndPoint TCPEndpoint { get; set; }
+        
+        /// <summary>
+        /// Gets IP for UDP endpoint.
+        /// </summary>
+        public IPEndPoint UDP_IP_Endpoint {
+            get => UDPEndpoint.GetIPEndPoint();
+        }
+
+        /// <summary>
+        /// Gets IP for TCP endpoint.
+        /// </summary>
+        public IPEndPoint TCP_IP_Endpoint
+        {
+            get => TCPEndpoint.GetIPEndPoint();
+        }
 
         public DaemonConfig()
         {
-            UDPEndpoint = EndPoint.of((DefaultEndpoint));
-            TCPEndpoint = EndPoint.of((DefaultEndpoint));
+            UDPEndpoint = EndPoint.of(DefaultEndpoint);
+            TCPEndpoint = EndPoint.of(DefaultEndpoint);
         }
 
         internal static DaemonConfig ParsEndpoint(string daemonAddress)
@@ -70,7 +85,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
             if (!IPEndPointExtension.TryParse(daemonAddress, out daemonEndPoint))
             {
                  daemonEndPoint = new DaemonConfig();
-                _logger.InfoFormat("The given daemonAddress ({0}) is invalid, using default daemon UDP and TCP address {1}:{2}.", daemonAddress, daemonEndPoint.UDPEndpoint.GetIPEndPoint().Address.ToString(), daemonEndPoint.UDPEndpoint.GetIPEndPoint().Port);
+                _logger.InfoFormat("The given daemonAddress ({0}) is invalid, using default daemon UDP and TCP address {1}:{2}.", daemonAddress, daemonEndPoint.UDP_IP_Endpoint.Address.ToString(), daemonEndPoint.UDP_IP_Endpoint.Port);
             }
             return daemonEndPoint;
         }
