@@ -111,6 +111,12 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
                 hostEndpoint = null;
                 return false;
             }
+            
+            /*
+             * Almost anything can be a hostname which makes further validation here hard.
+             * Accept any string in entries[0] and let it fail in the DNS lookup instead.
+             */
+            
             hostEndpoint = new HostEndPoint(entries[0], port);
             _logger.InfoFormat("Using custom daemon address: {0}:{1}", hostEndpoint.Host, hostEndpoint.Port);
             return true;
@@ -200,7 +206,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
             EndPoint udpEndpoint = null;
             EndPoint tcpEndpoint = null;
             IDictionary<string, string> addressMap = new Dictionary<string, string>();
-            string[] address1 = daemonAddress[0].Split(_addressPortDelimiter); // tcp:127.0.0.1:2000 udp:127.0.0.2:2001
+            string[] address1 = daemonAddress[0].Split(_addressPortDelimiter); // tcp:<hostname or address>:2000 udp:<hostname or address>:2001
             string[] address2 = daemonAddress[1].Split(_addressPortDelimiter);
 
             addressMap[address1[0]] = address1[1] + _addressPortDelimiter + address1[2];
