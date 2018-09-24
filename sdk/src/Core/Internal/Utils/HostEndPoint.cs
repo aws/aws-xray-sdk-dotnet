@@ -58,7 +58,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
 		private void updateCache()
 		{
 			//If we fail with timeout = 0 another thread is already updating the cache and we don't need to it as well
-			bool entered = cacheLock.TryEnterReadLock(0);
+			bool entered = cacheLock.TryEnterWriteLock(0);
 
 			if (!entered)
 			{
