@@ -7,6 +7,13 @@ using Amazon.Runtime.Internal.Util;
 
 namespace Amazon.XRay.Recorder.Core.Internal.Utils
 {
+	/// <summary>
+	/// Represents a endpoint on some network.
+	/// The represented endpoint is identified by a hostname.
+	///
+	/// Internally resolves and caches an ip for the hostname.
+	/// The ip is cached to keep the normal path speedy and non-blocking.
+	/// </summary>
 	public class HostEndPoint
 	{
 		private const int CACHE_TTL = 60;	//Seconds to consider a cached dns response valid
@@ -15,14 +22,25 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
 		private static readonly Logger _logger = Logger.GetLogger(typeof(HostEndPoint));
 		private ReaderWriterLockSlim cacheLock = new ReaderWriterLockSlim();
 
+		/// <summary>
+		/// Create a HostEndPoint.
+		/// </summary>
+		/// <param name="host"></param>
+		/// <param name="port"></param>
 		public HostEndPoint(string host, int port)
 		{
 			Host = host;
 			Port = port;
 		}
 		
-		public string Host { get; private set; }
-		public int Port { get; private set; }
+		/// <summary>
+		/// Get the hostname that identifies the endpoint.
+		/// </summary>
+		public string Host { get; }
+		/// <summary>
+		/// Get the port of the endpoint.
+		/// </summary>
+		public int Port { get; }
 
 
 		private bool isIPCacheValid()
@@ -110,7 +128,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
 		}
 
 		/// <summary>
-		/// Returns a cached ip resolved from the host.
+		/// Returns a cached ip resolved from the hostname.
 		///
 		/// If the cache is invalid this method will update it.
 		///

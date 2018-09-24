@@ -96,6 +96,13 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
             }
         }
         
+        
+        /// <summary>
+        /// Tries to parse a string to <see cref="HostEndPoint"/>
+        /// </summary>
+        /// <param name="input">The input string.</param>
+        /// <param name="hostEndpoint">The parsed HostEndPoint</param>
+        /// <returns>true if <paramref name="input"/> converted successfully; otherwise, false.</returns>
         public static bool TryParse(string input, out HostEndPoint hostEndpoint)
         {
             var entries = input.Split(':');
@@ -122,6 +129,12 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
             return true;
         }
 
+        /// <summary>
+        /// Tries to parse a string to <see cref="EndPoint"/>
+        /// </summary>
+        /// <param name="input">The input string.</param>
+        /// <param name="hostEndpoint">The parsed EndPoint</param>
+        /// <returns>true if <paramref name="input"/> converted successfully; otherwise, false.</returns>
         public static bool TryParse(string input, out EndPoint endpoint)
         {
             if (TryParse(input, out IPEndPoint ipEndPoint))
