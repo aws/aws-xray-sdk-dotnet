@@ -74,8 +74,8 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
 
         public DaemonConfig()
         {
-            UDPEndpoint = EndPoint.of(DefaultEndpoint);
-            TCPEndpoint = EndPoint.of(DefaultEndpoint);
+            UDPEndpoint = EndPoint.Of(DefaultEndpoint);
+            TCPEndpoint = EndPoint.Of(DefaultEndpoint);
         }
 
         internal static DaemonConfig ParsEndpoint(string daemonAddress)

@@ -139,12 +139,12 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
         {
             if (TryParse(input, out IPEndPoint ipEndPoint))
             {
-                endpoint = EndPoint.of(ipEndPoint);
+                endpoint = EndPoint.Of(ipEndPoint);
                 return true;
             }
             else if (TryParse(input, out HostEndPoint hostEndPoint))
             {
-                endpoint = EndPoint.of(hostEndPoint);
+                endpoint = EndPoint.Of(hostEndPoint);
                 return true;
             }
             else

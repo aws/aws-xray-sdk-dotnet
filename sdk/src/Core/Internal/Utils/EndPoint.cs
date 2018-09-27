@@ -33,7 +33,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
         /// </summary>
         /// <param name="hostEndPoint">the host endpoint to represent.</param>
         /// <returns></returns>
-        public static EndPoint of(HostEndPoint hostEndPoint)
+        public static EndPoint Of(HostEndPoint hostEndPoint)
         {
             return new EndPoint {_isHost = true, _h = hostEndPoint};
         }
@@ -43,7 +43,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
         /// </summary>
         /// <param name="ipEndPoint">the ip endpoint to represent.</param>
         /// <returns></returns>
-        public static EndPoint of(IPEndPoint ipEndPoint)
+        public static EndPoint Of(IPEndPoint ipEndPoint)
         {
             return new EndPoint {_isHost = false, _i = ipEndPoint};
         }
