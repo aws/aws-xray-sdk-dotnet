@@ -43,7 +43,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
 		public int Port { get; }
 
 
-		private bool isIPCacheValid()
+		private bool IsIPCacheValid()
 		{
 			bool entered = cacheLock.TryEnterReadLock(0);
 
@@ -73,7 +73,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
 			return res;
 		}
 
-		private void updateCache()
+		private void UpdateCache()
 		{
 			//If we fail with timeout = 0 another thread is already updating the cache and we don't need to it as well
 			bool entered = cacheLock.TryEnterWriteLock(0);
@@ -140,9 +140,9 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
 		public IPEndPoint GetIPEndPoint()
 		{
 			
-			if (!isIPCacheValid())
+			if (!IsIPCacheValid())
 			{
-				updateCache();
+				UpdateCache();
 			}
 			
 			return _ipCache;
