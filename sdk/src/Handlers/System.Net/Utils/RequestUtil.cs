@@ -24,7 +24,16 @@ namespace Amazon.XRay.Recorder.Handlers.System.Net.Utils
         /// <param name="request">An instance of <see cref="HttpRequestMessage"/></param>
         internal static void ProcessRequest(HttpRequestMessage request)
         {
-            ProcessRequest(request.RequestUri, request.Method.Method, header => request.Headers.Add(TraceHeader.HeaderKey, header));
+            ProcessRequest(request.RequestUri, request.Method.Method, AddHeader);
+
+            void AddHeader(string header)
+            {
+                // If we've already added a trace header, don't add another one.
+                if (!request.Headers.Contains(TraceHeader.HeaderKey))
+                {
+                    request.Headers.Add(TraceHeader.HeaderKey, header);
+                }
+            }
         }
 
         /// <summary>
