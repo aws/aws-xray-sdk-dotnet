@@ -118,6 +118,12 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
                 hostEndpoint = null;
                 return false;
             }
+            if (port < 0 || 65535 < port)
+            {
+                _logger.InfoFormat("Failed to parse HostEndPoint because port is out of range. ({0})", input);
+                hostEndpoint = null;
+                return false;
+            }
             
             /*
              * Almost anything can be a hostname which makes further validation here hard.
