@@ -1,6 +1,26 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 2.3.1-beta (2018-10-04)
+### AWSXRayRecorder.Core (2.3.1-beta)
+#### Fixed
+- .NET : Default context missing strategy is to runtime
+
+### AWSXRayRecorder.Handlers.System.Net (2.3.1-beta)
+- Prevent trace header from from being added more than once : [PR#40](https://github.com/aws/aws-xray-sdk-dotnet/pull/40)
+
+### AWSXRayRecorder.Handlers.SqlServer (2.3.1-beta)
+- Bumped version to address AWSXRayRecorder.Core package change
+
+### AWSXRayRecorder.Handlers.AwsSdk (2.3.1-beta)
+- Bumped version to address AWSXRayRecorder.Core package change
+
+### AWSXRayRecorder.Handlers.AspNet (2.3.1-beta)
+- Bumped version to address AWSXRayRecorder.Core package change
+
+### AWSXRayRecorder.Handlers.AspNetCore (2.3.1-beta)
+- Bumped version to address AWSXRayRecorder.Core package change
+
 ## 2.3.0-beta (2018-08-28)
 ### AWSXRayRecorder.Core (2.3.0-beta)
 #### Breaking Change - .NET and .NET Core
