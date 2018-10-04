@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // <copyright file="AwsXrayRecorderTests.cs" company="Amazon.com">
 //      Copyright 2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
@@ -63,6 +63,7 @@ namespace Amazon.XRay.Recorder.UnitTests
 #endif
             Environment.SetEnvironmentVariable(AWSXRayRecorder.EnvironmentVariableContextMissingStrategy, null);
             _recorder.Dispose();
+            AWSXRayRecorder.Instance.Dispose();
         }
 
         [TestMethod]
@@ -778,20 +779,6 @@ namespace Amazon.XRay.Recorder.UnitTests
         }
 
         [TestMethod]
-        public void TestServiceContext()
-        {
-            _recorder.BeginSegment("test", TraceId);
-            var segment = (Segment)TraceContext.GetEntity();
-            _recorder.EndSegment();
-#if NET45
-            Assert.AreEqual(".NET Framework", segment.Service["runtime"]);
-#else
-            Assert.AreEqual(".NET Core Framework", segment.Service["runtime"]);
-#endif
-            Assert.AreEqual(Environment.Version.ToString(), segment.Service["runtime_version"]);
-        }
-
-        [TestMethod]
         public void TestNotInitializeSamplingStrategy()
         {
             SamplingInput input = new SamplingInput("randomName", "testPath", "get","test","*");
@@ -884,6 +871,13 @@ namespace Amazon.XRay.Recorder.UnitTests
                 recorder.AddSqlInformation("sqlKey", "value");
                 recorder.AddMetadata("key", "value");
             }
+        }
+
+        [TestMethod]
+        public void TestDefaultContextMissingStrategy()
+        {
+            var recorder = AWSXRayRecorder.Instance;
+            Assert.AreEqual(ContextMissingStrategy.RUNTIME_ERROR, recorder.ContextMissingStrategy);
         }
 
         [TestMethod]

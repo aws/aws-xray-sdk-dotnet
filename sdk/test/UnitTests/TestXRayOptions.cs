@@ -20,11 +20,9 @@ using Amazon.XRay.Recorder.Core.Internal.Utils;
 using Microsoft.Extensions.Configuration;
 using System.IO;
 using Amazon.XRay.Recorder.Core;
-using Amazon.XRay.Recorder.Core.Sampling;
-using System.Net.Http;
 using Amazon.XRay.Recorder.Core.Internal.Emitters;
-using Amazon.XRay.Recorder.Core.Internal.Entities;
 using static Amazon.XRay.Recorder.UnitTests.AwsXrayRecorderTests;
+using System;
 
 namespace Amazon.XRay.Recorder.UnitTests
 {
@@ -41,6 +39,8 @@ namespace Amazon.XRay.Recorder.UnitTests
         public void TestCleanup()
         {
             _xRayOptions = new XRayOptions();
+            Environment.SetEnvironmentVariable(AWSXRayRecorder.EnvironmentVariableContextMissingStrategy, null);
+            AWSXRayRecorder.Instance.Dispose();
         }
 
         [TestMethod]
@@ -180,7 +180,11 @@ namespace Amazon.XRay.Recorder.UnitTests
             IConfiguration configuration = BuildConfiguration("UseRuntimeErrorsFalse.json");
 
             _xRayOptions = XRayConfiguration.GetXRayOptions(configuration);
+
+            AWSXRayRecorder.InitializeInstance(configuration);
+
             Assert.IsFalse(_xRayOptions.UseRuntimeErrors);
+            Assert.AreEqual(AWSXRayRecorder.Instance.ContextMissingStrategy, Core.Strategies.ContextMissingStrategy.LOG_ERROR);
         }
 
         [TestMethod]
@@ -189,7 +193,11 @@ namespace Amazon.XRay.Recorder.UnitTests
             IConfiguration configuration = BuildConfiguration("UseRuntimeErrorsTrue.json");
 
             _xRayOptions = XRayConfiguration.GetXRayOptions(configuration);
+
+            AWSXRayRecorder.InitializeInstance(configuration);
+
             Assert.IsTrue(_xRayOptions.UseRuntimeErrors);
+            Assert.AreEqual(AWSXRayRecorder.Instance.ContextMissingStrategy, Core.Strategies.ContextMissingStrategy.RUNTIME_ERROR);
         }
 
         [TestMethod]
@@ -198,7 +206,11 @@ namespace Amazon.XRay.Recorder.UnitTests
             IConfiguration configuration = BuildConfiguration("DisabledXRayMissing.json");
 
             _xRayOptions = XRayConfiguration.GetXRayOptions(configuration);
+
+            AWSXRayRecorder.InitializeInstance(configuration);
+
             Assert.IsTrue(_xRayOptions.UseRuntimeErrors);
+            Assert.AreEqual(AWSXRayRecorder.Instance.ContextMissingStrategy, Core.Strategies.ContextMissingStrategy.RUNTIME_ERROR);
         }
 
         // Creating custom configuration

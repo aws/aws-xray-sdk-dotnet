@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // <copyright file="TestAppSettings.cs" company="Amazon.com">
 //      Copyright 2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
@@ -15,7 +15,9 @@
 // </copyright>
 //-----------------------------------------------------------------------------
 
+using System;
 using System.Configuration;
+using Amazon.XRay.Recorder.Core;
 using Amazon.XRay.Recorder.Core.Internal.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -31,7 +33,10 @@ namespace Amazon.XRay.Recorder.UnitTests
         public void TestCleanup()
         {
             ConfigurationManager.AppSettings[DisableXRayTracingKey] = null;
+            ConfigurationManager.AppSettings[UseRuntimeErrors] = null;
             AppSettings.Reset();
+            Environment.SetEnvironmentVariable(AWSXRayRecorder.EnvironmentVariableContextMissingStrategy, null);
+            AWSXRayRecorder.Instance.Dispose();
         }
 
         [TestMethod]
@@ -70,7 +75,8 @@ namespace Amazon.XRay.Recorder.UnitTests
         {
             ConfigurationManager.AppSettings[UseRuntimeErrors] = "true";
             AppSettings.Reset();
-            Assert.IsTrue(AppSettings.UseRuntimeErrors);
+            var recorder = GetRecorder();
+            Assert.AreEqual(Core.Strategies.ContextMissingStrategy.RUNTIME_ERROR, recorder.ContextMissingStrategy);
         }
 
         [TestMethod]
@@ -78,15 +84,31 @@ namespace Amazon.XRay.Recorder.UnitTests
         {
             ConfigurationManager.AppSettings[UseRuntimeErrors] = "false";
             AppSettings.Reset();
-            Assert.IsFalse(AppSettings.UseRuntimeErrors);
+            var recorder = GetRecorder();
+            Assert.AreEqual(Core.Strategies.ContextMissingStrategy.LOG_ERROR, recorder.ContextMissingStrategy);
         }
 
         [TestMethod]
         public void TestUseRuntimeErrorsInvalid()
-        {
-            ConfigurationManager.AppSettings[UseRuntimeErrors] = "XYZ";
+        { 
+            ConfigurationManager.AppSettings[UseRuntimeErrors] = "invalid";
             AppSettings.Reset();
-            Assert.IsTrue(AppSettings.UseRuntimeErrors);
+            var recorder = GetRecorder();
+            Assert.AreEqual(Core.Strategies.ContextMissingStrategy.RUNTIME_ERROR ,recorder.ContextMissingStrategy);
+        }
+
+
+        [TestMethod]
+        public void TestUseRuntimeErrorsNoKeyPresent()
+        {
+            AppSettings.Reset();
+            var recorder = GetRecorder();
+            Assert.AreEqual(Core.Strategies.ContextMissingStrategy.RUNTIME_ERROR, recorder.ContextMissingStrategy);
+        }
+
+        private AWSXRayRecorder GetRecorder()
+        {
+            return new AWSXRayRecorderBuilder().WithPluginsFromAppSettings().WithContextMissingStrategyFromAppSettings().Build();
         }
     }
 }

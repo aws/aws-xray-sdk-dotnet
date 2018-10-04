@@ -34,7 +34,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
         private static string _samplingRuleManifest = GetSetting(SamplingRuleManifestKey);
         private static string _awsServiceHandlerManifest = GetSetting(AWSServiceHandlerManifestKey);
         private static bool _isXRayTracingDisabled = GetSettingBool(DisableXRayTracingKey);
-        private static bool _useRuntimeErrors = GetSettingBool(UseRuntimeErrorsKey);
+        private static bool _useRuntimeErrors = GetSettingBoolForRuntimeError(UseRuntimeErrorsKey);
 
         /// <summary>
         /// Gets the plugin setting from app settings
