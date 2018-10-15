@@ -150,7 +150,7 @@ namespace Amazon.XRay.Recorder.Handlers.AspNetCore.Internal
                 _recorder.AddHttpInformation("response", responseAttributes);
             }
 
-            if (AWSXRayRecorder.Instance.IsLambda())
+            if (AWSXRayRecorder.IsLambda())
             {
                 _recorder.EndSubsegment();
             }
@@ -228,7 +228,7 @@ namespace Amazon.XRay.Recorder.Handlers.AspNetCore.Internal
                 ruleName = sampleResponse.RuleName;
             }
 
-            if (AWSXRayRecorder.Instance.IsLambda())
+            if (AWSXRayRecorder.IsLambda())
             {
                 _recorder.BeginSubsegment(segmentName);
             }

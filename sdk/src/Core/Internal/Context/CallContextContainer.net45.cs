@@ -1,5 +1,5 @@
-//-----------------------------------------------------------------------------
-// <copyright file="TraceContext.net45.cs" company="Amazon.com">
+﻿//-----------------------------------------------------------------------------
+// <copyright file="CallContextContainer.net45.cs" company="Amazon.com">
 //      Copyright 2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 //      Licensed under the Apache License, Version 2.0 (the "License").
@@ -14,30 +14,25 @@
 //      permissions and limitations under the License.
 // </copyright>
 //-----------------------------------------------------------------------------
-
 using System;
+using Amazon.XRay.Recorder.Core.Internal.Entities;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.Remoting.Messaging;
 using System.Security;
 using Amazon.XRay.Recorder.Core.Exceptions;
-using Amazon.XRay.Recorder.Core.Internal.Entities;
 
-namespace Amazon.XRay.Recorder.Core.Internal.Utils
+namespace Amazon.XRay.Recorder.Core.Internal.Context
 {
-    /// <summary>
-    /// Context to save trace segment which will be preserved across thread.
-    /// </summary>
-    public static class TraceContext
+    public class CallContextContainer : ITraceContext
     {
         private const string Key = "AWSXRayRecorder";
-
         /// <summary>
         /// Get entity (segment/subsegment) from the context
         /// </summary>
         /// <returns>The segment get from context</returns>
         /// <exception cref="EntityNotAvailableException">Thrown when the entity is not available to get.</exception>
         [SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate", Justification = "It's a wrapper for CallContext.LogicalGetData().")]
-        public static Entity GetEntity()
+        public Entity GetEntity()
         {
             try
             {
@@ -64,7 +59,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
         /// </summary>
         /// <param name="entity">The segment to be set</param>
         /// <exception cref="EntityNotAvailableException">Thrown when the entity is not available to set</exception>
-        public static void SetEntity(Entity entity)
+        public void SetEntity(Entity entity)
         {
             try
             {
@@ -79,16 +74,16 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
         /// <summary>
         /// Clear entity from trace context for cleanup.
         /// </summary>
-        public static void ClearEntity()
+        public void ClearEntity()
         {
             CallContext.FreeNamedDataSlot(Key);
         }
 
-       /// <summary>
-       /// Checks whether enity is present in <see cref="CallContext"/>.
-       /// </summary>
-       /// <returns>True if entity is present in <see cref="CallContext"/> else false.</returns>
-        public static Boolean IsEntityPresent()
+        /// <summary>
+        /// Checks whether entity is present in <see cref="CallContext"/>.
+        /// </summary>
+        /// <returns>True if entity is present in <see cref="CallContext"/> else false.</returns>
+        public Boolean IsEntityPresent()
         {
             Entity entity = (Entity)CallContext.LogicalGetData(Key);
 

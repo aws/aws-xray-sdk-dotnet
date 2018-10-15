@@ -23,9 +23,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Amazon.XRay.Recorder.Core.Internal.Entities;
 using Amazon.XRay.Recorder.Core.Sampling;
-using Amazon.XRay.Recorder.Core.Internal.Utils;
 using Amazon.XRay.Recorder.Core.Exceptions;
 using System.Threading;
+using Amazon.XRay.Recorder.Core.Internal.Context;
 
 namespace Amazon.XRay.Recorder.Handlers.AspNet
 {
@@ -40,12 +40,21 @@ namespace Amazon.XRay.Recorder.Handlers.AspNet
     {
         private static readonly Logger _logger = Logger.GetLogger(typeof(AWSXRayASPNET));
         private static SegmentNamingStrategy segmentNamingStrategy;
-        private static readonly AWSXRayRecorder _recorder = AWSXRayRecorder.Instance;
+        private static readonly AWSXRayRecorder _recorder;
+
+        static AWSXRayASPNET()
+        {
+            if (!AWSXRayRecorder.IsCustomRecorder) // If custom recorder is not set
+            {
+               AWSXRayRecorder.Instance.SetTraceContext(new HybridContextContainer()); // configure Trace Context
+            }
+            _recorder = AWSXRayRecorder.Instance;
+        }
 
         /// <summary>
         /// Key name that is used to store segment in the HttpApplication.Context object of the request.
         /// </summary>
-        public const String XRayEntity = "XRayEntity";
+        public const String XRayEntity = HybridContextContainer.XRayEntity;
 
         private static ReaderWriterLockSlim rwLock = new ReaderWriterLockSlim();
 
@@ -143,11 +152,6 @@ namespace Amazon.XRay.Recorder.Handlers.AspNet
 
             string ruleName = null;
 
-            if (context.Items.Contains(XRayEntity))
-            {
-                return; // Do not override segment for the current request
-            }
-
             var request = context.Request;
             TraceHeader traceHeader = GetTraceHeader(context);
 
@@ -170,8 +174,6 @@ namespace Amazon.XRay.Recorder.Handlers.AspNet
                 ProcessRequestAttributes(request, requestAttributes);
                 _recorder.AddHttpInformation("request", requestAttributes);
             }
-
-            context.Items.Add(XRayEntity, Core.Internal.Utils.TraceContext.GetEntity());
         }
 
         private static void ProcessRequestAttributes(HttpRequest request, Dictionary<string, object> requestAttributes)
@@ -199,14 +201,6 @@ namespace Amazon.XRay.Recorder.Handlers.AspNet
         {
             var context = ((HttpApplication)sender).Context;
             var response = context.Response;
-
-            var segment = (Segment)context.Items[XRayEntity];
-            context.Items.Remove(XRayEntity);
-
-            if (!Core.Internal.Utils.TraceContext.IsEntityPresent() && segment != null)
-            {
-                Core.Internal.Utils.TraceContext.SetEntity(segment);
-            }
 
             if (!AWSXRayRecorder.Instance.IsTracingDisabled() && response != null)
             {
@@ -242,13 +236,10 @@ namespace Amazon.XRay.Recorder.Handlers.AspNet
         {
             try
             {
-                Segment segment = (Segment)Core.Internal.Utils.TraceContext.GetEntity();
+                Segment segment = (Segment)AWSXRayRecorder.Instance.GetEntity();
                 traceHeader.Sampled = segment.Sampled;
             }
-            catch (EntityNotAvailableException e)
-            {
-                _logger.Error(new EntityNotAvailableException("Failed to cast the entity to Segment.", e), "Failed to  get the segment from trace context for setting sampling decision in the response.");
-            }
+         
             catch (InvalidCastException e)
             {
                 _logger.Error(new EntityNotAvailableException("Failed to cast the entity to Segment.", e), "Failed to  get the segment from trace context for setting sampling decision in the response.");

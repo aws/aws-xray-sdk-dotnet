@@ -27,6 +27,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
 using Amazon.XRay.Recorder.Core.Internal.Emitters;
 using System;
+using Amazon.XRay.Recorder.Core.Internal.Context;
 
 
 #if !NET45
@@ -64,7 +65,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             AWSXRayRecorder recorder = new AWSXRayRecorderBuilder().WithPlugin(dummyPlugin).Build();
 
             recorder.BeginSegment("test", TraceId);
-            var segment = (Segment)TraceContext.GetEntity();
+            var segment = (Segment)AWSXRayRecorder.Instance.TraceContext.GetEntity();
             recorder.EndSegment();
 
             Assert.AreEqual("Origin", segment.Origin);
@@ -206,6 +207,22 @@ namespace Amazon.XRay.Recorder.UnitTests
             Assert.Fail();
         }
 
+        [TestMethod]
+        public void TestSetTraceContext()
+        {
+            var recorder = new AWSXRayRecorderBuilder().WithTraceContext(new DummyTraceContext()).Build(); // set custom trace context
+            Assert.AreEqual(typeof(DummyTraceContext).FullName, recorder.TraceContext.GetType().FullName);
+        }
+
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void TestSetNullTraceContext()
+        {
+            var recorder = new AWSXRayRecorderBuilder().WithTraceContext(null).Build();
+            Assert.Fail();
+        }
+
         private class DummySamplingStrategy : ISamplingStrategy
         {
             public SamplingResponse ShouldTrace(SamplingInput input)
@@ -252,6 +269,28 @@ namespace Amazon.XRay.Recorder.UnitTests
 
             public void SetDaemonAddress(string daemonAddress)
             {
+            }
+        }
+
+       public class DummyTraceContext : ITraceContext
+        {
+            public void ClearEntity()
+            {
+            }
+
+            public Entity GetEntity()
+            {
+                throw new NotImplementedException();
+            }
+
+            public bool IsEntityPresent()
+            {
+                throw new NotImplementedException();
+            }
+
+            public void SetEntity(Entity entity)
+            {
+                throw new NotImplementedException();
             }
         }
     }

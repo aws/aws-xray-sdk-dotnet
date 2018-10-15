@@ -18,6 +18,7 @@
 using System;
 using System.Collections.Generic;
 using Amazon.Runtime.Internal.Util;
+using Amazon.XRay.Recorder.Core.Internal.Context;
 using Amazon.XRay.Recorder.Core.Internal.Emitters;
 using Amazon.XRay.Recorder.Core.Internal.Utils;
 using Amazon.XRay.Recorder.Core.Plugins;
@@ -40,6 +41,7 @@ namespace Amazon.XRay.Recorder.Core
         private ContextMissingStrategy _contextMissingStrategy = ContextMissingStrategy.RUNTIME_ERROR;
         private ISegmentEmitter _segmentEmitter;
         private string _daemonAddress;
+        private ITraceContext _traceContext;
 
         /// <summary>
         /// Gets a read-only copy of current plugins in the builder
@@ -51,6 +53,17 @@ namespace Amazon.XRay.Recorder.Core
                 return _plugins.AsReadOnly();
             }
         }
+
+#if NET45
+        /// <summary>
+        /// Initializes <see cref="AWSXRayRecorderBuilder"/> instance with default settings.
+        /// </summary>
+        /// <returns>instance of <see cref="AWSXRayRecorderBuilder"/></returns>
+        public static AWSXRayRecorderBuilder GetDefaultBuilder()
+        {
+            return new AWSXRayRecorderBuilder().WithPluginsFromAppSettings().WithContextMissingStrategyFromAppSettings();
+        }
+#endif
 
 #if NET45
         /// <summary>
@@ -217,6 +230,17 @@ namespace Amazon.XRay.Recorder.Core
         }
 
         /// <summary>
+        /// Configures recorder with <see cref="ITraceContext"/> instance.
+        /// </summary>
+        /// <param name="segmentEmitter">The provided <see cref="ISegmentEmitter"/> instance.</param>
+        /// <returns>The builder with ISegmentEmitter added.</returns>
+        public AWSXRayRecorderBuilder WithTraceContext(ITraceContext traceContext)
+        {
+            _traceContext = traceContext ?? throw new ArgumentNullException("TraceContext");
+            return this;
+        }
+
+        /// <summary>
         /// Build a instance of <see cref="AWSXRayRecorder"/> with existing configuration added to the builder.
         /// </summary>
         /// <returns>A new instance of <see cref="AWSXRayRecorder"/>.</returns>
@@ -274,7 +298,7 @@ namespace Amazon.XRay.Recorder.Core
 
             recorder.ContextMissingStrategy = _contextMissingStrategy;
 
-            if(_segmentEmitter != null)
+            if (_segmentEmitter != null)
             {
                 recorder.Emitter = _segmentEmitter;
             }
@@ -287,6 +311,11 @@ namespace Amazon.XRay.Recorder.Core
             if (_daemonAddress != null) 
             {
                 recorder.SetDaemonAddress(_daemonAddress);
+            }
+
+            if (_traceContext != null)
+            {
+                recorder.SetTraceContext(_traceContext);
             }
         }
     }

@@ -22,7 +22,6 @@ using System.IO;
 using System.Reflection;
 using Amazon.Runtime;
 using Amazon.Runtime.Internal.Util;
-using Amazon.Util;
 using Amazon.XRay.Recorder.Core;
 using Amazon.XRay.Recorder.Core.Internal.Entities;
 using Amazon.XRay.Recorder.Core.Internal.Utils;
@@ -264,8 +263,7 @@ namespace Amazon.XRay.Recorder.Handlers.AwsSdk
                 _logger.DebugFormat("Failed to handle BeforeRequestEvent, because e can't be converted to WebServiceRequestEventArgs.");
                 return;
             }
-
-            if (TraceHeader.TryParse(TraceContext.GetEntity(), out TraceHeader traceHeader))
+            if (TraceHeader.TryParse(_recorder.GetEntity(), out TraceHeader traceHeader))
             {
                 args.Headers[TraceHeader.HeaderKey] = traceHeader.ToString();
             }
@@ -307,7 +305,7 @@ namespace Amazon.XRay.Recorder.Handlers.AwsSdk
                 return;
             }
 
-            var subsegment = TraceContext.GetEntity();
+            var subsegment = AWSXRayRecorder.Instance.GetEntity();
 
             subsegment.Aws["region"] = client.Config.RegionEndpoint?.SystemName;
             subsegment.Aws["operation"] = operation;
@@ -350,7 +348,7 @@ namespace Amazon.XRay.Recorder.Handlers.AwsSdk
                 return;
             }
 
-            var subsegment = TraceContext.GetEntity();
+            var subsegment = AWSXRayRecorder.Instance.GetEntity();
 
             subsegment.Aws["region"] = client.Config.RegionEndpoint?.SystemName;
             subsegment.Aws["operation"] = operation;

@@ -246,8 +246,7 @@ namespace Amazon.XRay.Recorder.Handlers.AwsSdk.Internal
         private void ProcessBeginRequest(IExecutionContext executionContext)
         {
             var request = executionContext.RequestContext.Request;
-
-            if (TraceHeader.TryParse(TraceContext.GetEntity(), out TraceHeader traceHeader))
+            if (TraceHeader.TryParse(_recorder.GetEntity(), out TraceHeader traceHeader))
             {
                 request.Headers[TraceHeader.HeaderKey] = traceHeader.ToString();
             }
@@ -266,7 +265,7 @@ namespace Amazon.XRay.Recorder.Handlers.AwsSdk.Internal
         private void ProcessEndRequest(IExecutionContext executionContext)
         {
            
-            var subsegment = TraceContext.GetEntity();
+            var subsegment = AWSXRayRecorder.Instance.GetEntity();
             var responseContext = executionContext.ResponseContext;
             var requestContext = executionContext.RequestContext;
 
@@ -531,7 +530,7 @@ namespace Amazon.XRay.Recorder.Handlers.AwsSdk.Internal
 
                 catch (Exception e)
                 {
-                    var subsegment = TraceContext.GetEntity();
+                    var subsegment = AWSXRayRecorder.Instance.GetEntity();
                     subsegment.AddException(e); // record exception 
 
                     if (e is AmazonServiceException amazonServiceException)
@@ -592,7 +591,7 @@ namespace Amazon.XRay.Recorder.Handlers.AwsSdk.Internal
                 {
                     if (!AWSXRayRecorder.Instance.IsTracingDisabled())
                     {
-                        var subsegment = TraceContext.GetEntity();
+                        var subsegment = AWSXRayRecorder.Instance.GetEntity();
                         subsegment.AddException(e); // record exception 
 
                         if (e is AmazonServiceException amazonServiceException)

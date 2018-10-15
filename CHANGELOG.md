@@ -1,6 +1,35 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 2.4.0-beta (2018-11-01)
+### AWSXRayRecorder.Core (2.4.0-beta)
+#### Breaking Change - .NET and .NET Core
+- Changed `TraceContext` from static class to instance member of `AWSXRayRecorder` instance
+- `TracingContext.GetEntity()` is removed and the new syntax is `AWSXRayRecorder.Instance.GetEntity()`
+- Changed sampling rule key name from `rule_name` to `sampling_rule_name`
+
+#### Breaking Change - .NET Core 
+- Changed `public Boolean IsLambda()` to `public static Boolean IsLambda()`
+#### Added
+- .NET and .NET Core: Added `ITraceContext` interface. `AWSXRayRecorder` can be configured with custom `TraceContext` using `WithTraceContext()` and building recorder instance. `ITraceContext` and all `TraceContext`s are under `Amazon.XRay.Recorder.Core.Internal.Context` namespace
+- .NET and .NET Core: `ITraceContext` methods can be accessed at recorder instance level. For example : `AWSXRayRecorder.Instance.GetEntity()`
+
+### AWSXRayRecorder.Handlers.System.Net (2.4.0-beta)
+- Bumped version to address AWSXRayRecorder.Core package change
+
+### AWSXRayRecorder.Handlers.SqlServer (2.4.0-beta)
+- Bumped version to address AWSXRayRecorder.Core package change
+
+### AWSXRayRecorder.Handlers.AwsSdk (2.4.0-beta)
+- Bumped version to address AWSXRayRecorder.Core package change
+
+### AWSXRayRecorder.Handlers.AspNet (2.4.0-beta)
+#### Breaking Change 
+- The `TraceContext` for the middleware is changed to `HybridContextContainer`. It uses `CallContext` and `HttpContext` for entity storage.
+
+### AWSXRayRecorder.Handlers.AspNetCore (2.4.0-beta)
+- Bumped version to address AWSXRayRecorder.Core package change
+
 ## 2.3.1-beta (2018-10-04)
 ### AWSXRayRecorder.Core (2.3.1-beta)
 #### Fixed

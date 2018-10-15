@@ -61,7 +61,7 @@ namespace Amazon.XRay.Recorder.UnitTests
 
             AWSXRayRecorder.Instance.BeginSegment("parent", TraceId);
             request.GetResponseTraced();
-            var segment = TraceContext.GetEntity();
+            var segment = AWSXRayRecorder.Instance.TraceContext.GetEntity();
             AWSXRayRecorder.Instance.EndSegment();
 
             Assert.IsNotNull(request.Headers[TraceHeader.HeaderKey]);
@@ -82,7 +82,7 @@ namespace Amazon.XRay.Recorder.UnitTests
 
             AWSXRayRecorder.Instance.BeginSegment("parent", TraceId);
             await request.GetAsyncResponseTraced();
-            var segment = TraceContext.GetEntity();
+            var segment = AWSXRayRecorder.Instance.TraceContext.GetEntity();
             AWSXRayRecorder.Instance.EndSegment();
 
             Assert.IsNotNull(request.Headers[TraceHeader.HeaderKey]);
@@ -111,7 +111,7 @@ namespace Amazon.XRay.Recorder.UnitTests
 
             catch (WebException) //expected
             {
-                var segment = TraceContext.GetEntity();
+                var segment = AWSXRayRecorder.Instance.TraceContext.GetEntity();
                 AWSXRayRecorder.Instance.EndSegment();
 
                 Assert.IsNotNull(request.Headers[TraceHeader.HeaderKey]);
@@ -144,7 +144,7 @@ namespace Amazon.XRay.Recorder.UnitTests
 
             catch (WebException) //expected
             {
-                var segment = TraceContext.GetEntity();
+                var segment = AWSXRayRecorder.Instance.TraceContext.GetEntity();
                 AWSXRayRecorder.Instance.EndSegment();
 
                 Assert.IsNotNull(request.Headers[TraceHeader.HeaderKey]);

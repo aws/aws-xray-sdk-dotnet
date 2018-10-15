@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------------
-// <copyright file="TestBase.cs" company="Amazon.com">
+// <copyright file="DefaultTraceContext.cs" company="Amazon.com">
 //      Copyright 2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 //      Licensed under the Apache License, Version 2.0 (the "License").
@@ -15,20 +15,28 @@
 // </copyright>
 //-----------------------------------------------------------------------------
 
-using Amazon.XRay.Recorder.Core;
-using Amazon.XRay.Recorder.Core.Internal.Utils;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-namespace Amazon.XRay.Recorder.UnitTests
+namespace Amazon.XRay.Recorder.Core.Internal.Context
 {
-    public class TestBase
+    public static class DefaultTraceContext
     {
-        protected static readonly string TraceId = Core.Internal.Entities.TraceId.NewId();
-
-        [TestCleanup]
-        public void TestCleanup()
+        /// <summary>
+        /// Gets default instance of <see cref="ITraceContext"/>.
+        /// </summary>
+        /// <returns>default instance of <see cref="ITraceContext"/></returns>
+        public static ITraceContext GetTraceContext()
         {
-            AWSXRayRecorder.Instance.TraceContext.ClearEntity();
+#if NET45
+            return new CallContextContainer();
+#else
+            if (AWSXRayRecorder.IsLambda())
+            {
+                return new LambdaContextContainer();
+            }
+            else
+            {
+                return new AsyncLocalContextContainer();
+            }
+#endif
         }
     }
 }

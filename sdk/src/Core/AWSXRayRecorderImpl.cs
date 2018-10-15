@@ -22,6 +22,7 @@ using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
 using Amazon.Runtime.Internal.Util;
 using Amazon.XRay.Recorder.Core.Exceptions;
+using Amazon.XRay.Recorder.Core.Internal.Context;
 using Amazon.XRay.Recorder.Core.Internal.Emitters;
 using Amazon.XRay.Recorder.Core.Internal.Entities;
 using Amazon.XRay.Recorder.Core.Internal.Utils;
@@ -37,7 +38,7 @@ namespace Amazon.XRay.Recorder.Core
     {
         private static readonly Logger _logger = Logger.GetLogger(typeof(AWSXRayRecorderImpl));
 #if NET45
-        private static Lazy<AWSXRayRecorder> _lazyDefaultRecorder = new Lazy<AWSXRayRecorder>(() => new AWSXRayRecorderBuilder().WithPluginsFromAppSettings().WithContextMissingStrategyFromAppSettings().Build());
+        private static Lazy<AWSXRayRecorder> _lazyDefaultRecorder = new Lazy<AWSXRayRecorder>(() => AWSXRayRecorderBuilder.GetDefaultBuilder().Build());
         protected static Lazy<AWSXRayRecorder> LazyDefaultRecorder
         {
             get
@@ -50,6 +51,11 @@ namespace Amazon.XRay.Recorder.Core
             }
         }
 #endif
+        /// <summary>
+        /// Instance of <see cref="ITraceContext"/>, used to store segment/subsegment.
+        /// </summary>
+        public ITraceContext TraceContext = DefaultTraceContext.GetTraceContext();
+
         /// <summary>
         /// The environment variable that setting context missing strategy.
         /// </summary>
@@ -132,7 +138,7 @@ namespace Amazon.XRay.Recorder.Core
         public void BeginSegment(string name, string traceId = null, string parentId = null, SamplingResponse samplingResponse = null, DateTime? timestamp = null)
         {
 #if !NET45
-            if (AWSXRayRecorder.Instance.IsLambda())
+            if (AWSXRayRecorder.IsLambda())
             {
                 throw new UnsupportedOperationException("Cannot override Facade Segment. New segment not created.");
             }
@@ -153,7 +159,7 @@ namespace Amazon.XRay.Recorder.Core
                 }
                 else
                 {
-                   
+
                     newSegment.SetStartTime(timestamp.Value);
                 }
 
@@ -174,7 +180,7 @@ namespace Amazon.XRay.Recorder.Core
         public void EndSegment(DateTime? timestamp = null)
         {
 #if !NET45
-            if (AWSXRayRecorder.Instance.IsLambda())
+            if (AWSXRayRecorder.IsLambda())
             {
                 throw new UnsupportedOperationException("Cannot override Facade Segment. New segment not created.");
             }
@@ -195,7 +201,7 @@ namespace Amazon.XRay.Recorder.Core
                     {
                         segment.SetEndTime(timestamp.Value); // sets custom endtime
                     }
-                    
+
                     ProcessEndSegment(segment);
                 }
 
@@ -327,11 +333,11 @@ namespace Amazon.XRay.Recorder.Core
             {
                 foreach (var keyValuePair in RuntimeContext)
                 {
-                    newSegment.Aws[keyValuePair.Key] =  keyValuePair.Value;
+                    newSegment.Aws[keyValuePair.Key] = keyValuePair.Value;
                 }
             }
 
-            AddRuleName(newSegment,sampleResponse);
+            AddRuleName(newSegment, sampleResponse);
 
             if (Origin != null)
             {
@@ -350,7 +356,7 @@ namespace Amazon.XRay.Recorder.Core
         private void AddRuleName(Segment newSegment, SamplingResponse sampleResponse)
         {
             var ruleName = sampleResponse.RuleName;
-
+            string ruleNameKey = "sampling_rule_name";
             if (string.IsNullOrEmpty(ruleName))
             {
                 return;
@@ -360,12 +366,12 @@ namespace Amazon.XRay.Recorder.Core
             {
                 IDictionary<string, string> tempXrayContext = (Dictionary<string, string>) value;
                 xrayContext = new Dictionary<string, string>(tempXrayContext); // deep copy for thread safety
-                xrayContext["rule_name"] = ruleName;
+                xrayContext[ruleNameKey] = ruleName;
             }
             else
             {
                 xrayContext = new Dictionary<string, string>();
-                xrayContext["rule_name"] = ruleName;
+                xrayContext[ruleNameKey] = ruleName;
             }
 
             newSegment.Aws["xray"] = xrayContext;
@@ -622,7 +628,7 @@ namespace Amazon.XRay.Recorder.Core
         /// will be ignored.
         /// </summary>
         /// <param name="daemonAddress">The daemon address.</param>
-        public void SetDaemonAddress(string daemonAddress) 
+        public void SetDaemonAddress(string daemonAddress)
         {
             if (Emitter != null)
             {
@@ -633,6 +639,18 @@ namespace Amazon.XRay.Recorder.Core
             {
                 DefaultSamplingStrategy defaultSampler = (DefaultSamplingStrategy)SamplingStrategy;
                 defaultSampler.LoadDaemonConfig(DaemonConfig.GetEndPoint(daemonAddress));
+            }
+        }
+
+        /// <summary>
+        /// Configures recorder instance with <see cref="ITraceContext"/>.
+        /// </summary>
+        /// <param name="traceContext">Instance of <see cref="ITraceContext"/></param>
+        public void SetTraceContext(ITraceContext traceContext)
+        {
+            if (traceContext != null)
+            {
+                TraceContext = traceContext;
             }
         }
 
@@ -962,6 +980,43 @@ namespace Amazon.XRay.Recorder.Core
             {
                 EndSubsegment();
             }
+        }
+
+        /// <summary>
+        /// Gets entity (segment/subsegment) from the <see cref="TraceContext"/>.
+        /// </summary>
+        /// <returns>The entity (segment/subsegment)</returns>
+        /// <exception cref="EntityNotAvailableException">Thrown when the entity is not available to get.</exception>
+        public Entity GetEntity()
+        {
+            return TraceContext.GetEntity();
+        }
+
+        /// <summary>
+        /// Set the specified entity (segment/subsegment) into <see cref="TraceContext"/>.
+        /// </summary>
+        /// <param name="entity">The entity to be set</param>
+        /// <exception cref="EntityNotAvailableException">Thrown when the entity is not available to set</exception>
+        public void SetEntity(Entity entity)
+        {
+            TraceContext.SetEntity(entity);
+        }
+
+        /// <summary>
+        /// Checks whether entity is present in <see cref="TraceContext"/>.
+        /// </summary>
+        /// <returns>True if entity is present TraceContext else false.</returns>
+        public bool IsEntityPresent()
+        {
+            return TraceContext.IsEntityPresent();
+        }
+
+        /// <summary>
+        /// Clear entity from <see cref="TraceContext"/>.
+        /// </summary>
+        public void ClearEntity()
+        {
+            TraceContext.ClearEntity();
         }
     }
 }

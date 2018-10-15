@@ -66,7 +66,7 @@ namespace Amazon.XRay.Recorder.Handlers.System.Net.Utils
                 AWSXRayRecorder.Instance.AddHttpInformation("request", requestInformation);
             }
 
-            if (TraceHeader.TryParse(TraceContext.GetEntity(), out var header))
+            if (TraceHeader.TryParse(AWSXRayRecorder.Instance.TraceContext.GetEntity(), out var header))
             {
                 addHeaderAction(header.ToString());
             }

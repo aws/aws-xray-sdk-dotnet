@@ -20,8 +20,8 @@ using Amazon.Runtime.Internal.Util;
 using Amazon.XRay.Recorder.Core.Exceptions;
 using Amazon.XRay.Recorder.Core.Internal.Emitters;
 using Amazon.XRay.Recorder.Core.Internal.Entities;
-using Amazon.XRay.Recorder.Core.Internal.Utils;
 using Amazon.XRay.Recorder.Core.Sampling;
+using Amazon.XRay.Recorder.Core.Internal.Utils;
 
 namespace Amazon.XRay.Recorder.Core
 {
@@ -32,6 +32,8 @@ namespace Amazon.XRay.Recorder.Core
     public class AWSXRayRecorder : AWSXRayRecorderImpl
     {
         private static readonly Logger _logger = Logger.GetLogger(typeof(AWSXRayRecorder));
+
+        public static bool IsCustomRecorder;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AWSXRayRecorder" /> class
@@ -79,6 +81,7 @@ namespace Amazon.XRay.Recorder.Core
         public static void InitializeInstance(AWSXRayRecorder recorder)
         {
             Instance = recorder;
+            IsCustomRecorder = true;
         }
 
         /// <summary>

@@ -399,7 +399,7 @@ namespace Amazon.XRay.Recorder.Core
         /// Checks whether current execution is in AWS Lambda.
         /// </summary>
         /// <returns>Returns true if current execution is in AWS Lambda.</returns>
-        public Boolean IsLambda()
+        public static Boolean IsLambda()
         {
             var lambdaTaskRootKey = Environment.GetEnvironmentVariable(LambdaTaskRootKey);
 

@@ -163,7 +163,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             {
                 recorder.BeginSegment("TraceHeaderTest", TraceId);
                 recorder.BeginSubsegment("subjob");
-                var subsegment = TraceContext.GetEntity();
+                var subsegment = AWSXRayRecorder.Instance.TraceContext.GetEntity();
 
                 TraceHeader header;
                 Assert.IsTrue(TraceHeader.TryParse(subsegment, out header));

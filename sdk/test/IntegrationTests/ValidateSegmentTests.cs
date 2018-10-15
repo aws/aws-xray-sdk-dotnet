@@ -47,7 +47,7 @@ namespace Amazon.XRay.Recorder.IntegrationTests
         {
             var traceId = TraceId.NewId();
             Recorder.BeginSegment(GetType().Name, traceId);
-            var segment = TraceContext.GetEntity();
+            var segment = AWSXRayRecorder.Instance.TraceContext.GetEntity();
             Thread.Sleep(100);
             Recorder.EndSegment();
 #if NET45
@@ -77,7 +77,7 @@ namespace Amazon.XRay.Recorder.IntegrationTests
             }
 
             Dictionary<string, string> subsegmentNames = new Dictionary<string, string>();
-            TraceContext.GetEntity().Subsegments.ForEach(x => subsegmentNames[x.Id] = x.Name);
+            AWSXRayRecorder.Instance.TraceContext.GetEntity().Subsegments.ForEach(x => subsegmentNames[x.Id] = x.Name);
 
             Recorder.EndSegment();
 #if NET45

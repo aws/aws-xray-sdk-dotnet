@@ -90,7 +90,7 @@ namespace Amazon.XRay.Recorder.UnitTests
 
                 client.ListTables();
 
-                var segment = TraceContext.GetEntity();
+                var segment = AWSXRayRecorder.Instance.TraceContext.GetEntity();
                 var subsegment = segment.Subsegments[0];
                 _recorder.EndSegment();
 
@@ -129,7 +129,7 @@ namespace Amazon.XRay.Recorder.UnitTests
                 CustomResponses.SetResponse(client, null, null, true);
 
                 _recorder.BeginSegment("test", TraceId);
-                var segment = TraceContext.GetEntity();
+                var segment = AWSXRayRecorder.Instance.TraceContext.GetEntity();
 
                 var key1 = new Dictionary<string, AttributeValue>() { { "id", new AttributeValue("1") } };
                 var key2 = new Dictionary<string, AttributeValue>() { { "id", new AttributeValue("2") } };
@@ -155,7 +155,7 @@ namespace Amazon.XRay.Recorder.UnitTests
                 CustomResponses.SetResponse(client, (request) => { throw new InvalidOperationException(); });
 
                 _recorder.BeginSegment("test", TraceId);
-                var segment = TraceContext.GetEntity();
+                var segment = AWSXRayRecorder.Instance.TraceContext.GetEntity();
 
                 try
                 {
@@ -192,7 +192,7 @@ namespace Amazon.XRay.Recorder.UnitTests
                 FunctionName = "testFunction"
             });
 
-            var segment = TraceContext.GetEntity();
+            var segment = AWSXRayRecorder.Instance.TraceContext.GetEntity();
             _recorder.EndSegment();
 
             Assert.AreEqual("Invoke", segment.Subsegments[0].Aws["operation"]);
@@ -210,7 +210,7 @@ namespace Amazon.XRay.Recorder.UnitTests
 
             dynamo.ListTables();
 
-            var segment = TraceContext.GetEntity();
+            var segment = AWSXRayRecorder.Instance.TraceContext.GetEntity();
             _recorder.EndSegment();
 
             Assert.AreEqual("DynamoDBv2", segment.Subsegments[0].Name);
@@ -227,7 +227,7 @@ namespace Amazon.XRay.Recorder.UnitTests
 
             s3.GetObject("testBucket", "testKey");
 
-            var segment = TraceContext.GetEntity();
+            var segment = AWSXRayRecorder.Instance.TraceContext.GetEntity();
             _recorder.EndSegment();
 
             Assert.AreEqual("S3", segment.Subsegments[0].Name);
@@ -251,7 +251,7 @@ namespace Amazon.XRay.Recorder.UnitTests
 #else
             s3.GetObjectAsync("testBucket", "testKey").Wait();
 #endif
-            var segment = TraceContext.GetEntity();
+            var segment = AWSXRayRecorder.Instance.TraceContext.GetEntity();
             _recorder.EndSegment();
             Assert.AreEqual("S3", segment.Subsegments[0].Name);
             Assert.IsTrue(segment.Subsegments[0].Aws.ContainsKey("version_id"));
@@ -276,7 +276,7 @@ namespace Amazon.XRay.Recorder.UnitTests
 #else
                 client.ListTablesAsync().Wait();
 #endif
-                var segment = TraceContext.GetEntity();
+                var segment = AWSXRayRecorder.Instance.TraceContext.GetEntity();
                 var subsegment = segment.Subsegments[0];
                 _recorder.EndSegment();
 
@@ -310,7 +310,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             {
                 CustomResponses.SetResponse(client, null, null, true);
                 _recorder.BeginSegment("test", TraceId);
-                var segment = TraceContext.GetEntity();
+                var segment = AWSXRayRecorder.Instance.TraceContext.GetEntity();
 
                 var key1 = new Dictionary<string, AttributeValue>() { { "id", new AttributeValue("1") } };
                 var key2 = new Dictionary<string, AttributeValue>() { { "id", new AttributeValue("2") } };
@@ -342,7 +342,7 @@ namespace Amazon.XRay.Recorder.UnitTests
                 amazonServiceException.RequestId = requestId;
                 CustomResponses.SetResponse(client, (request) => { throw amazonServiceException; });
                 _recorder.BeginSegment("test", TraceId);
-                var segment = TraceContext.GetEntity();
+                var segment = AWSXRayRecorder.Instance.TraceContext.GetEntity();
 
                 try
                 {
@@ -385,7 +385,7 @@ namespace Amazon.XRay.Recorder.UnitTests
 #else
             dynamo.ListTablesAsync().Wait();
 #endif
-            var segment = TraceContext.GetEntity();
+            var segment = AWSXRayRecorder.Instance.TraceContext.GetEntity();
             _recorder.EndSegment();
 
             Assert.AreEqual("DynamoDBv2", segment.Subsegments[0].Name);
@@ -408,7 +408,7 @@ namespace Amazon.XRay.Recorder.UnitTests
                 FunctionName = "testFunction"
             }).Wait();
 #endif
-            var segment = TraceContext.GetEntity();
+            var segment = AWSXRayRecorder.Instance.TraceContext.GetEntity();
             _recorder.EndSegment();
             Assert.IsFalse(segment.Subsegments[0].Aws.ContainsKey("function_name"));
         }
@@ -432,7 +432,7 @@ namespace Amazon.XRay.Recorder.UnitTests
                 FunctionName = "testFunction"
             }).Wait();
 #endif
-            var segment = TraceContext.GetEntity();
+            var segment = AWSXRayRecorder.Instance.TraceContext.GetEntity();
             _recorder.EndSegment();
 
             Assert.AreEqual("Invoke", segment.Subsegments[0].Aws["operation"]);

@@ -53,7 +53,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             using (var recorder = AWSXRayRecorder.Instance)
             {
                 recorder.BeginSegment("parent", TraceId);
-                var segment = TraceContext.GetEntity();
+                var segment = AWSXRayRecorder.Instance.TraceContext.GetEntity();
 
                 var innerException = new ArgumentNullException("value");
                 var exception = new EntityNotAvailableException("text", innerException);
@@ -78,7 +78,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             using (var recorder = AWSXRayRecorder.Instance)
             {
                 recorder.BeginSegment("parent", TraceId);
-                var segment = TraceContext.GetEntity();
+                var segment = AWSXRayRecorder.Instance.TraceContext.GetEntity();
 
                 try
                 {
@@ -116,7 +116,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             using (var recorder = AWSXRayRecorder.Instance)
             {
                 recorder.BeginSegment("parent", TraceId);
-                var segment = TraceContext.GetEntity();
+                var segment = AWSXRayRecorder.Instance.TraceContext.GetEntity();
 
                 try
                 {

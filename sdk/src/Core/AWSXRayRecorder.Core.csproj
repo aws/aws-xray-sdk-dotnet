@@ -5,9 +5,9 @@
     <Company>Amazon.com, Inc</Company>
     <Product>Amazon Web Service X-Ray Recorder</Product>
     <Copyright>Copyright 2017-2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.</Copyright>
-    <AssemblyVersion>2.3.1.0</AssemblyVersion>
-    <FileVersion>2.3.1.0</FileVersion>
-    <Version>2.3.1-beta</Version>
+    <AssemblyVersion>2.4.0.0</AssemblyVersion>
+    <FileVersion>2.4.0.0</FileVersion>
+    <Version>2.4.0-beta</Version>
     <RootNamespace>Amazon.XRay.Recorder.Core</RootNamespace>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>../../../buildtools/local-development.snk</AssemblyOriginatorKeyFile>
@@ -49,13 +49,15 @@
   </ItemGroup>
   
   <ItemGroup Condition="'$(TargetFramework)' != 'net45'">
-    <Compile Remove="Internal\Utils\TraceContext.net45.cs" />
+    <Compile Remove="Internal\Context\CallContextContainer.net45.cs" />
+    <Compile Remove="Internal\Context\HybridContextContainer.net45.cs" />
     <Compile Remove="Internal\Utils\AppSettings.net45.cs" />
     <Compile Remove="AWSXRayRecorder.cs" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' != 'netstandard2.0'">
-    <Compile Remove="Internal\Utils\TraceContext.netstandard.cs" />
+    <Compile Remove="Internal\Context\AsyncLocalContextContainer.netstandard.cs" />
+    <Compile Remove="Internal\Context\LambdaContextContainer.netstandard.cs" />
     <Compile Remove="Internal\Utils\AppSettings.netcore.cs" />
     <Compile Remove="Internal\Utils\ConfigurationExtensions.cs" />
     <Compile Remove="AWSXRayRecorder.netcore.cs" />

@@ -25,6 +25,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Amazon.XRay.Recorder.Core;
 using Amazon.XRay.Recorder.Core.Exceptions;
+using Amazon.XRay.Recorder.Core.Internal.Context;
 using Amazon.XRay.Recorder.Core.Internal.Emitters;
 using Amazon.XRay.Recorder.Core.Internal.Entities;
 using Amazon.XRay.Recorder.Core.Internal.Utils;
@@ -32,6 +33,7 @@ using Amazon.XRay.Recorder.Core.Sampling;
 using Amazon.XRay.Recorder.Core.Strategies;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using static Amazon.XRay.Recorder.UnitTests.AwsXrayRecorderBuilderTests;
 
 namespace Amazon.XRay.Recorder.UnitTests
 {
@@ -71,13 +73,13 @@ namespace Amazon.XRay.Recorder.UnitTests
         {
             _recorder.BeginSegment("parent", TraceId);
 
-            Segment parent = (Segment)TraceContext.GetEntity();
+            Segment parent = (Segment)AWSXRayRecorder.Instance.TraceContext.GetEntity();
 
             _recorder.BeginSubsegment("child");
-            Subsegment child = (Subsegment)TraceContext.GetEntity();
+            Subsegment child = (Subsegment)AWSXRayRecorder.Instance.TraceContext.GetEntity();
 
             _recorder.EndSubsegment();
-            Assert.ReferenceEquals(TraceContext.GetEntity(), parent);
+            Assert.ReferenceEquals(AWSXRayRecorder.Instance.TraceContext.GetEntity(), parent);
 
             _recorder.EndSegment();
 
@@ -90,13 +92,13 @@ namespace Amazon.XRay.Recorder.UnitTests
         {
             _recorder.BeginSegment("parent");
 
-            Segment parent = (Segment)TraceContext.GetEntity();
+            Segment parent = (Segment)AWSXRayRecorder.Instance.TraceContext.GetEntity();
 
             _recorder.BeginSubsegment("child");
-            Subsegment child = (Subsegment)TraceContext.GetEntity();
+            Subsegment child = (Subsegment)AWSXRayRecorder.Instance.TraceContext.GetEntity();
 
             _recorder.EndSubsegment();
-            Assert.ReferenceEquals(TraceContext.GetEntity(), parent);
+            Assert.ReferenceEquals(AWSXRayRecorder.Instance.TraceContext.GetEntity(), parent);
 
             _recorder.EndSegment();
 
@@ -110,13 +112,13 @@ namespace Amazon.XRay.Recorder.UnitTests
         {
             _recorder.BeginSegment("parent", samplingResponse:null);
 
-            Segment parent = (Segment)TraceContext.GetEntity();
+            Segment parent = (Segment)AWSXRayRecorder.Instance.TraceContext.GetEntity();
 
             _recorder.BeginSubsegment("child");
-            Subsegment child = (Subsegment)TraceContext.GetEntity();
+            Subsegment child = (Subsegment)AWSXRayRecorder.Instance.TraceContext.GetEntity();
 
             _recorder.EndSubsegment();
-            Assert.ReferenceEquals(TraceContext.GetEntity(), parent);
+            Assert.ReferenceEquals(AWSXRayRecorder.Instance.TraceContext.GetEntity(), parent);
 
             _recorder.EndSegment();
 
@@ -128,13 +130,13 @@ namespace Amazon.XRay.Recorder.UnitTests
         public async Task TestAsyncCreateSegmentAndSubsegments()
         {
             _recorder.BeginSegment("parent", TraceId);
-            Segment parent = (Segment)TraceContext.GetEntity();
+            Segment parent = (Segment)AWSXRayRecorder.Instance.TraceContext.GetEntity();
 
             Subsegment child = null;
             await Task.Run(() =>
             {
                 _recorder.BeginSubsegment("child");
-                child = (Subsegment)TraceContext.GetEntity();
+                child = (Subsegment)AWSXRayRecorder.Instance.TraceContext.GetEntity();
                 _recorder.EndSubsegment();
             });
 
@@ -149,7 +151,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         public void TestAsyncCreateTwoSubsegment()
         {
             _recorder.BeginSegment("parent", TraceId);
-            Segment parent = (Segment)TraceContext.GetEntity();
+            Segment parent = (Segment)AWSXRayRecorder.Instance.TraceContext.GetEntity();
 
             Subsegment child1 = null;
             Subsegment child2 = null;
@@ -158,14 +160,14 @@ namespace Amazon.XRay.Recorder.UnitTests
             {
                 _recorder.BeginSubsegment("child1");
                 await Task.Delay(1000);   // Ensure task1 will not complete when task1 is running
-                child1 = (Subsegment)TraceContext.GetEntity();
+                child1 = (Subsegment)AWSXRayRecorder.Instance.TraceContext.GetEntity();
                 _recorder.EndSubsegment();
             });
 
             Task task2 = Task.Run(() =>
             {
                 _recorder.BeginSubsegment("child2");
-                child2 = (Subsegment)TraceContext.GetEntity();
+                child2 = (Subsegment)AWSXRayRecorder.Instance.TraceContext.GetEntity();
                 _recorder.EndSubsegment();
             });
 
@@ -185,7 +187,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         public void TestCreateThunsandSubsegmentsParallel()
         {
             _recorder.BeginSegment("parent", TraceId);
-            Segment parent = (Segment)TraceContext.GetEntity();
+            Segment parent = (Segment)AWSXRayRecorder.Instance.TraceContext.GetEntity();
 
             Action action = () =>
             {
@@ -207,7 +209,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         public async Task TestAsyncCreateSubsegmentInAChain()
         {
             _recorder.BeginSegment("parent", TraceId);
-            var parent = TraceContext.GetEntity();
+            var parent = AWSXRayRecorder.Instance.TraceContext.GetEntity();
 
             Subsegment subsegment1 = null;
             Subsegment subsegment2 = null;
@@ -215,12 +217,12 @@ namespace Amazon.XRay.Recorder.UnitTests
             await Task.Run(async () =>
             {
                 _recorder.BeginSubsegment("subsegment1");
-                subsegment1 = (Subsegment)TraceContext.GetEntity();
+                subsegment1 = (Subsegment)AWSXRayRecorder.Instance.TraceContext.GetEntity();
 
                 await Task.Run(() =>
                 {
                     _recorder.BeginSubsegment("subsegment2");
-                    subsegment2 = (Subsegment)TraceContext.GetEntity();
+                    subsegment2 = (Subsegment)AWSXRayRecorder.Instance.TraceContext.GetEntity();
                     _recorder.EndSubsegment();
                 });
 
@@ -239,7 +241,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         public void TaskAsyncCreateThousandSubsegments()
         {
             _recorder.BeginSegment("parent", TraceId);
-            Segment parent = (Segment)TraceContext.GetEntity();
+            Segment parent = (Segment)AWSXRayRecorder.Instance.TraceContext.GetEntity();
 
             Action action = () =>
             {
@@ -270,13 +272,13 @@ namespace Amazon.XRay.Recorder.UnitTests
             using (var client = AWSXRayRecorderFactory.CreateAWSXRayRecorder(mockEmitter.Object))
             {
                 client.BeginSegment("parent", TraceId);
-                var parent = TraceContext.GetEntity();
+                var parent = AWSXRayRecorder.Instance.TraceContext.GetEntity();
 
                 Subsegment child = null;
                 Task task = Task.Run(async () =>
                 {
                     client.BeginSubsegment("child");
-                    child = (Subsegment)TraceContext.GetEntity();
+                    child = (Subsegment)AWSXRayRecorder.Instance.TraceContext.GetEntity();
 
                     await Task.Delay(1000);    // Wait for parent to end first
 
@@ -307,7 +309,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             _recorder.AddAnnotation("long", 123L);
             _recorder.AddAnnotation("double", 100.2);
 
-            var segment = TraceContext.GetEntity();
+            var segment = AWSXRayRecorder.Instance.TraceContext.GetEntity();
             Assert.AreEqual(98109, segment.Annotations["int"]);
             Assert.AreEqual("US", segment.Annotations["string"]);
             Assert.AreEqual(true, segment.Annotations["bool"]);
@@ -324,7 +326,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             var e = new ArgumentNullException("value");
             _recorder.AddException(e);
 
-            var segment = TraceContext.GetEntity();
+            var segment = AWSXRayRecorder.Instance.TraceContext.GetEntity();
 
             Assert.IsNotNull(segment);
 
@@ -339,7 +341,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         {
             _recorder.BeginSegment("test", TraceId);
             _recorder.MarkFault();
-            var segment = TraceContext.GetEntity();
+            var segment = AWSXRayRecorder.Instance.TraceContext.GetEntity();
             Assert.IsTrue(segment.HasFault);
             _recorder.EndSegment();
         }
@@ -349,7 +351,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         {
             _recorder.BeginSegment("test", TraceId);
             _recorder.MarkError();
-            var segment = TraceContext.GetEntity();
+            var segment = AWSXRayRecorder.Instance.TraceContext.GetEntity();
             Assert.IsTrue(segment.HasError);
             _recorder.EndSegment();
         }
@@ -362,7 +364,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             int count = _recorder.TraceMethod("PlusOneReturn", () => PlusOneReturn(0));
             Assert.AreEqual(1, count);
 
-            var subsegment = TraceContext.GetEntity().Subsegments[0];
+            var subsegment = AWSXRayRecorder.Instance.TraceContext.GetEntity().Subsegments[0];
             Assert.AreEqual("PlusOneReturn", subsegment.Name);
 
             _recorder.EndSegment();
@@ -377,7 +379,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             _recorder.TraceMethod("PlusOneNoReturn", () => PlusOneNoReturn(ref count));
             Assert.AreEqual(1, count);
 
-            var subsegment = TraceContext.GetEntity().Subsegments[0];
+            var subsegment = AWSXRayRecorder.Instance.TraceContext.GetEntity().Subsegments[0];
             Assert.AreEqual("PlusOneNoReturn", subsegment.Name);
 
             _recorder.EndSegment();
@@ -391,7 +393,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             int count = 0;
             await _recorder.TraceMethodAsync("PlusOneNoReturnAsync", () => PlusOneNoReturnAsync<int>(count));
 
-            var subsegment = TraceContext.GetEntity().Subsegments[0];
+            var subsegment = AWSXRayRecorder.Instance.TraceContext.GetEntity().Subsegments[0];
             Assert.AreEqual("PlusOneNoReturnAsync", subsegment.Name);
 
             _recorder.EndSegment();
@@ -406,7 +408,7 @@ namespace Amazon.XRay.Recorder.UnitTests
 
             Assert.AreEqual(1, result);
 
-            var subsegment = TraceContext.GetEntity().Subsegments[0];
+            var subsegment = AWSXRayRecorder.Instance.TraceContext.GetEntity().Subsegments[0];
             Assert.AreEqual("PlusOneReturnAsync", subsegment.Name);
 
             _recorder.EndSegment();
@@ -424,7 +426,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             }
             catch (ArgumentNullException)
             {
-                var segment = TraceContext.GetEntity();
+                var segment = AWSXRayRecorder.Instance.TraceContext.GetEntity();
                 var subsegment = segment.Subsegments[0];
                 Assert.IsTrue(subsegment.HasFault);
                 Assert.AreEqual("ArgumentNullException", subsegment.Cause.ExceptionDescriptors[0].Type);
@@ -447,7 +449,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             }
             catch (ArgumentNullException)
             {
-                var segment = TraceContext.GetEntity();
+                var segment = AWSXRayRecorder.Instance.TraceContext.GetEntity();
                 var subsegment = segment.Subsegments[0];
                 Assert.IsTrue(subsegment.HasFault);
                 Assert.AreEqual("ArgumentNullException", subsegment.Cause.ExceptionDescriptors[0].Type);
@@ -499,11 +501,11 @@ namespace Amazon.XRay.Recorder.UnitTests
             using (var recorder = AWSXRayRecorderFactory.CreateAWSXRayRecorder(mockEmitter.Object))
             {
                 recorder.BeginSegment("test", TraceId, samplingResponse: new SamplingResponse(SampleDecision.NotSampled));
-                var segment = TraceContext.GetEntity();
+                var segment = AWSXRayRecorder.Instance.TraceContext.GetEntity();
 
                 // BeginSubsegment shouldn't overwrite the segment in trace context
                 recorder.BeginSubsegment("sub");
-                Assert.ReferenceEquals(segment, TraceContext.GetEntity());
+                Assert.ReferenceEquals(segment, AWSXRayRecorder.Instance.TraceContext.GetEntity());
 
                 // EndSubsegment shouldn't release the segment 
                 recorder.EndSubsegment();
@@ -519,7 +521,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         public void TestAddHttp()
         {
             _recorder.BeginSegment("test", TraceId);
-            var segment = TraceContext.GetEntity();
+            var segment = AWSXRayRecorder.Instance.TraceContext.GetEntity();
             _recorder.AddHttpInformation("key", "value");
 
             Assert.AreEqual("value", segment.Http["key"]);
@@ -576,7 +578,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         public void TestSubsegmentStreaming()
         {
             _recorder.BeginSegment(GetType().Name, TraceId);
-            var segment = (Segment)TraceContext.GetEntity();
+            var segment = (Segment)AWSXRayRecorder.Instance.TraceContext.GetEntity();
 
             _recorder.BeginSubsegment("first 50");
             for (int i = 0; i < 50; i++)
@@ -604,7 +606,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         public void TestSubsegmentStreamingParentSubsegmentDoNotGetRemoved()
         {
             _recorder.BeginSegment(GetType().Name, TraceId);
-            var segment = (Segment)TraceContext.GetEntity();
+            var segment = (Segment)AWSXRayRecorder.Instance.TraceContext.GetEntity();
 
             _recorder.BeginSubsegment("parent");
             for (int i = 0; i < 98; i++)
@@ -614,24 +616,24 @@ namespace Amazon.XRay.Recorder.UnitTests
             }
 
             _recorder.BeginSubsegment("last job");
-            var lastJob = (Subsegment)TraceContext.GetEntity();
+            var lastJob = (Subsegment)AWSXRayRecorder.Instance.TraceContext.GetEntity();
 
             // End parent subsegment, and trigger subsegment stream
-            TraceContext.SetEntity(lastJob.Parent);
+            AWSXRayRecorder.Instance.TraceContext.SetEntity(lastJob.Parent);
             _recorder.EndSubsegment();
 
             Assert.AreEqual(2, segment.Size);
             Assert.AreEqual(1, segment.Subsegments.Count);
             Assert.AreEqual(1, segment.Subsegments[0].Subsegments.Count);
 
-            TraceContext.ClearEntity();
+            AWSXRayRecorder.Instance.TraceContext.ClearEntity();
         }
 
         [TestMethod]
         public void TestAddPrecursorIdOnSubsegment()
         {
             _recorder.BeginSegment(GetType().Name, TraceId);
-            var segment = TraceContext.GetEntity();
+            var segment = AWSXRayRecorder.Instance.TraceContext.GetEntity();
 
             _recorder.BeginSubsegment("child");
             var newSegmentId = ThreadSafeRandom.GenerateHexNumber(16);
@@ -659,7 +661,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             _recorder.AddSqlInformation("key1", "value1");
             _recorder.AddSqlInformation("key2", "value2");
 
-            var segment = TraceContext.GetEntity();
+            var segment = AWSXRayRecorder.Instance.TraceContext.GetEntity();
 
             Assert.AreEqual(2, segment.Sql.Count);
             Assert.AreEqual("value1", segment.Sql["key1"]);
@@ -735,10 +737,10 @@ namespace Amazon.XRay.Recorder.UnitTests
                 recorder.XRayOptions = _xRayOptions;
 #endif
                 recorder.BeginSegment("test", TraceId);
-                var segment = TraceContext.GetEntity();    // The segment will be created even if tracing is disabled.
+                var segment = AWSXRayRecorder.Instance.TraceContext.GetEntity();    // The segment will be created even if tracing is disabled.
 
                 recorder.BeginSubsegment("test");
-                Assert.ReferenceEquals(segment, TraceContext.GetEntity());
+                Assert.ReferenceEquals(segment, AWSXRayRecorder.Instance.TraceContext.GetEntity());
                 Assert.IsFalse(segment.IsSubsegmentsAdded);
 
                 recorder.EndSubsegment();
@@ -762,7 +764,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         public void TestXrayContext()
         {
             _recorder.BeginSegment("test", TraceId);
-            var segment = TraceContext.GetEntity();
+            var segment = AWSXRayRecorder.Instance.TraceContext.GetEntity();
             _recorder.EndSegment();
 
             IDictionary<string, string> xray = (Dictionary<string, string>)segment.Aws["xray"];
@@ -779,6 +781,20 @@ namespace Amazon.XRay.Recorder.UnitTests
         }
 
         [TestMethod]
+        public void TestServiceContext()
+        {
+            _recorder.BeginSegment("test", TraceId);
+            var segment = (Segment)AWSXRayRecorder.Instance.TraceContext.GetEntity();
+            _recorder.EndSegment();
+#if NET45
+            Assert.AreEqual(".NET Framework", segment.Service["runtime"]);
+#else
+            Assert.AreEqual(".NET Core Framework", segment.Service["runtime"]);
+#endif
+            Assert.AreEqual(Environment.Version.ToString(), segment.Service["runtime_version"]);
+        }
+
+        [TestMethod]
         public void TestNotInitializeSamplingStrategy()
         {
             SamplingInput input = new SamplingInput("randomName", "testPath", "get","test","*");
@@ -792,7 +808,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             _recorder.AddMetadata("key1", "value1");
             _recorder.AddMetadata("aws", "key2", "value2");
 
-            var segment = TraceContext.GetEntity();
+            var segment = AWSXRayRecorder.Instance.TraceContext.GetEntity();
             _recorder.EndSegment();
 
             Assert.AreEqual("value1", segment.Metadata["default"]["key1"]);
@@ -903,6 +919,17 @@ namespace Amazon.XRay.Recorder.UnitTests
         }
 
         [TestMethod]
+        public void TestDefaultTraceContext()
+        {
+            var recorder = AWSXRayRecorder.Instance;
+#if NET45
+            Assert.AreEqual(typeof(CallContextContainer).FullName, recorder.TraceContext.GetType().FullName);
+#else
+            Assert.AreEqual(typeof(AsyncLocalContextContainer).FullName, recorder.TraceContext.GetType().FullName);
+#endif
+        }
+
+        [TestMethod]
         public void TestInitializeInstanceWithRecorder1()
         {
             AWSXRayRecorder recorder = BuildAWSXRayRecorder(new TestSamplingStrategy());
@@ -911,7 +938,7 @@ namespace Amazon.XRay.Recorder.UnitTests
 #else
             AWSXRayRecorder.InitializeInstance(recorder: recorder);
 #endif
-            Assert.AreEqual(AWSXRayRecorder.Instance.SamplingStrategy, recorder.SamplingStrategy); // Custom recorder set in TraceContext
+            Assert.AreEqual(AWSXRayRecorder.Instance.SamplingStrategy, recorder.SamplingStrategy); // Custom recorder set in AWSXRayRecorder.Instance.TraceContext
             Assert.AreEqual(typeof(TestSamplingStrategy), recorder.SamplingStrategy.GetType()); // custom strategy set
             Assert.AreEqual(typeof(UdpSegmentEmitter), recorder.Emitter.GetType()); // Default emitter set
             recorder.Dispose();
@@ -963,7 +990,20 @@ namespace Amazon.XRay.Recorder.UnitTests
 
             recorder.Dispose();
         }
-        public static AWSXRayRecorder BuildAWSXRayRecorder(ISamplingStrategy samplingStrategy = null, ISegmentEmitter segmentEmitter = null, string daemonAddress = null)
+
+        [TestMethod]
+        public void TestInitializeInstanceWithRecorde4() // Set custom trace context
+        {
+            AWSXRayRecorder recorder = BuildAWSXRayRecorder(traceContext:new DummyTraceContext());
+#if NET45
+            AWSXRayRecorder.InitializeInstance(recorder);
+#else
+            AWSXRayRecorder.InitializeInstance(recorder: recorder);
+#endif
+            Assert.AreEqual(typeof(DummyTraceContext), AWSXRayRecorder.Instance.TraceContext.GetType()); // Custom trace context
+            recorder.Dispose();
+        }
+        public static AWSXRayRecorder BuildAWSXRayRecorder(ISamplingStrategy samplingStrategy = null, ISegmentEmitter segmentEmitter = null, string daemonAddress = null, ITraceContext traceContext = null)
         {
             AWSXRayRecorderBuilder builder = new AWSXRayRecorderBuilder();
            
@@ -978,6 +1018,10 @@ namespace Amazon.XRay.Recorder.UnitTests
             if (!string.IsNullOrEmpty(daemonAddress))
             {
                 builder.WithDaemonAddress(daemonAddress);
+            }
+            if(traceContext != null)
+            {
+                builder.WithTraceContext(traceContext);
             }
 
             var result = builder.Build();

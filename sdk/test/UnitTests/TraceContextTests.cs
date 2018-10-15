@@ -17,8 +17,8 @@
 
 using System.Threading;
 using System.Threading.Tasks;
+using Amazon.XRay.Recorder.Core;
 using Amazon.XRay.Recorder.Core.Internal.Entities;
-using Amazon.XRay.Recorder.Core.Internal.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Amazon.XRay.Recorder.UnitTests
@@ -31,8 +31,8 @@ namespace Amazon.XRay.Recorder.UnitTests
         {
             var segment = new Segment("test", TraceId);
 
-            TraceContext.SetEntity(segment);
-            var later = TraceContext.GetEntity();
+            AWSXRayRecorder.Instance.SetEntity(segment);
+            var later = AWSXRayRecorder.Instance.GetEntity();
 
             Assert.ReferenceEquals(segment, later);
         }
@@ -42,13 +42,13 @@ namespace Amazon.XRay.Recorder.UnitTests
         {
             var origin = new Subsegment("test");
 
-            TraceContext.SetEntity(origin);
+            AWSXRayRecorder.Instance.SetEntity(origin);
 
             Entity later = null;
 
             await Task.Run(() =>
             {
-                later = TraceContext.GetEntity();
+                later = AWSXRayRecorder.Instance.GetEntity();
             });
 
             Assert.ReferenceEquals(origin, later);
@@ -60,17 +60,17 @@ namespace Amazon.XRay.Recorder.UnitTests
             var segment1 = new Segment("hello", TraceId);
             var segment2 = new Subsegment("bye");
 
-            TraceContext.SetEntity(segment1);
+            AWSXRayRecorder.Instance.SetEntity(segment1);
 
             Entity later = null;
 
             Task task = Task.Run(() =>
             {
                 Thread.Sleep(10);    // Wait for overwrite to complete
-                later = TraceContext.GetEntity();
+                later = AWSXRayRecorder.Instance.GetEntity();
             });
 
-            TraceContext.SetEntity(segment2);  // Overwrite in parent
+            AWSXRayRecorder.Instance.SetEntity(segment2);  // Overwrite in parent
             await task;
             Assert.ReferenceEquals(later, segment1);
         }
@@ -78,8 +78,8 @@ namespace Amazon.XRay.Recorder.UnitTests
         [TestMethod]
         public void TestSegmentExistAfterSet()
         {
-            TraceContext.SetEntity(new Segment("test", TraceId));
-            Assert.IsNotNull(TraceContext.GetEntity());
+            AWSXRayRecorder.Instance.SetEntity(new Segment("test", TraceId));
+            Assert.IsNotNull(AWSXRayRecorder.Instance.GetEntity());
         }
     }
 }

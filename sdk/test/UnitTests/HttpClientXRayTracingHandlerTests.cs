@@ -52,7 +52,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             var request = new HttpRequestMessage(HttpMethod.Get, URL);
             var response = await _httpClient.SendAsync(request);
             
-            var segment = TraceContext.GetEntity();
+            var segment = AWSXRayRecorder.Instance.TraceContext.GetEntity();
             AWSXRayRecorder.Instance.EndSegment();
 
             var traceHeader = request.Headers.GetValues(TraceHeader.HeaderKey).SingleOrDefault();
@@ -74,7 +74,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             var request = new HttpRequestMessage(HttpMethod.Get, URL404);
             var response = await _httpClient.SendAsync(request);
             
-            var segment = TraceContext.GetEntity();
+            var segment = AWSXRayRecorder.Instance.TraceContext.GetEntity();
             AWSXRayRecorder.Instance.EndSegment();
 
             var traceHeader = request.Headers.GetValues(TraceHeader.HeaderKey).SingleOrDefault();
