@@ -33,7 +33,7 @@ namespace Amazon.XRay.Recorder.UnitTests
 
         private static XRayOptions _xRayOptions;
 
-        private static string PREFIX = @"JSONs\Appsetting\";
+        private static string PREFIX = $"JSONs{Path.DirectorySeparatorChar}Appsetting{Path.DirectorySeparatorChar}";
 
         [TestCleanup]
         public void TestCleanup()

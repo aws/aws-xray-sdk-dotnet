@@ -42,7 +42,7 @@ namespace Amazon.XRay.Recorder.UnitTests
 
         private static AWSXRayRecorder _recorder;
 
-        private static String _path = @"JSONs\AWSRequestInfo.json";
+        private static String _path = $"JSONs{Path.DirectorySeparatorChar}AWSRequestInfo.json";
 #if NET45
         private static AWSSdkTracingHandler _handler;
 #else
@@ -416,7 +416,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         [TestMethod]
         public void TestLambdaInvokeSubsegmentContainsFunctionNameForAWSSDKHandler()
         {
-            String temp_path = @"JSONs\AWSRequestInfoWithLambda.json"; //registering manifest file with Lambda
+            String temp_path = $"JSONs{Path.DirectorySeparatorChar}AWSRequestInfoWithLambda.json"; //registering manifest file with Lambda
             AWSSDKHandler.RegisterXRayManifest(temp_path);
             var lambda = new AmazonLambdaClient(new AnonymousAWSCredentials(), RegionEndpoint.USEast1);
             CustomResponses.SetResponse(lambda, null, null, true);

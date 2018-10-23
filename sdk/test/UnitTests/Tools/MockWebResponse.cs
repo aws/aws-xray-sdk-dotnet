@@ -108,7 +108,7 @@ namespace Amazon.XRay.Recorder.UnitTests.Tools
             body = body ?? string.Empty;
             responseBodyStream = Utils.CreateStreamFromString(body);
             httpResponseMessage.StatusCode = statusCode;
-            StreamReader streamReader = new StreamReader(@"JSONs\FakeResponse.json");
+            StreamReader streamReader = new StreamReader($"JSONs{Path.DirectorySeparatorChar}FakeResponse.json");
             string json = streamReader.ReadToEnd();
             httpResponseMessage.Content = new StringContent(json); // Content should be in Json format else we get exception from downstream unmarshalling
             return httpResponseMessage;

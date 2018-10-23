@@ -17,6 +17,7 @@
 
 using System;
 using System.Configuration;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Threading;
@@ -83,7 +84,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         [TestMethod]
         public void TestLocalFallbackRules() // If rules are not loaded by default sampler, use local rules
         {
-            var strategy = new DefaultSamplingStrategy("JSONs\\SamplingRules1.json");
+            var strategy = new DefaultSamplingStrategy($"JSONs{Path.DirectorySeparatorChar}SamplingRules1.json");
 
             var input = new SamplingInput("name", "test", "get", "", "");
             var samplingResponse = strategy.ShouldTrace(input);
@@ -119,7 +120,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             AppSettings.Reset();
             var strategy = new LocalizedSamplingStrategy(AppSettings.SamplingRuleManifest);
 #else
-            _xRayOtions.SamplingRuleManifest = "JSONs\\DefaultSamplingRules.json";
+            _xRayOtions.SamplingRuleManifest = $"JSONs{Path.DirectorySeparatorChar}DefaultSamplingRules.json";
             var strategy = new LocalizedSamplingStrategy(_xRayOtions.SamplingRuleManifest);
 #endif
             Assert.AreEqual(2, strategy.Rules.Count);
@@ -147,7 +148,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             AppSettings.Reset();
             var strategy = new LocalizedSamplingStrategy(AppSettings.SamplingRuleManifest);
 #else
-            _xRayOtions.SamplingRuleManifest = "JSONs\\DefaultSamplingRules.json";
+            _xRayOtions.SamplingRuleManifest = $"JSONs{Path.DirectorySeparatorChar}DefaultSamplingRules.json";
             var strategy = new LocalizedSamplingStrategy(_xRayOtions.SamplingRuleManifest);
 #endif
             Assert.AreEqual(2, strategy.Rules.Count);
@@ -177,7 +178,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             AppSettings.Reset();
             var strategy = new LocalizedSamplingStrategy(AppSettings.SamplingRuleManifest);
 #else
-            _xRayOtions.SamplingRuleManifest = @"JSONs\SamplingRulesWithoutDefault.json";
+            _xRayOtions.SamplingRuleManifest = $"JSONs{Path.DirectorySeparatorChar}SamplingRulesWithoutDefault.json";
             var strategy = new LocalizedSamplingStrategy(_xRayOtions.SamplingRuleManifest);
 #endif
         }
@@ -191,7 +192,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             AppSettings.Reset();
             var strategy = new LocalizedSamplingStrategy(AppSettings.SamplingRuleManifest);
 #else
-            _xRayOtions.SamplingRuleManifest = @"JSONs\SamplingRulesWithoutDefault.json";
+            _xRayOtions.SamplingRuleManifest = $"JSONs{Path.DirectorySeparatorChar}SamplingRulesWithoutDefault.json";
             var strategy = new LocalizedSamplingStrategy(_xRayOtions.SamplingRuleManifest);
 #endif
         }
@@ -205,7 +206,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             AppSettings.Reset();
             var strategy = new LocalizedSamplingStrategy(AppSettings.SamplingRuleManifest);
 #else
-            _xRayOtions.SamplingRuleManifest = @"JSONs\SamplingRulesWithoutDefault.json";
+            _xRayOtions.SamplingRuleManifest = $"JSONs{Path.DirectorySeparatorChar}SamplingRulesWithoutDefault.json";
             var strategy = new LocalizedSamplingStrategy(_xRayOtions.SamplingRuleManifest);
 #endif
         }
@@ -227,14 +228,14 @@ namespace Amazon.XRay.Recorder.UnitTests
         [ExpectedException(typeof(InvalidSamplingConfigurationException))]
         public void TestLoadingInvalidSamplingRules()
         {
-            new LocalizedSamplingStrategy(@"JSONs\InvalidSamplingRules.json");
+            new LocalizedSamplingStrategy($"JSONs{Path.DirectorySeparatorChar}InvalidSamplingRules.json");
         }
 
         [TestMethod]
         [ExpectedException(typeof(InvalidSamplingConfigurationException))]
         public void TestUnsupportedSamplingVersion()
         {
-            new LocalizedSamplingStrategy(@"JSONs\UnsupportedSamplingConfigurationVersion.json");
+            new LocalizedSamplingStrategy($"JSONs{Path.DirectorySeparatorChar}UnsupportedSamplingConfigurationVersion.json");
         }
     }
 }
