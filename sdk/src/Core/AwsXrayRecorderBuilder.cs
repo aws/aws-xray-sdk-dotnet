@@ -42,6 +42,7 @@ namespace Amazon.XRay.Recorder.Core
         private ISegmentEmitter _segmentEmitter;
         private string _daemonAddress;
         private ITraceContext _traceContext;
+        private ExceptionSerializationStrategy _exceptionSerializationStrategy;
 
         /// <summary>
         /// Gets a read-only copy of current plugins in the builder
@@ -241,6 +242,18 @@ namespace Amazon.XRay.Recorder.Core
         }
 
         /// <summary>
+        /// Configures recorder with provided <see cref="ExceptionSerializationStrategy"/>. While setting number consider max trace size
+        /// limit : https://aws.amazon.com/xray/pricing/
+        /// </summary>
+        /// <param name="size">stack frame size</param>
+        /// <returns>The builder with stack frame size added.</returns>
+        public AWSXRayRecorderBuilder WithExceptionSerializationStrategy(ExceptionSerializationStrategy exceptionSerializationStartegy)
+        {
+            _exceptionSerializationStrategy = exceptionSerializationStartegy ?? throw new ArgumentNullException("ExceptionSerializationStartegy"); ;
+            return this;
+        }
+
+        /// <summary>
         /// Build a instance of <see cref="AWSXRayRecorder"/> with existing configuration added to the builder.
         /// </summary>
         /// <returns>A new instance of <see cref="AWSXRayRecorder"/>.</returns>
@@ -316,6 +329,11 @@ namespace Amazon.XRay.Recorder.Core
             if (_traceContext != null)
             {
                 recorder.SetTraceContext(_traceContext);
+            }
+
+            if (_exceptionSerializationStrategy != null)
+            {
+                recorder.SetExceptionSerializationStrategy(_exceptionSerializationStrategy);
             }
         }
     }

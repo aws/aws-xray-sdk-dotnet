@@ -484,7 +484,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Entities
         {
             HasFault = true;
             Cause = new Cause();
-            Cause.AddException(e, Subsegments);
+            Cause.AddException(AWSXRayRecorder.Instance.ExceptionSerializationStrategy.DescribeException(e, Subsegments));
         }
 
         /// <summary>
@@ -537,5 +537,6 @@ namespace Amazon.XRay.Recorder.Core.Internal.Entities
         {
             return Interlocked.Increment(ref _referenceCounter);
         }
+
     }
 }

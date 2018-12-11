@@ -18,7 +18,6 @@
 using System;
 using Amazon.XRay.Recorder.Core;
 using Amazon.XRay.Recorder.Core.Exceptions;
-using Amazon.XRay.Recorder.Core.Internal.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Amazon.XRay.Recorder.UnitTests
@@ -105,7 +104,6 @@ namespace Amazon.XRay.Recorder.UnitTests
                 Assert.AreEqual("Dummy message", segment.Cause.ExceptionDescriptors[0].Message);
                 Assert.AreEqual("EntityNotAvailableException", segment.Cause.ExceptionDescriptors[0].Type);
                 Assert.AreEqual(segment.Cause.ExceptionDescriptors[0].Cause, segment.Subsegments[0].Cause.ExceptionDescriptors[0].Id);
-                Assert.IsNull(segment.Cause.ReferenceExceptionId);
                 Assert.AreEqual(1, segment.Cause.ExceptionDescriptors.Count);
 
                 Assert.AreEqual("ArgumentNullException", segment.Subsegments[0].Cause.ExceptionDescriptors[0].Type);
@@ -140,8 +138,12 @@ namespace Amazon.XRay.Recorder.UnitTests
                     recorder.EndSegment();
                 }
 
-                Assert.AreEqual(segment.Cause.ReferenceExceptionId, segment.Subsegments[0].Cause.ExceptionDescriptors[0].Id);
-                Assert.IsNull(segment.Cause.ExceptionDescriptors);
+                // While referencing exception from another subsegment, the parent entity's cause should be populated and Id remains null
+                Assert.AreEqual(segment.Cause.ExceptionDescriptors[0].Cause, segment.Subsegments[0].Cause.ExceptionDescriptors[0].Id);
+                Assert.IsNull(segment.Cause.ExceptionDescriptors[0].Id);
+                Assert.AreEqual(1, segment.Subsegments[0].Cause.ExceptionDescriptors.Count);
+                Assert.AreEqual("ArgumentNullException", segment.Subsegments[0].Cause.ExceptionDescriptors[0].Type);
+                Assert.IsFalse(segment.Subsegments[0].Cause.ExceptionDescriptors[0].Remote);
             }
         }
     }

@@ -127,6 +127,11 @@ namespace Amazon.XRay.Recorder.Core
         protected Dictionary<string, object> ServiceContext { get => serviceContext; set => serviceContext = value; }
 
         /// <summary>
+        /// Defines exception serialization stategy to process recorded exceptions. <see cref="Strategies.ExceptionSerializationStrategy"/>
+        /// </summary>
+        public ExceptionSerializationStrategy ExceptionSerializationStrategy { get; set; } = new DefaultExceptionSerializationStrategy();
+
+        /// <summary>
         /// Begin a tracing segment. A new tracing segment will be created and started.
         /// </summary>
         /// <param name="name">The name of the segment</param>
@@ -1017,6 +1022,16 @@ namespace Amazon.XRay.Recorder.Core
         public void ClearEntity()
         {
             TraceContext.ClearEntity();
+        }
+
+        /// <summary>
+        /// Configures recorder with <see cref="Strategies.ExceptionSerializationStrategy"/>.  While setting number consider max trace size
+        /// limit : https://aws.amazon.com/xray/pricing/
+        /// </summary>
+        /// <param name="stackFrameSize">stack frame size.</param>
+        public void SetExceptionSerializationStrategy(ExceptionSerializationStrategy exceptionSerializationStartegy)
+        {
+            this.ExceptionSerializationStrategy = exceptionSerializationStartegy;
         }
     }
 }

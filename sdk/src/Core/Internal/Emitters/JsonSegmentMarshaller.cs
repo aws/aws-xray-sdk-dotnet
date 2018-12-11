@@ -203,11 +203,15 @@ namespace Amazon.XRay.Recorder.Core.Internal.Emitters
         private static void CauseExporter(Cause cause, JsonWriter writer)
         {
             // Propagating faults (e.g. exceptions) can refer to the local root cause exception with its ID rather than duplicating the exceptions.
-            //     "cause" : "4fe5fbae3f9e29c1"
-            if (cause.ReferenceExceptionId != null)
+           //  format ->  "cause" : "4fe5fbae3f9e29c1"
+            if (cause.IsExceptionAdded)
             {
-                writer.Write(cause.ReferenceExceptionId);
-                return;
+                var firstException = cause.ExceptionDescriptors[0];
+                if (firstException.Cause != null && firstException.Id == null)
+                {
+                    writer.Write(firstException.Cause);
+                    return;
+                }
             }
 
             writer.WriteObjectStart();
@@ -226,6 +230,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Emitters
 
             if (cause.IsExceptionAdded)
             {
+               
                 writer.WritePropertyName("exceptions");
                 JsonMapper.ToJson(cause.ExceptionDescriptors, writer);
             }

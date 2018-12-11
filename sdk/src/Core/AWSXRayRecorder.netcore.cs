@@ -85,14 +85,16 @@ namespace Amazon.XRay.Recorder.Core
 
             if (recorder != null)
             {
+                _logger.DebugFormat("Using custom X-Ray recorder.");
                 recorder.XRayOptions = xRayOptions;
                 recorder = recorderBuilder.Build(recorder);
             }
             else
             {
+                _logger.DebugFormat("Using default X-Ray recorder.");
                 recorder = recorderBuilder.Build(xRayOptions);
             }
-           
+
             Instance = recorder;
         }
 

@@ -50,6 +50,10 @@ namespace Amazon.XRay.Recorder.Core
         IDictionary<string, object> RuntimeContext { get; }
 
         /// <summary>
+        /// Defines exception serialization stategy to process recorded exceptions. <see cref="Strategies.ExceptionSerializationStrategy"/>
+        /// </summary>
+        ExceptionSerializationStrategy ExceptionSerializationStrategy { get; set; }
+        /// <summary>
         /// Begin a tracing segment. A new tracing segment will be created and started.
         /// </summary>
         /// <param name="name">The name of the segment</param>

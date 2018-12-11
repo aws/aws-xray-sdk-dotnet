@@ -28,6 +28,8 @@ using System.IO;
 using Amazon.XRay.Recorder.Core.Internal.Emitters;
 using System;
 using Amazon.XRay.Recorder.Core.Internal.Context;
+using Amazon.XRay.Recorder.Core.Exceptions;
+using Amazon.Runtime;
 
 
 #if !NET45
@@ -56,6 +58,7 @@ namespace Amazon.XRay.Recorder.UnitTests
 #else
             _xRayOptions = new XRayOptions();
 #endif
+            AWSXRayRecorder.Instance.Dispose();
         }
 
         [TestMethod]
@@ -223,6 +226,157 @@ namespace Amazon.XRay.Recorder.UnitTests
             Assert.Fail();
         }
 
+        [TestMethod]
+        public void TestExceptionStrategy1() // valid input
+        {
+            var exceptionStrategy = new DefaultExceptionSerializationStrategy(10);
+            var recorder = new AWSXRayRecorderBuilder().WithExceptionSerializationStrategy(exceptionStrategy).Build(); // set custom stackframe size
+            AWSXRayRecorder.InitializeInstance(recorder: recorder);
+            Assert.AreSame(exceptionStrategy, AWSXRayRecorder.Instance.ExceptionSerializationStrategy);
+        }
+
+        [TestMethod]
+        public void TestExceptionStrategy2() // invalid input
+        {
+            var exceptionStrategy = new DefaultExceptionSerializationStrategy(-10);
+            var recorder = new AWSXRayRecorderBuilder().WithExceptionSerializationStrategy(exceptionStrategy).Build(); // set custom stackframe size
+            AWSXRayRecorder.InitializeInstance(recorder: recorder);
+            DefaultExceptionSerializationStrategy actual = AWSXRayRecorder.Instance.ExceptionSerializationStrategy as DefaultExceptionSerializationStrategy;
+
+            Assert.AreEqual(DefaultExceptionSerializationStrategy.DefaultStackFrameSize, actual.MaxStackFrameSize);
+        }
+
+        [TestMethod]
+        public void TestExceptionStrategy3() // Test default recorder instance
+        {
+            DefaultExceptionSerializationStrategy actual = AWSXRayRecorder.Instance.ExceptionSerializationStrategy as DefaultExceptionSerializationStrategy;
+
+            Assert.AreEqual(DefaultExceptionSerializationStrategy.DefaultStackFrameSize, actual.MaxStackFrameSize);
+        }
+
+        [TestMethod]
+        public void TestExceptionStrategy4() // Test custom exception strategy
+        {
+            var exceptionStrategy = new DummyExceptionSerializationStrategy();
+            var recorder = new AWSXRayRecorderBuilder().WithExceptionSerializationStrategy(exceptionStrategy).Build(); // set custom stackframe size
+
+            DummyExceptionSerializationStrategy actual = recorder.ExceptionSerializationStrategy as DummyExceptionSerializationStrategy;
+            Assert.AreSame(exceptionStrategy, actual);
+        }
+
+        [TestMethod]
+        public void TestExceptionStrategy5() // Test custom exception strategy
+        {
+            List<Type> l = new List<Type>();
+            l.Add(typeof(ArgumentNullException));
+            var recorder = new AWSXRayRecorderBuilder().WithExceptionSerializationStrategy(new DefaultExceptionSerializationStrategy(10,l)).Build(); // set custom stackframe size
+            AWSXRayRecorder.InitializeInstance(recorder: recorder);
+            AWSXRayRecorder.Instance.BeginSegment("parent", TraceId);
+
+            var segment = AWSXRayRecorder.Instance.TraceContext.GetEntity();
+          
+            try
+            {
+                recorder.BeginSubsegment("child1");
+                try
+                {
+                    try
+                    {
+                        recorder.BeginSubsegment("child2");
+                        throw new AmazonServiceException();
+                    }
+                    catch (AmazonServiceException e)
+                    {
+                        recorder.AddException(e);
+                        recorder.EndSubsegment();
+                        throw new ArgumentNullException("value");
+                    }
+                }
+                catch (ArgumentNullException e)
+                {
+                    recorder.AddException(e);
+                    recorder.EndSubsegment();
+                    throw new EntityNotAvailableException("Dummy message", e);
+                }
+            }
+            catch (EntityNotAvailableException e)
+            {
+                recorder.AddException(e);
+                recorder.EndSegment();
+            }
+
+            Assert.AreEqual("Dummy message", segment.Cause.ExceptionDescriptors[0].Message);
+            Assert.AreEqual("EntityNotAvailableException", segment.Cause.ExceptionDescriptors[0].Type);
+            Assert.IsFalse(segment.Cause.ExceptionDescriptors[0].Remote); // default false
+            Assert.AreEqual(segment.Cause.ExceptionDescriptors[0].Cause, segment.Subsegments[0].Cause.ExceptionDescriptors[0].Id);
+            Assert.AreEqual(1, segment.Cause.ExceptionDescriptors.Count);
+
+            Assert.AreEqual("ArgumentNullException", segment.Subsegments[0].Cause.ExceptionDescriptors[0].Type);
+            Assert.IsTrue(segment.Subsegments[0].Cause.ExceptionDescriptors[0].Remote); // set to true
+
+            Assert.AreEqual("AmazonServiceException", segment.Subsegments[0].Subsegments[0].Cause.ExceptionDescriptors[0].Type);
+            Assert.IsTrue(segment.Subsegments[0].Subsegments[0].Cause.ExceptionDescriptors[0].Remote); // set to true
+        }
+
+        [TestMethod]
+        public void TestExceptionStrategy6() // Setting stack frame size to 0, so no stack trace is recorded
+        {
+            int stackFrameSize = 0;
+            var recorder = new AWSXRayRecorderBuilder().WithExceptionSerializationStrategy(new DefaultExceptionSerializationStrategy(stackFrameSize)).Build(); // set custom stackframe size
+            AWSXRayRecorder.InitializeInstance(recorder: recorder);
+            AWSXRayRecorder.Instance.BeginSegment("parent", TraceId);
+
+            var segment = AWSXRayRecorder.Instance.TraceContext.GetEntity();
+
+            try
+            {
+                recorder.BeginSubsegment("child1");
+                try
+                {
+                    try
+                    {
+                        recorder.BeginSubsegment("child2");
+                        throw new AmazonServiceException();
+                    }
+                    catch (AmazonServiceException e)
+                    {
+                        recorder.AddException(e);
+                        recorder.EndSubsegment();
+                        throw new ArgumentNullException("value");
+                    }
+                }
+                catch (ArgumentNullException e)
+                {
+                    recorder.AddException(e);
+                    recorder.EndSubsegment();
+                    throw new EntityNotAvailableException("Dummy message", e);
+                }
+            }
+            catch (EntityNotAvailableException e)
+            {
+                recorder.AddException(e);
+                recorder.EndSegment();
+            }
+
+            Assert.AreEqual("Dummy message", segment.Cause.ExceptionDescriptors[0].Message);
+            Assert.AreEqual("EntityNotAvailableException", segment.Cause.ExceptionDescriptors[0].Type);
+            Assert.IsFalse(segment.Cause.ExceptionDescriptors[0].Remote); // default false
+            Assert.AreEqual(segment.Cause.ExceptionDescriptors[0].Cause, segment.Subsegments[0].Cause.ExceptionDescriptors[0].Id);
+            Assert.AreEqual(segment.Cause.ExceptionDescriptors[0].Stack.Length, stackFrameSize); // no stack frames should be recorded
+            Assert.IsTrue(segment.Cause.ExceptionDescriptors[0].Truncated > 0);
+            Assert.AreEqual(1, segment.Cause.ExceptionDescriptors.Count);
+
+            Assert.AreEqual("ArgumentNullException", segment.Subsegments[0].Cause.ExceptionDescriptors[0].Type);
+            Assert.AreEqual("AmazonServiceException", segment.Subsegments[0].Subsegments[0].Cause.ExceptionDescriptors[0].Type);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void TestSetNullExceptionSerializationStrategy()
+        {
+            var recorder = new AWSXRayRecorderBuilder().WithExceptionSerializationStrategy(null).Build();
+            Assert.Fail();
+        }
         private class DummySamplingStrategy : ISamplingStrategy
         {
             public SamplingResponse ShouldTrace(SamplingInput input)
@@ -289,6 +443,14 @@ namespace Amazon.XRay.Recorder.UnitTests
             }
 
             public void SetEntity(Entity entity)
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        private class DummyExceptionSerializationStrategy : ExceptionSerializationStrategy
+        {
+            public List<ExceptionDescriptor> DescribeException(Exception e, IEnumerable<Subsegment> subsegments)
             {
                 throw new NotImplementedException();
             }

@@ -15,11 +15,9 @@
 // </copyright>
 //-----------------------------------------------------------------------------
 
-using Amazon.Runtime;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 
@@ -32,13 +30,6 @@ namespace Amazon.XRay.Recorder.Core.Internal.Entities
     public class Cause
     {
         /// <summary>
-        /// The maximum stack frame size
-        /// </summary>
-        public const int MaxStackFrameSize = 50;
-
-        private Lazy<List<ExceptionDescriptor>> _exceptions = new Lazy<List<ExceptionDescriptor>>();
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="Cause"/> class.
         /// </summary>
         public Cause()
@@ -46,15 +37,14 @@ namespace Amazon.XRay.Recorder.Core.Internal.Entities
         }
 
         /// <summary>
-        /// Gets or sets id of a reference exception id.
-        /// If this id is set, the exception is already described in another segment.
+        /// List of <see cref="ExceptionDescriptor"/>
         /// </summary>
-        public string ReferenceExceptionId { get; set; }
+        private Lazy<List<ExceptionDescriptor>> _exceptions = new Lazy<List<ExceptionDescriptor>>();
 
         /// <summary>
         /// Gets the working directory
         /// </summary>
-        public string WorkingDirectory { get; private set; }
+        public string WorkingDirectory { get;  private set; }
 
         /// <summary>
         /// Gets the paths
@@ -85,93 +75,18 @@ namespace Amazon.XRay.Recorder.Core.Internal.Entities
                 return _exceptions.IsValueCreated && _exceptions.Value.Any();
             }
         }
-
+       
         /// <summary>
-        /// Add an exception to the cause
+        /// Add list of <see cref="ExceptionDescriptor"/> to cause instance.
         /// </summary>
-        /// <param name="e">The exception to be added</param>
-        /// <param name="subsegments">The subsegments to search for existing exception descriptor.</param>
-        public void AddException(Exception e, IEnumerable<Subsegment> subsegments)
+        /// <param name="exceptionDescriptors">List of <see cref="ExceptionDescriptor"/>.</param>
+        public void AddException(List<ExceptionDescriptor> exceptionDescriptors)
         {
-            // First check if the exception has been described in subsegments
-            IEnumerable<ExceptionDescriptor> existingExceptionDescriptors = null;
-            if (subsegments != null)
+            if (exceptionDescriptors != null)
             {
-                existingExceptionDescriptors = subsegments.Where(subsegment => subsegment.Cause != null && subsegment.Cause.IsExceptionAdded).SelectMany(subsegment => subsegment.Cause.ExceptionDescriptors);
+                WorkingDirectory = Directory.GetCurrentDirectory();
             }
-
-            ExceptionDescriptor existingDescriptor = null;
-            if (existingExceptionDescriptors != null)
-            {
-                existingDescriptor = existingExceptionDescriptors.FirstOrDefault(descriptor => e.Equals(descriptor.Exception));
-            }
-
-            if (existingDescriptor != null)
-            {
-                ReferenceExceptionId = existingDescriptor.Id;
-                return;
-            }
-
-            // The exception is not described. Start describe it.
-            WorkingDirectory = Directory.GetCurrentDirectory();
-            ExceptionDescriptor curDescriptor = new ExceptionDescriptor();
-            while (e != null)
-            {
-                curDescriptor.Exception = e;
-                curDescriptor.Message = e.Message;
-                curDescriptor.Type = e.GetType().Name;
-                StackFrame[] frames = new StackTrace(e, true).GetFrames();
-                if (frames != null && frames.Length > MaxStackFrameSize)
-                {
-                    curDescriptor.Truncated = frames.Length - MaxStackFrameSize;
-                    curDescriptor.Stack = new StackFrame[MaxStackFrameSize];
-                    Array.Copy(frames, curDescriptor.Stack, MaxStackFrameSize);
-                }
-                else
-                {
-                    curDescriptor.Stack = frames;
-                }
-
-                if (IsAmazonServiceException(e))
-                {
-                    curDescriptor.Remote = true;
-                }
-                
-                _exceptions.Value.Add(curDescriptor);
-
-                e = e.InnerException;
-                if (e != null)
-                {
-                    // Inner exception alreay described
-                    ExceptionDescriptor innerExceptionDescriptor = existingExceptionDescriptors != null ? existingExceptionDescriptors.FirstOrDefault(d => d.Exception.Equals(e)) : null;
-                    if (innerExceptionDescriptor != null)
-                    {
-                        curDescriptor.Cause = innerExceptionDescriptor.Id;
-                        e = null;
-                    }
-                    else
-                    {
-                        var newDescriptor = new ExceptionDescriptor();
-                        curDescriptor.Cause = newDescriptor.Id;
-                        curDescriptor = newDescriptor;
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Checks whether the exception is of <see cref="AmazonServiceException"/>.
-        /// </summary>
-        /// <param name="e">Instance of <see cref="Exception"/>.</param>
-        /// <returns>True if the exception is of type <see cref="AmazonServiceException"/>, else false.</returns>
-        private bool IsAmazonServiceException(Exception e)
-        {
-            if (e is AmazonServiceException amazonServiceException)
-            {
-                return true;
-            }
-
-            return false;
+            _exceptions.Value.AddRange(exceptionDescriptors);
         }
     }
 }
