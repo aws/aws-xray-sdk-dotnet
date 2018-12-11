@@ -81,5 +81,10 @@ namespace Amazon.XRay.Recorder.Core.Internal.Entities
         /// Gets or sets the exception.
         /// </summary>
         public Exception Exception { get; set; }
+
+        /// <summary>
+        /// The exception's "remote" attribute should be set to true if the exception on a "remote" subsegment is caused by or originated from a downstream service.
+        /// </summary>
+        public bool Remote { get; set;}
     }
 }

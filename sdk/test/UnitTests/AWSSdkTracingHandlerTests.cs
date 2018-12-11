@@ -353,6 +353,7 @@ namespace Amazon.XRay.Recorder.UnitTests
                 catch (AmazonServiceException e)
                 {
                     Assert.ReferenceEquals(e, segment.Subsegments[0].Cause.ExceptionDescriptors[0].Exception);
+                    Assert.IsTrue(segment.Subsegments[0].Cause.ExceptionDescriptors[0].Remote); // the exception is remote
                     Assert.IsTrue(segment.Subsegments[0].Aws.ContainsKey("table_name"));
                     Assert.IsTrue(segment.Subsegments[0].Aws.ContainsKey("consistent_read"));
                     Assert.IsTrue(segment.Subsegments[0].Aws.ContainsKey("projection_expression"));

@@ -69,6 +69,8 @@ namespace Amazon.XRay.Recorder.UnitTests
                 Assert.AreEqual(segment.Subsegments[0].Cause.ExceptionDescriptors[0].Cause, segment.Subsegments[0].Cause.ExceptionDescriptors[1].Id);
                 Assert.AreEqual("EntityNotAvailableException", segment.Subsegments[0].Cause.ExceptionDescriptors[0].Type);
                 Assert.AreEqual("ArgumentNullException", segment.Subsegments[0].Cause.ExceptionDescriptors[1].Type);
+                Assert.IsFalse(segment.Subsegments[0].Cause.ExceptionDescriptors[0].Remote);
+                Assert.IsFalse(segment.Subsegments[0].Cause.ExceptionDescriptors[1].Remote); 
             }
         }
 

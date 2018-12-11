@@ -245,6 +245,9 @@ namespace Amazon.XRay.Recorder.Core.Internal.Emitters
             writer.WritePropertyName("type");
             writer.Write(descriptor.Type);
 
+            writer.WritePropertyName("remote");
+            writer.Write(descriptor.Remote);
+
             writer.WritePropertyName("stack");
 
             writer.WriteArrayStart();   // stack

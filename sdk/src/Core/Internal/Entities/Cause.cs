@@ -15,6 +15,7 @@
 // </copyright>
 //-----------------------------------------------------------------------------
 
+using Amazon.Runtime;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -114,7 +115,6 @@ namespace Amazon.XRay.Recorder.Core.Internal.Entities
             // The exception is not described. Start describe it.
             WorkingDirectory = Directory.GetCurrentDirectory();
             ExceptionDescriptor curDescriptor = new ExceptionDescriptor();
-
             while (e != null)
             {
                 curDescriptor.Exception = e;
@@ -132,6 +132,11 @@ namespace Amazon.XRay.Recorder.Core.Internal.Entities
                     curDescriptor.Stack = frames;
                 }
 
+                if (IsAmazonServiceException(e))
+                {
+                    curDescriptor.Remote = true;
+                }
+                
                 _exceptions.Value.Add(curDescriptor);
 
                 e = e.InnerException;
@@ -152,6 +157,21 @@ namespace Amazon.XRay.Recorder.Core.Internal.Entities
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Checks whether the exception is of <see cref="AmazonServiceException"/>.
+        /// </summary>
+        /// <param name="e">Instance of <see cref="Exception"/>.</param>
+        /// <returns>True if the exception is of type <see cref="AmazonServiceException"/>, else false.</returns>
+        private bool IsAmazonServiceException(Exception e)
+        {
+            if (e is AmazonServiceException amazonServiceException)
+            {
+                return true;
+            }
+
+            return false;
         }
     }
 }
