@@ -454,6 +454,7 @@ namespace Amazon.XRay.Recorder.Handlers.SqlServer
 
             recorder.AddSqlInformation("user", connectionStringBuilder.UserID);
             recorder.AddSqlInformation("connection_string", connectionStringBuilder.ToString());
+            recorder.AddSqlInformation("sanitized_query", CommandText);
         }
     }
 }
