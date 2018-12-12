@@ -21,6 +21,8 @@ using Amazon.XRay.Recorder.Core.Sampling;
 using Amazon.XRay.Recorder.Core.Strategies;
 using System.Threading.Tasks;
 using Amazon.XRay.Recorder.Core.Exceptions;
+using Amazon.XRay.Recorder.Core.Internal.Context;
+using Amazon.XRay.Recorder.Core.Internal.Emitters;
 
 namespace Amazon.XRay.Recorder.Core
 {
@@ -53,6 +55,16 @@ namespace Amazon.XRay.Recorder.Core
         /// Defines exception serialization stategy to process recorded exceptions. <see cref="Strategies.ExceptionSerializationStrategy"/>
         /// </summary>
         ExceptionSerializationStrategy ExceptionSerializationStrategy { get; set; }
+        /// <summary>
+        /// Instance of <see cref="ITraceContext"/>, used to store segment/subsegment.
+        /// </summary>
+        ITraceContext TraceContext { get; set; }
+
+        /// <summary>
+        /// Emitter used to send Traces.
+        /// </summary>
+        ISegmentEmitter Emitter { get; set; }
+
         /// <summary>
         /// Begin a tracing segment. A new tracing segment will be created and started.
         /// </summary>

@@ -20,23 +20,24 @@ using System.Diagnostics.CodeAnalysis;
 using Amazon.XRay.Recorder.Core.Exceptions;
 using Amazon.XRay.Recorder.Core.Internal.Entities;
 using System.Threading;
+using Amazon.XRay.Recorder.Core.Strategies;
 
 namespace Amazon.XRay.Recorder.Core.Internal.Context
 {
     /// <summary>
     /// Context to save trace segment which will be preserved across thread.
     /// </summary>
-    public class AsyncLocalContextContainer : ITraceContext
+    public class AsyncLocalContextContainer : TraceContextImpl
     {
         private static AsyncLocal<Entity> _entityHolder = new AsyncLocal<Entity>();
-
+       
         /// <summary>
         /// Get entity (segment/subsegment) from the context.
         /// </summary>
         /// <returns>The segment get from context.</returns>
         /// <exception cref="EntityNotAvailableException">Thrown when the entity is not available to get.</exception>
         [SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate", Justification = "It's a wrapper for AsyncLocal.")]
-        public virtual Entity GetEntity()
+        public override Entity GetEntity()
         {
             Entity entity = _entityHolder.Value;
             if (entity == null)
@@ -52,7 +53,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Context
         /// </summary>
         /// <param name="entity">The segment to be set.</param>
         /// <exception cref="EntityNotAvailableException">Thrown when the entity is not available to set.</exception>
-        public void SetEntity(Entity entity)
+        public override void SetEntity(Entity entity)
         {
             _entityHolder.Value = entity;
         }
@@ -60,7 +61,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Context
         /// <summary>
         /// Clear entity from trace context for cleanup.
         /// </summary>
-        public void ClearEntity()
+        public override void ClearEntity()
         {
             _entityHolder.Value = null;
         }
@@ -69,7 +70,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Context
         /// Checks whether enity is present in <see cref="AsyncLocal{T}"/>.
         /// </summary>
         /// <returns>True if entity is present in <see cref="AsyncLocal{T}"/> else false.</returns>
-        public Boolean IsEntityPresent()
+        public override Boolean IsEntityPresent()
         {
             Entity entity = _entityHolder.Value;
 

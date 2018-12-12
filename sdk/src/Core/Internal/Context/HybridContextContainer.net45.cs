@@ -29,7 +29,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Context
     /// along the lifecycle of the request are stored in CallContext.
     /// On <see cref="GetEntity"/> operation, if the value is not present in CallContext, the CallContext is populated with the segment that is stored in HttpContext.
     /// </summary>
-    public class HybridContextContainer : ITraceContext
+    public class HybridContextContainer : TraceContextImpl
     {
 
         /// <summary>
@@ -48,7 +48,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Context
         /// <returns>The entity (segment/subsegment)</returns>
         /// <exception cref="EntityNotAvailableException">Thrown when the entity is not available to get.</exception>
         [SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate", Justification = "It's a wrapper for CallContext.LogicalGetData().")]
-        public Entity GetEntity()
+        public override Entity GetEntity()
         {
             if (_defaultContext.IsEntityPresent()) // If CallContext has entity, return the entity 
             {
@@ -65,7 +65,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Context
         /// </summary>
         /// <param name="entity">The segment to be set</param>
         /// <exception cref="EntityNotAvailableException">Thrown when the entity is not available to set</exception>
-        public void SetEntity(Entity entity)
+        public override void SetEntity(Entity entity)
         {
             _defaultContext.SetEntity(entity);
 
@@ -81,7 +81,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Context
         /// Checks whether entity is present in CallContext. If not, check in HttpContext
         /// </summary>
         /// <returns>True if entity is present in <see cref="CallContext"/> or <see cref="HttpContext"/> else false.</returns>
-        public bool IsEntityPresent()
+        public override bool IsEntityPresent()
         {
             if(_defaultContext.IsEntityPresent()) 
             {
@@ -95,7 +95,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Context
         /// <summary>
         /// Clear entity from CallContext and HTTPContext for cleanup.
         /// </summary>
-        public void ClearEntity()
+        public override void ClearEntity()
         {
             _defaultContext.ClearEntity();
 

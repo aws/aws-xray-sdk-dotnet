@@ -437,6 +437,11 @@ namespace Amazon.XRay.Recorder.UnitTests
                 throw new NotImplementedException();
             }
 
+            public void HandleEntityMissing(IAWSXRayRecorder recorder, Exception e, string message)
+            {
+                throw new NotImplementedException();
+            }
+
             public bool IsEntityPresent()
             {
                 throw new NotImplementedException();

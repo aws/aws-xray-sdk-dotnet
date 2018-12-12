@@ -23,16 +23,17 @@ using Amazon.XRay.Recorder.Core.Exceptions;
 
 namespace Amazon.XRay.Recorder.Core.Internal.Context
 {
-    public class CallContextContainer : ITraceContext
+    public class CallContextContainer : TraceContextImpl
     {
         private const string Key = "AWSXRayRecorder";
+
         /// <summary>
         /// Get entity (segment/subsegment) from the context
         /// </summary>
         /// <returns>The segment get from context</returns>
         /// <exception cref="EntityNotAvailableException">Thrown when the entity is not available to get.</exception>
         [SuppressMessage("Microsoft.Design", "CA1024:UsePropertiesWhereAppropriate", Justification = "It's a wrapper for CallContext.LogicalGetData().")]
-        public Entity GetEntity()
+        public override Entity GetEntity()
         {
             try
             {
@@ -59,7 +60,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Context
         /// </summary>
         /// <param name="entity">The segment to be set</param>
         /// <exception cref="EntityNotAvailableException">Thrown when the entity is not available to set</exception>
-        public void SetEntity(Entity entity)
+        public override void SetEntity(Entity entity)
         {
             try
             {
@@ -74,7 +75,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Context
         /// <summary>
         /// Clear entity from trace context for cleanup.
         /// </summary>
-        public void ClearEntity()
+        public override void ClearEntity()
         {
             CallContext.FreeNamedDataSlot(Key);
         }
@@ -83,7 +84,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Context
         /// Checks whether entity is present in <see cref="CallContext"/>.
         /// </summary>
         /// <returns>True if entity is present in <see cref="CallContext"/> else false.</returns>
-        public Boolean IsEntityPresent()
+        public override Boolean IsEntityPresent()
         {
             Entity entity = (Entity)CallContext.LogicalGetData(Key);
 
