@@ -50,32 +50,34 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
         /// <summary>
         /// Gets or sets UDP endpoint.
         /// </summary>
-        public EndPoint UDPEndpoint { get; set; }
+        internal EndPoint _udpEndpoint;
 
         /// <summary>
         /// Gets or sets TCP endpoint.
         /// </summary>
-        public EndPoint TCPEndpoint { get; set; }
+        internal EndPoint _tcpEndpoint;
         
         /// <summary>
         /// Gets IP for UDP endpoint.
         /// </summary>
-        public IPEndPoint UDP_IP_Endpoint {
-            get => UDPEndpoint.GetIPEndPoint();
+        public IPEndPoint UDPEndpoint {
+            get => _udpEndpoint.GetIPEndPoint();
+            set => _udpEndpoint = EndPoint.Of(value);
         }
 
         /// <summary>
         /// Gets IP for TCP endpoint.
         /// </summary>
-        public IPEndPoint TCP_IP_Endpoint
+        public IPEndPoint TCPEndpoint
         {
-            get => TCPEndpoint.GetIPEndPoint();
+            get => _tcpEndpoint.GetIPEndPoint();
+            set => _tcpEndpoint = EndPoint.Of(value);
         }
 
         public DaemonConfig()
         {
-            UDPEndpoint = EndPoint.Of(DefaultEndpoint);
-            TCPEndpoint = EndPoint.Of(DefaultEndpoint);
+            _udpEndpoint = EndPoint.Of(DefaultEndpoint);
+            _tcpEndpoint = EndPoint.Of(DefaultEndpoint);
         }
 
         internal static DaemonConfig ParsEndpoint(string daemonAddress)
@@ -85,7 +87,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
             if (!IPEndPointExtension.TryParse(daemonAddress, out daemonEndPoint))
             {
                  daemonEndPoint = new DaemonConfig();
-                _logger.InfoFormat("The given daemonAddress ({0}) is invalid, using default daemon UDP and TCP address {1}:{2}.", daemonAddress, daemonEndPoint.UDP_IP_Endpoint.Address.ToString(), daemonEndPoint.UDP_IP_Endpoint.Port);
+                _logger.InfoFormat("The given daemonAddress ({0}) is invalid, using default daemon UDP and TCP address {1}:{2}.", daemonAddress, daemonEndPoint.UDPEndpoint.Address.ToString(), daemonEndPoint.UDPEndpoint.Port);
             }
             return daemonEndPoint;
         }

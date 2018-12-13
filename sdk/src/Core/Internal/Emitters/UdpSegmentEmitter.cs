@@ -50,7 +50,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Emitters
             _marshaller = marshaller;
             _udpClient = new UdpClient();
             DaemonConfig daemonEndPoint = DaemonConfig.GetEndPoint();
-            EndPoint = daemonEndPoint.UDP_IP_Endpoint;
+            EndPoint = daemonEndPoint.UDPEndpoint;
         }
 
         /// <summary>
@@ -144,7 +144,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Emitters
         private void SetEndPointOrDefault(string daemonAddress)
         {
             DaemonConfig daemonEndPoint = DaemonConfig.GetEndPoint(daemonAddress);
-            EndPoint = daemonEndPoint.UDP_IP_Endpoint;
+            EndPoint = daemonEndPoint.UDPEndpoint;
         }
     }
 }
