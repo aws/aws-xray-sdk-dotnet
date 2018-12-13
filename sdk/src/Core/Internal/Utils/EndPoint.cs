@@ -28,6 +28,10 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
         private IPEndPoint _i;
         private bool _isHost;
 
+        private EndPoint()
+        {
+        }
+
         /// <summary>
         /// Create an EndPoint representing a HostEndPoint.
         /// </summary>
