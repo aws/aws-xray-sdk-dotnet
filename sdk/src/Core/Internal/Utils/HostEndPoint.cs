@@ -33,21 +33,24 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
 	/// </summary>
 	public class HostEndPoint
 	{
-		private const int CACHE_TTL = 60;	//Seconds to consider a cached dns response valid
-		private IPEndPoint _ipCache = null;
-		private DateTime? _timestampOfLastIPCacheUpdate = null;
+		private readonly int _cacheTtl;	//Seconds to consider a cached dns response valid
+		private IPEndPoint _ipCache;
+		private DateTime? _timestampOfLastIPCacheUpdate;
 		private static readonly Logger _logger = Logger.GetLogger(typeof(HostEndPoint));
-		private ReaderWriterLockSlim cacheLock = new ReaderWriterLockSlim();
+		private readonly ReaderWriterLockSlim cacheLock = new ReaderWriterLockSlim();
 
 		/// <summary>
 		/// Create a HostEndPoint.
 		/// </summary>
 		/// <param name="host"></param>
 		/// <param name="port"></param>
-		public HostEndPoint(string host, int port)
+		/// <param name="cacheTtl"></param>
+		public HostEndPoint(string host, int port, int cacheTtl = 60)
 		{
 			Host = host;
 			Port = port;
+			_cacheTtl = cacheTtl;
+			IsInitialised = false;
 		}
 		
 		/// <summary>
@@ -58,111 +61,186 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
 		/// Get the port of the endpoint.
 		/// </summary>
 		public int Port { get; }
+		
+		public bool IsInitialised { get; private set; }
 
 
-		private bool IsIPCacheValid()
+		/// <summary>
+		/// Check to see if the cache is valid.
+		/// A lock with at least read access MUST be held when calling this method!
+		/// </summary>
+		/// <returns>true if the cache is valid, false otherwise.</returns>
+		private CacheState IPCacheIsValid()
 		{
-			bool entered = cacheLock.TryEnterReadLock(0);
-
-			if (!entered)
-			{
-				//Another thread holds a write lock, i.e. updating the cache => the cache is dirty
-				return false;
-			}
-
-			bool res;
-			
 			if (_ipCache == null)
 			{
-				res = false;
+				return CacheState.Invalid;
 			}
 
-			if (_timestampOfLastIPCacheUpdate is DateTime lastTimestamp)
+			if (!(_timestampOfLastIPCacheUpdate is DateTime lastTimestamp))
 			{
-				res = DateTime.Now.Subtract(lastTimestamp).TotalSeconds < CACHE_TTL;
+				return CacheState.Invalid;
+			}
+			
+			if (DateTime.Now.Subtract(lastTimestamp).TotalSeconds < _cacheTtl)
+			{
+				return CacheState.Valid;
+			}
+
+			return CacheState.Invalid;
+		}
+		
+		/// <summary>
+		/// Checks to see if the cache is valid.
+		/// This method is essentially a wrapper around <see cref="IPCacheIsValid"/> that acquires the required lock.
+		/// </summary>
+		/// <returns>true if the cache is valid, false otherwise.</returns>
+		private CacheState LockedIPCacheIsValid()
+		{
+			// If !entered => another thread holds a write lock, i.e. updating the cache
+			if (!cacheLock.TryEnterReadLock(0)) return CacheState.Updating;
+			try
+			{
+					
+				return IPCacheIsValid();
+			}
+			finally
+			{
+				cacheLock.ExitReadLock();
+			}
+		}
+		
+		/// <summary>
+		/// Returns a cached ip resolved from the hostname.
+		/// If the cached address is invalid this method will try to update it.
+		/// The IP address returned is never guaranteed to be valid.
+		/// An IP address may be invalid to due to several factors, including but not limited to:
+		///  * DNS record is incorrect,
+		///  * DNS record might have changed since last update.
+		/// The returned IPEndPoint may also be null if no cache update has been successful.
+		/// </summary>
+		/// <param name="updatePerformed">set to true if an update was performed, false otherwise</param>
+		/// <returns>the cached IPEndPoint, may be null</returns>
+		public IPEndPoint GetIPEndPoint(out bool updatePerformed)
+		{
+			// LockedIPCacheIsValid and UpdateCache will in unison perform
+			// a double checked locked to ensure:
+			// 1. UpdateCache only is called when it appears that the cache is invalid
+			// 2. The cache will not be updated when not necessary
+			if (LockedIPCacheIsValid() == CacheState.Invalid)
+			{
+				updatePerformed = UpdateCache();
 			}
 			else
 			{
-				res = false;
+				updatePerformed = false;
 			}
 			
-			cacheLock.ExitReadLock();
-			return res;
-		}
-
-		private void UpdateCache()
-		{
-			//If we fail with timeout = 0 another thread is already updating the cache and we don't need to it as well
-			bool entered = cacheLock.TryEnterWriteLock(0);
-
-			if (!entered)
-			{
-				return;
-			}
-			
+			cacheLock.EnterReadLock();
 			try
 			{
+				return _ipCache;
+			}
+			finally
+			{
+				cacheLock.ExitReadLock();
+			}
+		}
+
+		/// <summary>
+		/// Updates the cache if invalid.
+		/// Utilises an upgradable read lock, meaning only one thread at a time can enter this method.
+		/// </summary>
+		private bool UpdateCache()
+		{
+			if (!cacheLock.TryEnterUpgradeableReadLock(0))
+			{
+				// Another thread is already performing an update => bail and use potentially dirty cache
+				return false;
+			}
+			try
+			{
+				// We hold a UpgradableReadLock so when may call IPCacheIsValid
+				if (IPCacheIsValid() != CacheState.Invalid)
+				{
+					// Cache no longer invalid, i.e. another thread performed the update after us seeing it invalid
+					// and before now.
+					return false;
+				}
+				
+				// We have confirmed that the cache still is invalid and needs updating.
+				// We know that we are the only ones that may update it because we hold an UpgradeableReadLock
+				// Only one thread may hold such lock at a time, see:
+				// https://docs.microsoft.com/en-gb/dotnet/api/system.threading.readerwriterlockslim?view=netframework-4.7.2#remarks
+				
 				var ipEntries = Dns.GetHostAddresses(Host);
 				var newIP = ipEntries.FirstOrDefault(x => x.AddressFamily == AddressFamily.InterNetwork);
-				if (newIP != null)
-				{
-					_timestampOfLastIPCacheUpdate = DateTime.Now;
-					_logger.InfoFormat("IP cache invalid: updated ip cache for {0} to {1}.", Host, newIP);
-					_ipCache = new IPEndPoint(newIP, Port);
-				}
-				else
+
+				if (newIP == null)
 				{
 					_logger.InfoFormat(
-						"IP cache invalid: DNS responded with zero IP addresses for {1}. Falling back to cached IP, e.g. {0}.",
+						"IP cache invalid: DNS responded with no IP addresses for {1}. Cached IP address not updated!.",
 						_ipCache, Host);
+					return false;
 				}
+				// Upgrade our read lock to write mode
+				cacheLock.EnterWriteLock();
+				try
+				{
+					_timestampOfLastIPCacheUpdate = DateTime.Now;
+					_ipCache = new IPEndPoint(newIP, Port);
+					IsInitialised = true;
+					return true;
+				}
+				//Error catching for IPEndPoint creation
+				catch (ArgumentNullException)
+				{
+					_logger.InfoFormat("IP cache invalid: resolved IP address for hostname {0} null. Cached IP address not updated!", Host);
+				}
+				catch (ArgumentOutOfRangeException)
+				{
+					_logger.InfoFormat("IP cache invalid: either the port {0} or IP address {1} is out of range. Cached IP address not updated!", Port, newIP);
+				}
+				finally
+				{
+					// Downgrade back to read mode
+					cacheLock.ExitWriteLock();
+				}
+				_logger.InfoFormat("IP cache invalid: updated ip cache for {0} to {1}.", Host, newIP);
 			}
 			//Error catching for DNS resolve
 			catch (ArgumentNullException)
 			{
 				_logger.InfoFormat(
-					"IP cache invalid: failed to resolve DNS due to host being null. Falling back to cached IP, e.g. {0}.",
-					_ipCache);
+					"IP cache invalid: failed to resolve DNS due to host being null. Cached IP address not updated!");
 			}
 			catch (ArgumentOutOfRangeException)
 			{
 				_logger.InfoFormat(
-					"IP cache invalid: failed to resolve DNS due to host being longer than 255 characters. ({0})",
+					"IP cache invalid: failed to resolve DNS due to host being longer than 255 characters. ({0}) Cached IP address not updated!",
 					Host);
 			}
 			catch (SocketException)
 			{
-				_logger.InfoFormat("IP cache invalid: failed to resolve DNS. ({0})", Host);
+				_logger.InfoFormat("IP cache invalid: failed to resolve DNS. ({0}) Cached IP address not updated!", Host);
 			}
 			catch (ArgumentException)
 			{
-				_logger.InfoFormat("IP cache invalid: failed to update cache due to {0} not being a vaild IP.", Host);
+				_logger.InfoFormat("IP cache invalid: failed to update cache due to {0} not being a valid IP. Cached IP address not updated!", Host);
 			}
 			finally
 			{
-				cacheLock.ExitWriteLock();
+				cacheLock.ExitUpgradeableReadLock();
 			}
+
+			return false;
 		}
 
-		/// <summary>
-		/// Returns a cached ip resolved from the hostname.
-		///
-		/// If the cache is invalid this method will update it.
-		///
-		/// The cache returned may be dirty. This may occur since the cache has a TTL
-		/// but the host-ip mapping may change in that time. It may also occur when
-		/// this thread tries to update the cache but another thread is already doing so.
-		/// </summary>
-		/// <returns></returns>
-		public IPEndPoint GetIPEndPoint()
+		private enum CacheState
 		{
-			
-			if (!IsIPCacheValid())
-			{
-				UpdateCache();
-			}
-			
-			return _ipCache;
+			Valid,
+			Invalid,
+			Updating
 		}
 	}
 }

@@ -54,7 +54,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
         /// <returns></returns>
         public IPEndPoint GetIPEndPoint()
         {
-            return _isHost ? _h.GetIPEndPoint() : _i;
+            return _isHost ? _h.GetIPEndPoint(out _) : _i;
         }
     }
 }
