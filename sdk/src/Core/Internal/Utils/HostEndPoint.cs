@@ -50,7 +50,6 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
 			Host = host;
 			Port = port;
 			_cacheTtl = cacheTtl;
-			IsInitialised = false;
 		}
 		
 		/// <summary>
@@ -61,8 +60,6 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
 		/// Get the port of the endpoint.
 		/// </summary>
 		public int Port { get; }
-		
-		public bool IsInitialised { get; private set; }
 
 
 		/// <summary>
@@ -189,7 +186,6 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
 				{
 					_timestampOfLastIPCacheUpdate = DateTime.Now;
 					_ipCache = new IPEndPoint(newIP, Port);
-					IsInitialised = true;
 					return true;
 				}
 				//Error catching for IPEndPoint creation
