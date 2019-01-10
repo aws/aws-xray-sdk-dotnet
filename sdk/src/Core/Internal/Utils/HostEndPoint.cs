@@ -47,6 +47,10 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
 		/// <param name="cacheTtl"></param>
 		public HostEndPoint(string host, int port, int cacheTtl = 60)
 		{
+			if (host == "")
+			{
+				_logger.InfoFormat("Warning: Using an empty host will always resolve to the address of the local host.");
+			}
 			Host = host;
 			Port = port;
 			_cacheTtl = cacheTtl;

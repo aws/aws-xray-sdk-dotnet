@@ -8,7 +8,7 @@ namespace Amazon.XRay.Recorder.UnitTests
     [TestClass]
     public class HostEndPointTests
     {
-        private readonly string[] _badHosts = {"", null, "i.am.a.very.long.host.name.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler"};
+        private readonly string[] _badHosts = {null, "i.am.a.very.long.host.name.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler.filler"};
         private readonly int[] _badPorts = {-1, int.MaxValue, int.MinValue, 65536};
 
         [TestMethod]
