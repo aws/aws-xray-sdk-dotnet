@@ -185,6 +185,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
 				{
 					_timestampOfLastIPCacheUpdate = DateTime.Now;
 					_ipCache = new IPEndPoint(newIP, Port);
+					_logger.InfoFormat("IP cache invalid: updated ip cache for {0} to {1}.", Host, newIP);
 					return true;
 				}
 				//Error catching for IPEndPoint creation
@@ -201,7 +202,6 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
 					// Downgrade back to read mode
 					cacheLock.ExitWriteLock();
 				}
-				_logger.InfoFormat("IP cache invalid: updated ip cache for {0} to {1}.", Host, newIP);
 			}
 			//Error catching for DNS resolve
 			catch (ArgumentNullException)
