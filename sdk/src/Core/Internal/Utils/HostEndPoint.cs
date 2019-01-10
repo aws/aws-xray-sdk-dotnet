@@ -97,8 +97,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
 			// If !entered => another thread holds a write lock, i.e. updating the cache
 			if (!cacheLock.TryEnterReadLock(0)) return CacheState.Updating;
 			try
-			{
-					
+			{	
 				return IPCacheIsValid();
 			}
 			finally
