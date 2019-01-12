@@ -159,7 +159,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
             }
             else
             {
-                _logger.DebugFormat("Determined that {0} is not an IP.", input);
+                _logger.DebugFormat("Determined that {0} is not an IP address, will try to parse it as a hostname.", input);
                 if (TryParse(input, out HostEndPoint hostEndPoint))
                 {
                     endpoint = EndPoint.Of(hostEndPoint);
