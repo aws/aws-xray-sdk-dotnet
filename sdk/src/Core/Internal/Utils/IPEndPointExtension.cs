@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------------
+
 // <copyright file="IPEndPointExtension.cs" company="Amazon.com">
 //      Copyright 2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
@@ -94,6 +94,26 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
                 _logger.Error(e, "Failed to parse IPEndPoint because argument to IPEndPoint is invalid. ({0}", input);
                 return false;
             }
+        }
+        
+        public static bool TryParse(string entry, out HostEndPoint hostEndpoint)
+        {
+            var entries = entry.Split(':');
+            if (entries.Length != 2)
+            {
+                _logger.InfoFormat("Failed to parse HostEndPoint because input has not exactly two parts splitting by ':'. ({0})", entry);
+                hostEndpoint = null;
+                return false;
+            }
+            if (!int.TryParse(entries[1], out var port))
+            {
+                _logger.InfoFormat("Failed to parse HostEndPoint because port is invalid. ({0})", entry);
+                hostEndpoint = null;
+                return false;
+            }
+            hostEndpoint = new HostEndPoint(entries[0], port);
+            _logger.InfoFormat("Using custom daemon address: {0}:{1}", hostEndpoint.Host, hostEndpoint.Port);
+            return true;
         }
 
         /// <summary>
