@@ -1,4 +1,4 @@
-
+//-----------------------------------------------------------------------------
 // <copyright file="IPEndPointExtension.cs" company="Amazon.com">
 //      Copyright 2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
