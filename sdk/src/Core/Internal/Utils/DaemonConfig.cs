@@ -50,17 +50,17 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
         /// <summary>
         /// Gets aor sets UDP endpoint.
         /// </summary>
-        public IPEndPoint UDPEndpoint { get; set; }
+        public EndPoint UDPEndpoint { get; set; }
 
         /// <summary>
         /// Gets or sets TCP endpoint.
         /// </summary>
-        public IPEndPoint TCPEndpoint { get; set; }
+        public EndPoint TCPEndpoint { get; set; }
 
         public DaemonConfig()
         {
-            UDPEndpoint = DefaultEndpoint;
-            TCPEndpoint = DefaultEndpoint;
+            UDPEndpoint = EndPoint.of((DefaultEndpoint));
+            TCPEndpoint = EndPoint.of((DefaultEndpoint));
         }
 
         internal static DaemonConfig ParsEndpoint(string daemonAddress)
@@ -70,7 +70,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
             if (!IPEndPointExtension.TryParse(daemonAddress, out daemonEndPoint))
             {
                  daemonEndPoint = new DaemonConfig();
-                _logger.InfoFormat("The given daemonAddress ({0}) is invalid, using default daemon UDP and TCP address {1}:{2}.", daemonAddress, daemonEndPoint.UDPEndpoint.Address.ToString(), daemonEndPoint.UDPEndpoint.Port);
+                _logger.InfoFormat("The given daemonAddress ({0}) is invalid, using default daemon UDP and TCP address {1}:{2}.", daemonAddress, daemonEndPoint.UDPEndpoint.GetIPEndPoint().Address.ToString(), daemonEndPoint.UDPEndpoint.GetIPEndPoint().Port);
             }
             return daemonEndPoint;
         }

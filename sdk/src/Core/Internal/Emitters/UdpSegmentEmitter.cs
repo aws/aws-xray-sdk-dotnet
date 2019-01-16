@@ -23,6 +23,7 @@ using Amazon.Runtime.Internal.Util;
 using Amazon.XRay.Recorder.Core.Internal.Entities;
 using Amazon.XRay.Recorder.Core.Internal.Utils;
 using System.Threading.Tasks;
+using EndPoint = Amazon.XRay.Recorder.Core.Internal.Utils.EndPoint;
 
 namespace Amazon.XRay.Recorder.Core.Internal.Emitters
 {
@@ -49,27 +50,18 @@ namespace Amazon.XRay.Recorder.Core.Internal.Emitters
             _marshaller = marshaller;
             _udpClient = new UdpClient();
             DaemonConfig daemonEndPoint = DaemonConfig.GetEndPoint();
-            EndPoint = daemonEndPoint.UDPEndpoint;
+            _endPoint = daemonEndPoint.UDPEndpoint;
         }
 
+        private EndPoint _endPoint;
+            
         /// <summary>
         /// Gets the end point to daemon.
         /// </summary>
         public IPEndPoint EndPoint {
-			get
-			{
-                if(_daemonHost is HostEndPoint host && host.GetIPEndPoint() == null)
-                {
-                    _logger.InfoFormat("No ip cached for {0}, falling back to local host.", _daemonHost);
-                    return _daemonIP;
-                }
-                
-				return _daemonHost?.GetIPEndPoint() ?? _daemonIP;
-			}
-		}
-
-		private IPEndPoint _daemonIP = null;
-		private HostEndPoint _daemonHost = null;
+            get { return _endPoint.GetIPEndPoint(); }
+            
+        }
 
         /// <summary>
         /// Send segment to local daemon
@@ -156,42 +148,8 @@ namespace Amazon.XRay.Recorder.Core.Internal.Emitters
 
         private void SetEndPointOrDefault(string daemonAddress)
         {
-            IPEndPoint daemonEndPoint;
-
-            if (string.IsNullOrEmpty(daemonAddress))
-            {
-                 daemonEndPoint = new IPEndPoint(_defaultDaemonAddress, _defaultDaemonPort);
-                _logger.InfoFormat("Using default daemon address: {0}:{1}", daemonEndPoint.Address.ToString(), daemonEndPoint.Port);
-            }
-            else if (!IPEndPointExtension.TryParse(daemonAddress, out daemonEndPoint))
-            {
-                daemonEndPoint = new IPEndPoint(_defaultDaemonAddress, _defaultDaemonPort);
-                _logger.InfoFormat("The given daemonAddress ({0}) is invalid, using default daemon address {1}:{2}.", daemonAddress, daemonEndPoint.Address.ToString(), daemonEndPoint.Port);
-            }
-
-            EndPoint = daemonEndPoint;
+            DaemonConfig daemonEndPoint = DaemonConfig.GetEndPoint(daemonAddress);
+            _endPoint = daemonEndPoint.UDPEndpoint;
         }
     }
 }
-
-			if (string.IsNullOrEmpty(daemonAddress))
-			{
-				_daemonIP = new IPEndPoint(_defaultDaemonAddress, _defaultDaemonPort);
-				_logger.InfoFormat("Using default daemon address: {0}:{1}", _daemonIP.Address.ToString(), _daemonIP.Port);
-			}
-			else if (IPEndPointExtension.TryParse(daemonAddress, out var daemonEndPoint))
-			{
-				_daemonIP = daemonEndPoint;
-				_logger.InfoFormat("Parsed daemonAddress as IP address. ({0})", daemonAddress);
-			}
-			else if (HostEndPoint.TryParse(daemonAddress, out var hostEndPoint))
-			{
-				_daemonHost = hostEndPoint;
-				_logger.InfoFormat("Parsed daemonAddress as domain name. ({0})", daemonAddress);
-                _daemonIP = new IPEndPoint(_defaultDaemonAddress, _defaultDaemonPort);  //Creating a fallback IPEndPoint incase we are unable to resolve an ip from the HostEndPoint
-			}
-			else
-			{
-				_daemonIP = new IPEndPoint(_defaultDaemonAddress, _defaultDaemonPort);
-				_logger.InfoFormat("The given daemonAddress ({0}) is invalid, using default daemon address {1}:{2}.", daemonAddress, _daemonIP.Address.ToString(), _daemonIP.Port);
-			}

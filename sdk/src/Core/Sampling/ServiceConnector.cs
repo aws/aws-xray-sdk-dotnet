@@ -60,7 +60,7 @@ namespace Amazon.XRay.Recorder.Core.Sampling
         private AmazonXRayClient CreateXRayClient(DaemonConfig endpoint)
         {
             var config = new AmazonXRayConfig();
-            config.ServiceURL = "http://"+endpoint.TCPEndpoint.Address.ToString() + ":"+ endpoint.TCPEndpoint.Port;
+            config.ServiceURL = "http://"+endpoint.TCPEndpoint.GetIPEndPoint().Address.ToString() + ":"+ endpoint.TCPEndpoint.GetIPEndPoint().Port;
             AWSCredentials credentials = new AnonymousAWSCredentials(); // sends unsigned requests to daemon endpoint
             return new AmazonXRayClient(credentials,config);
         }

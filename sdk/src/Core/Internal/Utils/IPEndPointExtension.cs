@@ -96,24 +96,43 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
             }
         }
         
-        public static bool TryParse(string entry, out HostEndPoint hostEndpoint)
+        public static bool TryParse(string input, out HostEndPoint hostEndpoint)
         {
-            var entries = entry.Split(':');
+            var entries = input.Split(':');
             if (entries.Length != 2)
             {
-                _logger.InfoFormat("Failed to parse HostEndPoint because input has not exactly two parts splitting by ':'. ({0})", entry);
+                _logger.InfoFormat("Failed to parse HostEndPoint because input has not exactly two parts splitting by ':'. ({0})", input);
                 hostEndpoint = null;
                 return false;
             }
             if (!int.TryParse(entries[1], out var port))
             {
-                _logger.InfoFormat("Failed to parse HostEndPoint because port is invalid. ({0})", entry);
+                _logger.InfoFormat("Failed to parse HostEndPoint because port is invalid. ({0})", input);
                 hostEndpoint = null;
                 return false;
             }
             hostEndpoint = new HostEndPoint(entries[0], port);
             _logger.InfoFormat("Using custom daemon address: {0}:{1}", hostEndpoint.Host, hostEndpoint.Port);
             return true;
+        }
+
+        public static bool TryParse(string input, out EndPoint endpoint)
+        {
+            if (TryParse(input, out IPEndPoint ipEndPoint))
+            {
+                endpoint = EndPoint.of(ipEndPoint);
+                return true;
+            }
+            else if (TryParse(input, out HostEndPoint hostEndPoint))
+            {
+                endpoint = EndPoint.of(hostEndPoint);
+                return true;
+            }
+            else
+            {
+                endpoint = null;
+                return false;
+            }
         }
 
         /// <summary>
@@ -160,14 +179,14 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
 
         private static bool ParseSingleForm(string[] daemonAddress, out DaemonConfig endPoint)
         {
-            IPEndPoint udpEndpoint = null;
+            EndPoint udpEndpoint = null;
             endPoint = new DaemonConfig();
 
             if (TryParse(daemonAddress[0], out udpEndpoint))
             {
                 endPoint.UDPEndpoint = udpEndpoint;
                 endPoint.TCPEndpoint = udpEndpoint;
-                _logger.InfoFormat("Using custom daemon address for UDP and TCP: {0}:{1}", endPoint.UDPEndpoint.Address.ToString(), endPoint.UDPEndpoint.Port);
+                _logger.InfoFormat("Using custom daemon address for UDP and TCP: {0}:{1}", endPoint.UDPEndpoint.GetIPEndPoint().Address.ToString(), endPoint.UDPEndpoint.GetIPEndPoint().Port);
                 return true;
             }
             else
@@ -178,8 +197,8 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
         private static bool ParseDoubleForm(string[] daemonAddress, out DaemonConfig endPoint)
         {
             endPoint = new DaemonConfig();
-            IPEndPoint udpEndpoint = null;
-            IPEndPoint tcpEndpoint = null;
+            EndPoint udpEndpoint = null;
+            EndPoint tcpEndpoint = null;
             IDictionary<string, string> addressMap = new Dictionary<string, string>();
             string[] address1 = daemonAddress[0].Split(_addressPortDelimiter); // tcp:127.0.0.1:2000 udp:127.0.0.2:2001
             string[] address2 = daemonAddress[1].Split(_addressPortDelimiter);
@@ -197,7 +216,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
             {
                 endPoint.UDPEndpoint = udpEndpoint;
                 endPoint.TCPEndpoint = tcpEndpoint;
-                _logger.InfoFormat("Using custom daemon address for UDP {0}:{1} and TCP {2}:{3}", endPoint.UDPEndpoint.Address.ToString(), endPoint.UDPEndpoint.Port, endPoint.TCPEndpoint.Address.ToString(), endPoint.TCPEndpoint.Port);
+                _logger.InfoFormat("Using custom daemon address for UDP {0}:{1} and TCP {2}:{3}", endPoint.UDPEndpoint.GetIPEndPoint().Address.ToString(), endPoint.UDPEndpoint.GetIPEndPoint().Port, endPoint.TCPEndpoint.GetIPEndPoint().Address.ToString(), endPoint.TCPEndpoint.GetIPEndPoint().Port);
                 return true;
             }
 
