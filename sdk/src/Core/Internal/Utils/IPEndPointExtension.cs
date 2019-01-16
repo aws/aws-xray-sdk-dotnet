@@ -37,29 +37,33 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
         private const string _tcpKey = "tcp";
 
         /// <summary>
+        /// Validates that <paramref name="input"/> is an IP.
+        /// </summary>
+        /// <param name="input">Sting to be validated.</param>
+        /// <returns>true if <paramref name="input"/> is an IP, false otherwise.</returns>
+        public static bool IsIPAddress(string input)
+        {
+            try
+            {
+                // Validate basic format of IPv4 address
+                return Regex.IsMatch(input, Ipv4Address, RegexOptions.None, TimeSpan.FromMinutes(1));
+            }
+            catch (RegexMatchTimeoutException e)
+            {
+                _logger.Error(e, "Failed to determine if IP because of match timeout. ({0})", input);
+                return false;
+            }
+        }
+        
+        /// <summary>
         /// Tries to parse a string to <see cref="System.Net.IPEndPoint"/>.
         /// </summary>
-        /// <param name="input">The input string.</param>
+        /// <param name="input">The input string. Must be able to be validated by <see cref="IsIPAddress"/>.</param>
         /// <param name="endPoint">The parsed IPEndPoint</param>
         /// <returns>true if <paramref name="input"/> converted successfully; otherwise, false.</returns>
         public static bool TryParse(string input, out IPEndPoint endPoint)
         {
             endPoint = null;
-
-            try
-            {
-                // Validate basic format of IPv4 address
-                if (!Regex.IsMatch(input, Ipv4Address, RegexOptions.None, TimeSpan.FromMinutes(1)))
-                {
-                    _logger.InfoFormat("Failed to parse IPEndPoint because input is invalid. ({0})", input);
-                    return false;
-                }
-            }
-            catch (RegexMatchTimeoutException e)
-            {
-                _logger.Error(e, "Failed to parse IPEndPoint because of match timeout. ({0})", input);
-                return false;
-            }
 
             string[] ep = input.Split(':');
             if (ep.Length != 2)
@@ -143,21 +147,27 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
         /// <returns>true if <paramref name="input"/> converted successfully; otherwise, false.</returns>
         public static bool TryParse(string input, out EndPoint endpoint)
         {
-            if (TryParse(input, out IPEndPoint ipEndPoint))
+            endpoint = null;
+            if (IsIPAddress(input))
             {
-                endpoint = EndPoint.Of(ipEndPoint);
-                return true;
-            }
-            else if (TryParse(input, out HostEndPoint hostEndPoint))
-            {
-                endpoint = EndPoint.Of(hostEndPoint);
-                return true;
+                _logger.DebugFormat("Determined that {0} is an IP.", input);
+                if (TryParse(input, out IPEndPoint ipEndPoint))
+                {
+                    endpoint = EndPoint.Of(ipEndPoint);
+                    return true;
+                }
             }
             else
             {
-                endpoint = null;
-                return false;
+                _logger.DebugFormat("Determined that {0} is not an IP.", input);
+                if (TryParse(input, out HostEndPoint hostEndPoint))
+                {
+                    endpoint = EndPoint.Of(hostEndPoint);
+                    return true;
+                }
             }
+
+            return false;
         }
 
         /// <summary>
