@@ -36,6 +36,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Emitters
         private readonly IPAddress _defaultDaemonAddress = IPAddress.Loopback;
         private readonly ISegmentMarshaller _marshaller;
         private readonly UdpClient _udpClient;
+        private DaemonConfig _daemonConfig;
         private bool _disposed;
 
         /// <summary>
@@ -49,14 +50,17 @@ namespace Amazon.XRay.Recorder.Core.Internal.Emitters
         {
             _marshaller = marshaller;
             _udpClient = new UdpClient();
-            DaemonConfig daemonEndPoint = DaemonConfig.GetEndPoint();
-            EndPoint = daemonEndPoint.UDPEndpoint;
+            _daemonConfig = DaemonConfig.GetEndPoint();
         }
 
         /// <summary>
         /// Gets the end point to daemon.
+        /// <para>
+        /// Two successive calls may not return the same IP as the backing
+        /// endpoint may be a HostEndpoint that could update.
+        /// </para>
         /// </summary>
-        public IPEndPoint EndPoint { get; private set; }
+        public IPEndPoint EndPoint => _daemonConfig.UDPEndpoint;
 
         /// <summary>
         /// Send segment to local daemon
@@ -68,7 +72,9 @@ namespace Amazon.XRay.Recorder.Core.Internal.Emitters
             {
                 var packet = _marshaller.Marshall(segment);
                 var data = Encoding.ASCII.GetBytes(packet);
-                _udpClient.Send(data, data.Length, EndPoint);
+                var ip = EndPoint; //Need local var to ensure ip do not updates
+                _logger.DebugFormat("UDP Segment emitter endpoint: {0}.", ip);
+                _udpClient.Send(data, data.Length, ip);
             }
             catch (SocketException e)
             {
@@ -143,8 +149,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Emitters
 
         private void SetEndPointOrDefault(string daemonAddress)
         {
-            DaemonConfig daemonEndPoint = DaemonConfig.GetEndPoint(daemonAddress);
-            EndPoint = daemonEndPoint.UDPEndpoint;
+            _daemonConfig = DaemonConfig.GetEndPoint(daemonAddress);
         }
     }
 }
