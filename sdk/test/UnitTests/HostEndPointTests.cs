@@ -94,7 +94,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         [TestMethod]
         public void TestMultiThreadedUpdateSpacingWithDifferentTtl()
         {
-            int[] ttls = {1, 2, 4, 8};
+            int[] ttls = {1, 4};
             foreach (var ttl in ttls)
             {
                 TestMultiThreadedUpdateSpacing(ttl);
@@ -103,7 +103,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         
         private void TestMultiThreadedUpdateSpacing(int ttl)
         {
-            var targetRuntime = ttl * 5;
+            var targetRuntime = ttl * 1;
             const int numberOfThreads = 20;
 
             var l = new Mutex();
