@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // <copyright file="IPEndPointExtension.cs" company="Amazon.com">
 //      Copyright 2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
@@ -37,29 +37,33 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
         private const string _tcpKey = "tcp";
 
         /// <summary>
+        /// Validates that <paramref name="input"/> is an IP.
+        /// </summary>
+        /// <param name="input">Sting to be validated.</param>
+        /// <returns>true if <paramref name="input"/> is an IP, false otherwise.</returns>
+        public static bool IsIPAddress(string input)
+        {
+            try
+            {
+                // Validate basic format of IPv4 address
+                return Regex.IsMatch(input, Ipv4Address, RegexOptions.None, TimeSpan.FromMinutes(1));
+            }
+            catch (RegexMatchTimeoutException e)
+            {
+                _logger.Error(e, "Failed to determine if IP because of match timeout. ({0})", input);
+                return false;
+            }
+        }
+        
+        /// <summary>
         /// Tries to parse a string to <see cref="System.Net.IPEndPoint"/>.
         /// </summary>
-        /// <param name="input">The input string.</param>
+        /// <param name="input">The input string. Must be able to be validated by <see cref="IsIPAddress"/>.</param>
         /// <param name="endPoint">The parsed IPEndPoint</param>
         /// <returns>true if <paramref name="input"/> converted successfully; otherwise, false.</returns>
         public static bool TryParse(string input, out IPEndPoint endPoint)
         {
             endPoint = null;
-
-            try
-            {
-                // Validate basic format of IPv4 address
-                if (!Regex.IsMatch(input, Ipv4Address, RegexOptions.None, TimeSpan.FromMinutes(1)))
-                {
-                    _logger.InfoFormat("Failed to parse IPEndPoint because input is invalid. ({0})", input);
-                    return false;
-                }
-            }
-            catch (RegexMatchTimeoutException e)
-            {
-                _logger.Error(e, "Failed to parse IPEndPoint because of match timeout. ({0})", input);
-                return false;
-            }
 
             string[] ep = input.Split(':');
             if (ep.Length != 2)
@@ -94,6 +98,76 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
                 _logger.Error(e, "Failed to parse IPEndPoint because argument to IPEndPoint is invalid. ({0}", input);
                 return false;
             }
+        }
+        
+        
+        /// <summary>
+        /// Tries to parse a string to <see cref="HostEndPoint"/>
+        /// </summary>
+        /// <param name="input">The input string.</param>
+        /// <param name="hostEndpoint">The parsed HostEndPoint</param>
+        /// <returns>true if <paramref name="input"/> converted successfully; otherwise, false.</returns>
+        public static bool TryParse(string input, out HostEndPoint hostEndpoint)
+        {
+            var entries = input.Split(':');
+            if (entries.Length != 2)
+            {
+                _logger.InfoFormat("Failed to parse HostEndPoint because input has not exactly two parts splitting by ':'. ({0})", input);
+                hostEndpoint = null;
+                return false;
+            }
+            if (!int.TryParse(entries[1], out var port))
+            {
+                _logger.InfoFormat("Failed to parse HostEndPoint because port is invalid. ({0})", input);
+                hostEndpoint = null;
+                return false;
+            }
+            if (port < 0 || 65535 < port)
+            {
+                _logger.InfoFormat("Failed to parse HostEndPoint because port is out of range. ({0})", input);
+                hostEndpoint = null;
+                return false;
+            }
+            
+            /*
+             * Almost anything can be a hostname which makes further validation here hard.
+             * Accept any string in entries[0] and let it fail in the DNS lookup instead.
+             */
+            
+            hostEndpoint = new HostEndPoint(entries[0], port);
+            _logger.InfoFormat("Using custom daemon address: {0}:{1}", hostEndpoint.Host, hostEndpoint.Port);
+            return true;
+        }
+
+        /// <summary>
+        /// Tries to parse a string to <see cref="EndPoint"/>
+        /// </summary>
+        /// <param name="input">The input string.</param>
+        /// <param name="hostEndpoint">The parsed EndPoint</param>
+        /// <returns>true if <paramref name="input"/> converted successfully; otherwise, false.</returns>
+        public static bool TryParse(string input, out EndPoint endpoint)
+        {
+            endpoint = null;
+            if (IsIPAddress(input))
+            {
+                _logger.DebugFormat("Determined that {0} is an IP.", input);
+                if (TryParse(input, out IPEndPoint ipEndPoint))
+                {
+                    endpoint = EndPoint.Of(ipEndPoint);
+                    return true;
+                }
+            }
+            else
+            {
+                _logger.DebugFormat("Determined that {0} is not an IP address, will try to parse it as a hostname.", input);
+                if (TryParse(input, out HostEndPoint hostEndPoint))
+                {
+                    endpoint = EndPoint.Of(hostEndPoint);
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         /// <summary>
@@ -140,13 +214,13 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
 
         private static bool ParseSingleForm(string[] daemonAddress, out DaemonConfig endPoint)
         {
-            IPEndPoint udpEndpoint = null;
+            EndPoint udpEndpoint = null;
             endPoint = new DaemonConfig();
 
             if (TryParse(daemonAddress[0], out udpEndpoint))
             {
-                endPoint.UDPEndpoint = udpEndpoint;
-                endPoint.TCPEndpoint = udpEndpoint;
+                endPoint._udpEndpoint = udpEndpoint;
+                endPoint._tcpEndpoint = udpEndpoint;
                 _logger.InfoFormat("Using custom daemon address for UDP and TCP: {0}:{1}", endPoint.UDPEndpoint.Address.ToString(), endPoint.UDPEndpoint.Port);
                 return true;
             }
@@ -158,10 +232,10 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
         private static bool ParseDoubleForm(string[] daemonAddress, out DaemonConfig endPoint)
         {
             endPoint = new DaemonConfig();
-            IPEndPoint udpEndpoint = null;
-            IPEndPoint tcpEndpoint = null;
+            EndPoint udpEndpoint = null;
+            EndPoint tcpEndpoint = null;
             IDictionary<string, string> addressMap = new Dictionary<string, string>();
-            string[] address1 = daemonAddress[0].Split(_addressPortDelimiter); // tcp:127.0.0.1:2000 udp:127.0.0.2:2001
+            string[] address1 = daemonAddress[0].Split(_addressPortDelimiter); // tcp:<hostname or address>:2000 udp:<hostname or address>:2001
             string[] address2 = daemonAddress[1].Split(_addressPortDelimiter);
 
             addressMap[address1[0]] = address1[1] + _addressPortDelimiter + address1[2];
@@ -175,8 +249,8 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
 
             if (TryParse(udpAddress, out udpEndpoint) && TryParse(tcpAddress, out tcpEndpoint))
             {
-                endPoint.UDPEndpoint = udpEndpoint;
-                endPoint.TCPEndpoint = tcpEndpoint;
+                endPoint._udpEndpoint = udpEndpoint;
+                endPoint._tcpEndpoint = tcpEndpoint;
                 _logger.InfoFormat("Using custom daemon address for UDP {0}:{1} and TCP {2}:{3}", endPoint.UDPEndpoint.Address.ToString(), endPoint.UDPEndpoint.Port, endPoint.TCPEndpoint.Address.ToString(), endPoint.TCPEndpoint.Port);
                 return true;
             }

@@ -24,7 +24,7 @@ namespace Amazon.XRay.Recorder.UnitTests
     [TestClass]
     public class IPEndPointExceptionTests
     {
-        private readonly string[] _validInputs =
+        private readonly string[] _validIPs =
         {
             "127.0.0.1:0",
             "255.255.255.255:65535",
@@ -50,7 +50,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             "166.43.20.149:9471"
         };
 
-        private readonly string[] _invalidInputs =
+        private readonly string[] _invalidIPs =
         {
             "127.0.0.1",
             ".0.0.1:123",
@@ -60,13 +60,47 @@ namespace Amazon.XRay.Recorder.UnitTests
             "127.12.1234.1:22"
         };
 
+        private readonly string[] _validDomains =
+        {
+            "example.com:0",
+            "example.com:65535",
+            "www.amazon.com:2000"
+        };
+
+        private readonly string[] _invalidDomains =
+        {
+            "example.com",
+            "example.com:70000",
+            "example.com:-100"
+        };
+
         [TestMethod]
         public void TestValidIpAddresses()
         {
             IPEndPoint endpoint;
-            foreach (var ip in _validInputs)
+            foreach (var ip in _validIPs)
             {
                 Assert.IsTrue(IPEndPointExtension.TryParse(ip, out endpoint));
+            }
+        }
+
+        [TestMethod]
+        public void TestValidDomains()
+        {
+            HostEndPoint endpoint;
+            foreach (var domain in _validDomains)
+            {
+                Assert.IsTrue(IPEndPointExtension.TryParse(domain, out endpoint));
+            }
+        }
+
+        [TestMethod]
+        public void TestInvalidDomains()
+        {
+            HostEndPoint endpoint;
+            foreach (var domain in _invalidDomains)
+            {
+                Assert.IsFalse(IPEndPointExtension.TryParse(domain, out endpoint));
             }
         }
 
@@ -74,7 +108,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         public void TestInvalidIpAddress()
         {
             IPEndPoint endPoint;
-            foreach (var ip in _invalidInputs)
+            foreach (var ip in _invalidIPs)
             {
                 Assert.IsFalse(IPEndPointExtension.TryParse(ip, out endPoint));
             }

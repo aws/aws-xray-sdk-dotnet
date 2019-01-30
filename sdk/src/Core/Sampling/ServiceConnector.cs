@@ -33,7 +33,11 @@ namespace Amazon.XRay.Recorder.Core.Sampling
     {
         private static readonly Logger _logger = Logger.GetLogger(typeof(ServiceConnector));
         private AmazonXRayClient _xrayClient;
+        private readonly object _xrayClientLock = new object();
         private const int Version = 1;
+        private readonly AmazonXRayConfig _config = new AmazonXRayConfig();
+        private readonly AWSCredentials _credentials = new AnonymousAWSCredentials(); // sends unsigned requests to daemon endpoint
+        private readonly DaemonConfig _daemonConfig;
 
         /// <summary>
         /// Client id for the instance. Its 24 digit hex number.
@@ -42,27 +46,36 @@ namespace Amazon.XRay.Recorder.Core.Sampling
 
         public ServiceConnector(DaemonConfig daemonConfig, AmazonXRayClient xrayClient) 
         {
-            
             ClientID = ThreadSafeRandom.GenerateHexNumber(24);
             if (daemonConfig == null)
             {
                 daemonConfig = DaemonConfig.GetEndPoint();
             }
+            _daemonConfig = daemonConfig;
            
             if (xrayClient == null)
             {
-                xrayClient = CreateXRayClient(daemonConfig);
+                xrayClient = CreateXRayClient();
             }
 
             _xrayClient = xrayClient;
         }
 
-        private AmazonXRayClient CreateXRayClient(DaemonConfig endpoint)
+        private AmazonXRayClient CreateXRayClient()
         {
-            var config = new AmazonXRayConfig();
-            config.ServiceURL = "http://"+endpoint.TCPEndpoint.Address.ToString() + ":"+ endpoint.TCPEndpoint.Port;
-            AWSCredentials credentials = new AnonymousAWSCredentials(); // sends unsigned requests to daemon endpoint
-            return new AmazonXRayClient(credentials,config);
+            _config.ServiceURL = $"http://{_daemonConfig.TCPEndpoint.Address}:{_daemonConfig.TCPEndpoint.Port}";
+            return new AmazonXRayClient(_credentials,_config);
+        }
+
+        private void RefreshEndPoint()
+        {
+            var serviceUrlCandidate = $"http://{_daemonConfig.TCPEndpoint.Address}:{_daemonConfig.TCPEndpoint.Port}";
+         
+            if (serviceUrlCandidate.Equals(_xrayClient.Config.ServiceURL)) return; // endpoint do not need refreshing
+
+            _config.ServiceURL = serviceUrlCandidate;
+            _xrayClient = new AmazonXRayClient(_credentials, _config);
+            _logger.DebugFormat($"ServiceConnector Endpoint refreshed to: {_xrayClient.Config.ServiceURL}");
         }
 
         /// <summary>
@@ -75,7 +88,13 @@ namespace Amazon.XRay.Recorder.Core.Sampling
             List<SamplingRule> newRules = new List<SamplingRule>();
             GetSamplingRulesRequest request = new GetSamplingRulesRequest();
 
-            var response = await _xrayClient.GetSamplingRulesAsync(request);
+            Task<Model.GetSamplingRulesResponse> responseTask;
+            lock (_xrayClientLock)
+            {
+                RefreshEndPoint();
+                responseTask = _xrayClient.GetSamplingRulesAsync(request);
+            }
+            var response = await responseTask;
 
             foreach(var record in response.SamplingRuleRecords)
             {
@@ -105,7 +124,13 @@ namespace Amazon.XRay.Recorder.Core.Sampling
             DateTime currentTime = TimeStamp.CurrentDateTime();
             List<SamplingStatisticsDocument> samplingStatisticsDocuments = GetSamplingStatisticsDocuments(rules, currentTime);
             request.SamplingStatisticsDocuments = samplingStatisticsDocuments;
-            var response = await _xrayClient.GetSamplingTargetsAsync(request);
+            Task<Model.GetSamplingTargetsResponse> responseTask;
+            lock (_xrayClientLock)
+            {
+                RefreshEndPoint();
+                responseTask = _xrayClient.GetSamplingTargetsAsync(request);
+            }
+            var response = await responseTask;
             foreach (var record in response.SamplingTargetDocuments)
             {
                 Target t = new Target(record.RuleName, record.FixedRate, record.ReservoirQuota, record.ReservoirQuotaTTL, record.Interval);

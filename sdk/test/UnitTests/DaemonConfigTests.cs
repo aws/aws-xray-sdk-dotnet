@@ -122,5 +122,55 @@ namespace Amazon.XRay.Recorder.UnitTests
             Environment.SetEnvironmentVariable(envName, null); // cleaning the environment variable
         }
 
+        [TestMethod]
+        public void TestGetEndpointSingleFormWithHostname()
+        {
+            var daemonAddress = "localhost:3001";
+            var expectedTCPEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 3001);
+            var expectedUDPEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 3001);
+            var daemonConfig = DaemonConfig.GetEndPoint(daemonAddress);
+            Assert.AreEqual(daemonConfig.UDPEndpoint, expectedUDPEndpoint);
+            Assert.AreEqual(daemonConfig.TCPEndpoint, expectedTCPEndpoint);
+        }
+        
+        [TestMethod]
+        public void TestGetEndpointDoubleFormWithHostname()
+        {
+            var tcpPort = 3001;
+            var udpPort = 2001;
+            var daemonAddress = $"tcp:localhost:{tcpPort} udp:localhost:{udpPort}";
+            var expectedTCPEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), tcpPort);
+            var expectedUDPEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), udpPort);
+            var daemonConfig = DaemonConfig.GetEndPoint(daemonAddress);
+            Assert.AreEqual(daemonConfig.UDPEndpoint, expectedUDPEndpoint);
+            Assert.AreEqual(daemonConfig.TCPEndpoint, expectedTCPEndpoint);
+        }
+        
+        [TestMethod]
+        public void TestGetEndpointDoubleFormWithHostnameIpMix1()
+        {
+            var tcpPort = 3001;
+            var udpPort = 2001;
+            var daemonAddress = $"tcp:127.0.0.1:{tcpPort} udp:localhost:{udpPort}";
+            var expectedTCPEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), tcpPort);
+            var expectedUDPEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), udpPort);
+            var daemonConfig = DaemonConfig.GetEndPoint(daemonAddress);
+            Assert.AreEqual(daemonConfig.UDPEndpoint, expectedUDPEndpoint);
+            Assert.AreEqual(daemonConfig.TCPEndpoint, expectedTCPEndpoint);
+        }
+        
+        [TestMethod]
+        public void TestGetEndpointDoubleFormWithHostnameIpMix2()
+        {
+            var tcpPort = 3001;
+            var udpPort = 2001;
+            var daemonAddress = $"tcp:localhost:{tcpPort} udp:127.0.0.1:{udpPort}";
+            var expectedTCPEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), tcpPort);
+            var expectedUDPEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), udpPort);
+            var daemonConfig = DaemonConfig.GetEndPoint(daemonAddress);
+            Assert.AreEqual(daemonConfig.UDPEndpoint, expectedUDPEndpoint);
+            Assert.AreEqual(daemonConfig.TCPEndpoint, expectedTCPEndpoint);
+        }
+
     }
 }
