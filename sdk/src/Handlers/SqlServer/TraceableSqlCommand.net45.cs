@@ -538,7 +538,7 @@ namespace Amazon.XRay.Recorder.Handlers.SqlServer
         /// </returns>
         protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior)
         {
-            return InnerSqlCommand.ExecuteReader(behavior);
+            return Intercept(() => InnerSqlCommand.ExecuteReader(behavior));
         }
 
         private TResult Intercept<TResult>(Func<TResult> method)
