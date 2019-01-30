@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------------
-// <copyright file="AWSSdkTracingHandlerTests.cs" company="Amazon.com">
+// <copyright file="AWSSDKHandlerTests.cs" company="Amazon.com">
 //      Copyright 2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 //      Licensed under the Apache License, Version 2.0 (the "License").
@@ -36,16 +36,14 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Amazon.XRay.Recorder.UnitTests
 {
     [TestClass]
-    public class AWSSdkTracingHandlerTests : TestBase
+    public class AWSSDKHandlerTests : TestBase
     {
         private const string ManifestKey = "AwsServiceHandlerManifest";
 
         private static AWSXRayRecorder _recorder;
 
         private static String _path = $"JSONs{Path.DirectorySeparatorChar}AWSRequestInfo.json";
-#if NET45
-        private static AWSSdkTracingHandler _handler;
-#else
+#if !NET45
         private XRayOptions _xRayOptions = new XRayOptions();
 #endif
 
@@ -54,7 +52,6 @@ namespace Amazon.XRay.Recorder.UnitTests
         {
             _recorder = new AWSXRayRecorder();
 #if NET45
-            _handler = new AWSSdkTracingHandler(_recorder, _path);
             AWSXRayRecorder.InitializeInstance(_recorder);
 #else
             AWSXRayRecorder.InitializeInstance(recorder: _recorder);
@@ -75,168 +72,6 @@ namespace Amazon.XRay.Recorder.UnitTests
             _recorder.Dispose();
             _recorder = null;
         }
-
-#if NET45
-        [TestMethod]
-        public void TestAddEventHandlerToDynamoDBClient()
-        {
-            using (var client = new AmazonDynamoDBClient(new AnonymousAWSCredentials(), RegionEndpoint.USEast1))
-            {
-                _handler.AddEventHandler(client);
-                string requestId = @"fakerequ-esti-dfak-ereq-uestidfakere";
-                CustomResponses.SetResponse(client, null, requestId, true);
-
-                _recorder.BeginSegment("test", TraceId);
-
-                client.ListTables();
-
-                var segment = AWSXRayRecorder.Instance.TraceContext.GetEntity();
-                var subsegment = segment.Subsegments[0];
-                _recorder.EndSegment();
-
-                Assert.AreEqual(segment.Subsegments.Count, 1);
-                Assert.AreEqual(subsegment.Name, "DynamoDBv2");
-                Assert.AreEqual(subsegment.Aws["region"], RegionEndpoint.USEast1.SystemName);
-                Assert.AreEqual(subsegment.Aws["operation"], "ListTables");
-                Assert.AreEqual(requestId, subsegment.Aws["request_id"]);
-                Assert.AreEqual("aws", subsegment.Namespace);
-            }
-        }
-
-        [TestMethod]
-        public void TestLoadServiceHandlerManifestWithDefaultConfiguration()
-        {
-            var handler = new AWSSdkTracingHandler(AWSXRayRecorder.Instance);
-            Assert.IsNotNull(handler.AWSServiceHandlerManifest);
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(FileNotFoundException))]
-        public void TestLoadServiceInfoManifestInvalidPath()
-        {
-            using (var recorder = new AWSXRayRecorder())
-            {
-                var handler = new AWSSdkTracingHandler(recorder, @"IncorrectPath.abc");
-            }
-        }
-
-        [TestMethod]
-        public void TestRequestResponseParameterAndDescriptor()
-        {
-            using (var client = new AmazonDynamoDBClient(new AnonymousAWSCredentials(), RegionEndpoint.USEast1))
-            {
-                _handler.AddEventHandler(client);
-                CustomResponses.SetResponse(client, null, null, true);
-
-                _recorder.BeginSegment("test", TraceId);
-                var segment = AWSXRayRecorder.Instance.TraceContext.GetEntity();
-
-                var key1 = new Dictionary<string, AttributeValue>() { { "id", new AttributeValue("1") } };
-                var key2 = new Dictionary<string, AttributeValue>() { { "id", new AttributeValue("2") } };
-                var keys = new KeysAndAttributes() { Keys = new List<Dictionary<string, AttributeValue>>() { key1, key2 } };
-
-                client.BatchGetItem(new Dictionary<string, KeysAndAttributes>() { { "test", keys } });
-
-                _recorder.EndSegment();
-
-                Assert.IsTrue(segment.Subsegments[0].Aws.ContainsKey("request_items"));
-                Assert.IsTrue(segment.Subsegments[0].Aws.ContainsKey("responses"));
-                Assert.IsTrue(segment.Subsegments[0].Aws.ContainsKey("item_count"));
-                Assert.IsTrue(segment.Subsegments[0].Aws.ContainsKey("table_names"));
-            }
-        }
-
-        [TestMethod]
-        public void TestExceptionHandler()
-        {
-            using (var client = new AmazonDynamoDBClient(new AnonymousAWSCredentials(), RegionEndpoint.USEast1))
-            {
-                _handler.AddEventHandler(client);
-                CustomResponses.SetResponse(client, (request) => { throw new InvalidOperationException(); });
-
-                _recorder.BeginSegment("test", TraceId);
-                var segment = AWSXRayRecorder.Instance.TraceContext.GetEntity();
-
-                try
-                {
-                    client.GetItem(
-                        "test", new Dictionary<string, AttributeValue>() { { "invalid_key", new AttributeValue("1") } });
-                    Assert.Fail();
-                }
-                catch (InvalidOperationException e)
-                {
-                    Assert.ReferenceEquals(e, segment.Subsegments[0].Cause.ExceptionDescriptors[0].Exception);
-                    Assert.IsTrue(segment.Subsegments[0].Aws.ContainsKey("table_name"));
-                    Assert.IsTrue(segment.Subsegments[0].Aws.ContainsKey("consistent_read"));
-                    Assert.IsTrue(segment.Subsegments[0].Aws.ContainsKey("projection_expression"));
-                    Assert.IsTrue(segment.Subsegments[0].Aws.ContainsKey("attribute_names_substituted"));
-                }
-                finally
-                {
-                    _recorder.EndSegment();
-                }
-            }
-        }
-
-        [TestMethod]
-        public void TestLambdaInvokeSubsegmentContainsFunctionName()
-        {
-            var lambda = new AmazonLambdaClient(new AnonymousAWSCredentials(), RegionEndpoint.USEast1);
-            new AWSSdkTracingHandler(AWSXRayRecorder.Instance).AddEventHandler(lambda);
-            CustomResponses.SetResponse(lambda, null, null, true);
-
-            _recorder.BeginSegment("lambda", TraceId);
-
-            lambda.Invoke(new InvokeRequest
-            {
-                FunctionName = "testFunction"
-            });
-
-            var segment = AWSXRayRecorder.Instance.TraceContext.GetEntity();
-            _recorder.EndSegment();
-
-            Assert.AreEqual("Invoke", segment.Subsegments[0].Aws["operation"]);
-            Assert.AreEqual("testFunction", segment.Subsegments[0].Aws["function_name"]);
-        }
-
-        [TestMethod]
-        public void TestDynamoSubsegmentNameIsCorrect()
-        {
-            var dynamo = new AmazonDynamoDBClient(new AnonymousAWSCredentials(), RegionEndpoint.USEast1);
-            new AWSSdkTracingHandler(AWSXRayRecorder.Instance).AddEventHandler(dynamo);
-            CustomResponses.SetResponse(dynamo, null, null, true);
-
-            _recorder.BeginSegment("test dynamo", TraceId);
-
-            dynamo.ListTables();
-
-            var segment = AWSXRayRecorder.Instance.TraceContext.GetEntity();
-            _recorder.EndSegment();
-
-            Assert.AreEqual("DynamoDBv2", segment.Subsegments[0].Name);
-        }
-
-        [TestMethod]
-        public void TestS3SubsegmentNameIsCorrect()
-        {
-            var s3 = new AmazonS3Client(new AnonymousAWSCredentials(), RegionEndpoint.USEast1);
-            new AWSSdkTracingHandler(AWSXRayRecorder.Instance).AddEventHandler(s3);
-            CustomResponses.SetResponse(s3, null, null, true);
-
-            _recorder.BeginSegment("test s3", TraceId);
-
-            s3.GetObject("testBucket", "testKey");
-
-            var segment = AWSXRayRecorder.Instance.TraceContext.GetEntity();
-            _recorder.EndSegment();
-
-            Assert.AreEqual("S3", segment.Subsegments[0].Name);
-        }
-#endif
-
-        /// <summary>
-        ///  Below tests are for <see cref="AWSSDKHandler" /> class (Supports Net45 and Netcore platform).
-        /// </summary>
 
         [TestMethod]
         public void TestS3SubsegmentNameIsCorrectForAWSSDKHandler()
