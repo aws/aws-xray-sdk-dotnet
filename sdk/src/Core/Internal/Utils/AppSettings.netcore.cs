@@ -21,12 +21,6 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
     /// </summary>
     public class XRayOptions
     {
-        private string _pluginSetting;
-        private string _samplingRuleManifest;
-        private string _awsServiceHandlerManifest;
-        private bool _isXRayTracingDisabled;
-        private bool _useRuntimeErrors = true;
-
         /// <summary>
         /// Default constructor.
         /// </summary>
@@ -54,38 +48,47 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
         /// <param name="awsServiceHandlerManifest">AWS Service manifest file path.</param>
         /// <param name="isXRayTracingDisabled">Tracing disabled value, either true or false.</param>
         /// <param name="useRuntimeErrors">Should errors be thrown at runtime if segment not started, either true or false.</param>
-        public XRayOptions(string pluginSetting, string samplingRuleManifest, string awsServiceHandlerManifest, bool isXRayTracingDisabled, bool useRuntimeErrors)
+        public XRayOptions(string pluginSetting, string samplingRuleManifest, string awsServiceHandlerManifest, bool isXRayTracingDisabled, bool useRuntimeErrors, bool collectSqlQueries = false)
         {
             PluginSetting = pluginSetting;
             SamplingRuleManifest = samplingRuleManifest;
             AwsServiceHandlerManifest = awsServiceHandlerManifest;
             IsXRayTracingDisabled = isXRayTracingDisabled;
             UseRuntimeErrors = useRuntimeErrors;
+            CollectSqlQueries = collectSqlQueries;
         }
 
         /// <summary>
         /// Plugin setting.
         /// </summary>
-        public string PluginSetting { get => _pluginSetting; set => _pluginSetting = value; }
+        public string PluginSetting { get; set; }
 
         /// <summary>
         /// Sampling rule file path.
         /// </summary>
-        public string SamplingRuleManifest { get => _samplingRuleManifest; set => _samplingRuleManifest = value; }
+        public string SamplingRuleManifest { get; set; }
 
         /// <summary>
         /// AWS Service manifest file path.
         /// </summary>
-        public string AwsServiceHandlerManifest { get => _awsServiceHandlerManifest; set => _awsServiceHandlerManifest = value; }
+        public string AwsServiceHandlerManifest { get; set; }
 
         /// <summary>
         /// Tracing disabled value, either true or false.
         /// </summary>
-        public bool IsXRayTracingDisabled { get => _isXRayTracingDisabled; set => _isXRayTracingDisabled = value; }
+        public bool IsXRayTracingDisabled { get; set; }
 
         /// <summary>
         /// For missing Segments/Subsegments, if set to true, runtime exception is thrown, if set to false, runtime exceptions are avoided and logged.
         /// </summary>
-        public bool UseRuntimeErrors { get => _useRuntimeErrors; set => _useRuntimeErrors = value; }
+        public bool UseRuntimeErrors { get; set; } = true;
+
+        /// <summary>
+        /// Include the <see cref="TraceableSqlCommand.CommandText" /> in the sanitized_query.
+        /// Parameterized values will appear in their tokenized form and will not be expanded.
+        /// You should not enable this flag if you are not including sensitive information as clear text.
+        /// This flag can also be overridden for each <see cref="TraceableSqlCommand" /> instance individually.
+        /// </summary>
+        public bool CollectSqlQueries { get; set; }
     }
 }
