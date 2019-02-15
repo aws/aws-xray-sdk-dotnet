@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------------------
-// <copyright file="JsonSegmentMarshallerTest.cs" company="Amazon.com">
+// <copyright file="DbCommandInterceptorTests.cs" company="Amazon.com">
 //      Copyright 2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 //      Licensed under the Apache License, Version 2.0 (the "License").
@@ -22,11 +22,11 @@ using System.Data.Common;
 using System.Data.SqlClient;
 using Amazon.XRay.Recorder.Handlers.SqlServer;
 using Amazon.XRay.Recorder.Core.Internal.Utils;
+using Amazon.XRay.Recorder.Core.Internal.Entities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Amazon.XRay.Recorder.Core;
 using Amazon.XRay.Recorder.UnitTests.Tools;
-using Newtonsoft.Json;
 
 namespace Amazon.XRay.Recorder.UnitTests
 {
@@ -34,6 +34,9 @@ namespace Amazon.XRay.Recorder.UnitTests
     public class DbCommandInterceptorTests : TestBase
     {
         private DbCommandStub _command = new DbCommandStub();
+        private const string _userId = "admin";
+        private const string _connectionString = "Data Source=xyz.com,3306;User ID=" + _userId + ";Password=Secret.123;";
+        private const string _sanitizedConnectionString = "Data Source=xyz.com,3306;User ID=" + _userId;
 
         [TestInitialize]
         public void TestInitialize() 
@@ -42,7 +45,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             connectionMock.Setup(c => c.DataSource).Returns("xyz.com,3306");
             connectionMock.Setup(c => c.Database).Returns("master");
             connectionMock.Setup(c => c.ServerVersion).Returns("13.0.5026.0");
-            connectionMock.Setup(c => c.ConnectionString).Returns("Data Source=xyz.com,3306;User ID=admin;Password=Secret.123;");
+            connectionMock.Setup(c => c.ConnectionString).Returns(_connectionString);
 
             _command.Connection = connectionMock.Object;
             _command.CommandText = "SELECT a.* FROM dbo.Accounts a ...";
@@ -206,7 +209,9 @@ namespace Amazon.XRay.Recorder.UnitTests
         private void AssertNotCollected(AWSXRayRecorder recorder)
         {
             var segment = recorder.TraceContext.GetEntity().Subsegments[0];
-            Assert.IsNotNull(segment);
+            
+            AssertExpectedSqlInformation(segment);
+
             Assert.AreEqual(4, segment.Sql.Count);
             Assert.IsFalse(segment.Sql.ContainsKey("sanitized_query"));
         }
@@ -214,10 +219,21 @@ namespace Amazon.XRay.Recorder.UnitTests
         private void AssertCollected(AWSXRayRecorder recorder)
         {
             var segment = recorder.TraceContext.GetEntity().Subsegments[0];
-            Assert.IsNotNull(segment);
-            Assert.AreEqual(5, segment.Sql.Count);
-            Assert.IsTrue(segment.Sql.ContainsKey("sanitized_query"));
+            
+            AssertExpectedSqlInformation(segment);
+
+            Assert.AreEqual(5, segment.Sql.Count);            
             Assert.AreEqual(_command.CommandText, segment.Sql["sanitized_query"]);
+        }
+
+        private void AssertExpectedSqlInformation(Subsegment segment)
+        {
+            Assert.IsNotNull(segment);
+            Assert.IsNotNull(segment.Sql);
+            Assert.AreEqual("sqlserver", segment.Sql["database_type"]);
+            Assert.AreEqual(_command.Connection.ServerVersion, segment.Sql["database_version"]);
+            Assert.AreEqual(_userId, segment.Sql["user"]);
+            Assert.AreEqual(_sanitizedConnectionString, segment.Sql["connection_string"]);
         }
     }
 }

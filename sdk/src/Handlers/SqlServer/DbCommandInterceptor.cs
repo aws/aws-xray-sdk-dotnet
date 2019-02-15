@@ -26,12 +26,35 @@ using Amazon.XRay.Recorder.Core;
 
 namespace Amazon.XRay.Recorder.Handlers.SqlServer
 {
+    /// <summary>
+    /// Intercepts DbCommands and records them in new Subsegments.
+    /// </summary>
     public interface IDbCommandInterceptor
     {
+        /// <summary>
+        /// Begins a new Subsegment, executes the provided async operation,
+        /// and records the request in the "sql" member of the subsegment.
+        /// </summary>
+        /// <example>
+        /// <code>
+        /// await InterceptAsync(() => dbCommand.ExecuteNonQueryAsync(cancellationToken), dbCommand);
+        /// </code>
+        /// </example>
         Task<TResult> InterceptAsync<TResult>(Func<Task<TResult>> method, DbCommand command);
+
+        /// <summary>
+        /// Begins a new Subsegment, executes the provided operation,
+        /// and records the request in the "sql" member of the subsegment.
+        /// </summary>
+        /// <example>
+        /// <code>
+        /// await Intercept(() => dbCommand.ExecuteNonQuery(), dbCommand);
+        /// </code>
+        /// </example>
         TResult Intercept<TResult>(Func<TResult> method, DbCommand command);
     }
 
+    /// <inheritdoc />
     public class DbCommandInterceptor : IDbCommandInterceptor
     {
         private const string DataBaseTypeString = "sqlserver";
@@ -44,9 +67,10 @@ namespace Amazon.XRay.Recorder.Handlers.SqlServer
             _collectSqlQueriesOverride = collectSqlQueries;
         }
 
+        /// <inheritdoc />
         public async Task<TResult> InterceptAsync<TResult>(Func<Task<TResult>> method, DbCommand command)
         {
-            _recorder.BeginSubsegment(BuildSegmentName(command));
+            _recorder.BeginSubsegment(BuildSubsegmentName(command));
             try
             {
                 _recorder.SetNamespace("remote");
@@ -66,9 +90,10 @@ namespace Amazon.XRay.Recorder.Handlers.SqlServer
             }
         }
 
+        /// <inheritdoc />
         public TResult Intercept<TResult>(Func<TResult> method, DbCommand command)
         {
-            _recorder.BeginSubsegment(BuildSegmentName(command));
+            _recorder.BeginSubsegment(BuildSubsegmentName(command));
             try
             {
                 _recorder.SetNamespace("remote");
@@ -88,6 +113,9 @@ namespace Amazon.XRay.Recorder.Handlers.SqlServer
             }
         }
 
+        /// <summary>
+        /// Records the SQL information on the current subsegment,
+        /// </summary>
         protected virtual void CollectSqlInformation(DbCommand command)
         {
             _recorder.AddSqlInformation("database_type", DataBaseTypeString);
@@ -108,7 +136,7 @@ namespace Amazon.XRay.Recorder.Handlers.SqlServer
             }
         }
 
-        private string BuildSegmentName(DbCommand command) 
+        private string BuildSubsegmentName(DbCommand command) 
             => command.Connection.Database + "@" + SqlUtil.RemovePortNumberFromDataSource(command.Connection.DataSource);
 
         private bool ShouldCollectSqlText() 

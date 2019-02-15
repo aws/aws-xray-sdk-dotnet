@@ -39,11 +39,12 @@ namespace Amazon.XRay.Recorder.Handlers.SqlServer
         /// Initializes a new instance of the <see cref="TraceableSqlCommand"/> class.
         /// </summary>
         /// <param name="collectSqlQueries">
-        /// Include the <see cref="TraceableSqlCommand.CommandText" /> in the sanitized_query.
-        /// Parameterized values will appear in their tokenized form and will not be expanded.
+        /// Include the <see cref="TraceableSqlCommand.CommandText" /> in the sanitized_query section of 
+        /// the SQL subsegment. Parameterized values will appear in their tokenized form and will not be expanded.
         /// You should not enable this flag if you are not including sensitive information as clear text.
         /// This flag will overridde any behavior configured by <see cref="XRayOptions.CollectSqlQueries" />.
-        /// If a value is not provided, then the globally configured value will be used, which is fals by default.
+        /// If a value is not provided, then the globally configured value will be used, which is false by default.
+        /// See the official documentation on <a href="https://docs.microsoft.com/en-us/dotnet/api/system.data.sqlclient.sqlcommand.parameters?view=netframework-4.7.2">SqlCommand.Parameters</a>
         /// </param>
         public TraceableSqlCommand(bool? collectSqlQueries = null)
         {
@@ -56,11 +57,12 @@ namespace Amazon.XRay.Recorder.Handlers.SqlServer
         /// </summary>
         /// <param name="cmdText">The text of the query.</param>
         /// <param name="collectSqlQueries">
-        /// Include the <see cref="TraceableSqlCommand.CommandText" /> in the sanitized_query.
-        /// Parameterized values will appear in their tokenized form and will not be expanded.
+        /// Include the <see cref="TraceableSqlCommand.CommandText" /> in the sanitized_query section of 
+        /// the SQL subsegment. Parameterized values will appear in their tokenized form and will not be expanded.
         /// You should not enable this flag if you are not including sensitive information as clear text.
         /// This flag will overridde any behavior configured by <see cref="XRayOptions.CollectSqlQueries" />.
-        /// If a value is not provided, then the globally configured value will be used, which is fals by default.
+        /// If a value is not provided, then the globally configured value will be used, which is false by default.
+        /// See the official documentation on <a href="https://docs.microsoft.com/en-us/dotnet/api/system.data.sqlclient.sqlcommand.parameters?view=netframework-4.7.2">SqlCommand.Parameters</a>
         /// </param>
         public TraceableSqlCommand(string cmdText, bool? collectSqlQueries = null)
         {
@@ -74,11 +76,12 @@ namespace Amazon.XRay.Recorder.Handlers.SqlServer
         /// <param name="cmdText">The text of the query.</param>
         /// <param name="connection">The connection to an instance of SQL Server.</param>
         /// <param name="collectSqlQueries">
-        /// Include the <see cref="TraceableSqlCommand.CommandText" /> in the sanitized_query.
-        /// Parameterized values will appear in their tokenized form and will not be expanded.
+        /// Include the <see cref="TraceableSqlCommand.CommandText" /> in the sanitized_query section of 
+        /// the SQL subsegment. Parameterized values will appear in their tokenized form and will not be expanded.
         /// You should not enable this flag if you are not including sensitive information as clear text.
         /// This flag will overridde any behavior configured by <see cref="XRayOptions.CollectSqlQueries" />.
-        /// If a value is not provided, then the globally configured value will be used, which is fals by default.
+        /// If a value is not provided, then the globally configured value will be used, which is false by default.
+        /// See the official documentation on <a href="https://docs.microsoft.com/en-us/dotnet/api/system.data.sqlclient.sqlcommand.parameters?view=netframework-4.7.2">SqlCommand.Parameters</a>
         /// </param>
         public TraceableSqlCommand(string cmdText, SqlConnection connection, bool? collectSqlQueries = null)
         {
@@ -93,11 +96,12 @@ namespace Amazon.XRay.Recorder.Handlers.SqlServer
         /// <param name="connection">The connection to an instance of SQL Server.</param>
         /// <param name="transaction">The <see cref="SqlTransaction"/> in which the <see cref="SqlCommand"/> executes.</param>
         /// <param name="collectSqlQueries">
-        /// Include the <see cref="TraceableSqlCommand.CommandText" /> in the sanitized_query.
-        /// Parameterized values will appear in their tokenized form and will not be expanded.
+        /// Include the <see cref="TraceableSqlCommand.CommandText" /> in the sanitized_query section of 
+        /// the SQL subsegment. Parameterized values will appear in their tokenized form and will not be expanded.
         /// You should not enable this flag if you are not including sensitive information as clear text.
         /// This flag will overridde any behavior configured by <see cref="XRayOptions.CollectSqlQueries" />.
-        /// If a value is not provided, then the globally configured value will be used, which is fals by default.
+        /// If a value is not provided, then the globally configured value will be used, which is false by default.
+        /// See the official documentation on <a href="https://docs.microsoft.com/en-us/dotnet/api/system.data.sqlclient.sqlcommand.parameters?view=netframework-4.7.2">SqlCommand.Parameters</a>
         /// </param>
         public TraceableSqlCommand(string cmdText, SqlConnection connection, SqlTransaction transaction, bool? collectSqlQueries = null)
         {
@@ -426,7 +430,7 @@ namespace Amazon.XRay.Recorder.Handlers.SqlServer
             return InnerSqlCommand.ExecuteReader(behavior);
         }
 
-        protected async Task<TResult> InterceptAsync<TResult>(Func<Task<TResult>> method)
+        protected virtual async Task<TResult> InterceptAsync<TResult>(Func<Task<TResult>> method)
             => await _interceptor.InterceptAsync(method, this);
 
         protected virtual TResult Intercept<TResult>(Func<TResult> method)

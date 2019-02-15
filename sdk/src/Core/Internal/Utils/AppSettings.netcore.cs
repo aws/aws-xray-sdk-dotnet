@@ -48,6 +48,13 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
         /// <param name="awsServiceHandlerManifest">AWS Service manifest file path.</param>
         /// <param name="isXRayTracingDisabled">Tracing disabled value, either true or false.</param>
         /// <param name="useRuntimeErrors">Should errors be thrown at runtime if segment not started, either true or false.</param>
+        /// <param name="collectSqlQueries">
+        /// Include the <see cref="TraceableSqlCommand.CommandText" /> in the sanitized_query section of 
+        /// the SQL subsegment. Parameterized values will appear in their tokenized form and will not be expanded.
+        /// You should not enable this flag if you are including sensitive information as clear text.
+        /// This flag can also be overridden for each <see cref="TraceableSqlCommand" /> instance individually.
+        /// See the official documentation on <a href="https://docs.microsoft.com/en-us/dotnet/api/system.data.sqlclient.sqlcommand.parameters?view=netframework-4.7.2">SqlCommand.Parameters</a>
+        /// </param>
         public XRayOptions(string pluginSetting, string samplingRuleManifest, string awsServiceHandlerManifest, bool isXRayTracingDisabled, bool useRuntimeErrors, bool collectSqlQueries = false)
         {
             PluginSetting = pluginSetting;
@@ -84,10 +91,11 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
         public bool UseRuntimeErrors { get; set; } = true;
 
         /// <summary>
-        /// Include the <see cref="TraceableSqlCommand.CommandText" /> in the sanitized_query.
-        /// Parameterized values will appear in their tokenized form and will not be expanded.
+        /// Include the <see cref="TraceableSqlCommand.CommandText" /> in the sanitized_query section of 
+        /// the SQL subsegment. Parameterized values will appear in their tokenized form and will not be expanded.
         /// You should not enable this flag if you are not including sensitive information as clear text.
-        /// This flag can also be overridden for each <see cref="TraceableSqlCommand" /> instance individually.
+        /// When set to true, the sanitized sql query will be recorded for all the instances of TraceableSqlCommand
+        /// in the application, unless it is overridden on the individual <see cref="TraceableSqlCommand" /> instances.
         /// </summary>
         public bool CollectSqlQueries { get; set; }
     }
