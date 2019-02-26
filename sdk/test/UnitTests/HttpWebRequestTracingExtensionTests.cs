@@ -15,6 +15,7 @@
 // </copyright>
 //-----------------------------------------------------------------------------
 
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
@@ -22,6 +23,7 @@ using Amazon.XRay.Recorder.Core;
 using Amazon.XRay.Recorder.Core.Internal.Entities;
 using Amazon.XRay.Recorder.Core.Internal.Utils;
 using Amazon.XRay.Recorder.Handlers.System.Net;
+using Amazon.XRay.Recorder.UnitTests.Tools;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Amazon.XRay.Recorder.UnitTests
@@ -60,19 +62,45 @@ namespace Amazon.XRay.Recorder.UnitTests
             var request = (HttpWebRequest)WebRequest.Create(URL);
 
             AWSXRayRecorder.Instance.BeginSegment("parent", TraceId);
-            request.GetResponseTraced();
-            var segment = AWSXRayRecorder.Instance.TraceContext.GetEntity();
-            AWSXRayRecorder.Instance.EndSegment();
+            using (request.GetResponseTraced())
+            {
+                var segment = AWSXRayRecorder.Instance.TraceContext.GetEntity();
+                AWSXRayRecorder.Instance.EndSegment();
 
-            Assert.IsNotNull(request.Headers[TraceHeader.HeaderKey]);
+                Assert.IsNotNull(request.Headers[TraceHeader.HeaderKey]);
 
-            var requestInfo = segment.Subsegments[0].Http["request"] as Dictionary<string, object>;
-            Assert.AreEqual(URL, requestInfo["url"]);
-            Assert.AreEqual("GET", requestInfo["method"]);
+                var requestInfo = segment.Subsegments[0].Http["request"] as Dictionary<string, object>;
+                Assert.AreEqual(URL, requestInfo["url"]);
+                Assert.AreEqual("GET", requestInfo["method"]);
 
-            var responseInfo = segment.Subsegments[0].Http["response"] as Dictionary<string, object>;
-            Assert.AreEqual(200, responseInfo["status"]);
-            Assert.IsNotNull(responseInfo["content_length"]);
+                var responseInfo = segment.Subsegments[0].Http["response"] as Dictionary<string, object>;
+                Assert.AreEqual(200, responseInfo["status"]);
+                Assert.IsNotNull(responseInfo["content_length"]);
+            }
+        }
+        
+        /// <summary>
+        /// Ensures that when tracing is disabled that HTTP requests can execute as normal. \
+        /// See https://github.com/aws/aws-xray-sdk-dotnet/issues/57 for more information. 
+        /// </summary>
+        [TestMethod]
+        public void TestGetResponseTraced_XrayDisabled()
+        {
+            _recorder = new MockAWSXRayRecorder() { IsTracingDisabledValue = true };
+#if NET45
+            AWSXRayRecorder.InitializeInstance(_recorder);
+#else
+            AWSXRayRecorder.InitializeInstance(recorder: _recorder);
+# endif
+            Assert.IsTrue(AWSXRayRecorder.Instance.IsTracingDisabled());
+
+            var request = (HttpWebRequest)WebRequest.Create(URL);
+            
+            using (var response = request.GetResponseTraced() as HttpWebResponse)
+            {
+                Assert.IsNotNull(response);
+                Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            }
         }
 
         [TestMethod]
@@ -81,19 +109,21 @@ namespace Amazon.XRay.Recorder.UnitTests
             var request = (HttpWebRequest)WebRequest.Create(URL);
 
             AWSXRayRecorder.Instance.BeginSegment("parent", TraceId);
-            await request.GetAsyncResponseTraced();
-            var segment = AWSXRayRecorder.Instance.TraceContext.GetEntity();
-            AWSXRayRecorder.Instance.EndSegment();
+            using (await request.GetAsyncResponseTraced())
+            {
+                var segment = AWSXRayRecorder.Instance.TraceContext.GetEntity();
+                AWSXRayRecorder.Instance.EndSegment();
 
-            Assert.IsNotNull(request.Headers[TraceHeader.HeaderKey]);
+                Assert.IsNotNull(request.Headers[TraceHeader.HeaderKey]);
 
-            var requestInfo = segment.Subsegments[0].Http["request"] as Dictionary<string, object>;
-            Assert.AreEqual(URL, requestInfo["url"]);
-            Assert.AreEqual("GET", requestInfo["method"]);
+                var requestInfo = segment.Subsegments[0].Http["request"] as Dictionary<string, object>;
+                Assert.AreEqual(URL, requestInfo["url"]);
+                Assert.AreEqual("GET", requestInfo["method"]);
 
-            var responseInfo = segment.Subsegments[0].Http["response"] as Dictionary<string, object>;
-            Assert.AreEqual(200, responseInfo["status"]);
-            Assert.IsNotNull(responseInfo["content_length"]);
+                var responseInfo = segment.Subsegments[0].Http["response"] as Dictionary<string, object>;
+                Assert.AreEqual(200, responseInfo["status"]);
+                Assert.IsNotNull(responseInfo["content_length"]);
+            }
         }
 
 #if !NET45
@@ -105,7 +135,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             AWSXRayRecorder.Instance.BeginSegment("parent", TraceId);
             try
             {
-                request.GetResponseTraced();
+                using (request.GetResponseTraced()) {}
                 Assert.Fail();
             }
 
@@ -138,7 +168,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             AWSXRayRecorder.Instance.BeginSegment("parent", TraceId);
             try
             {
-                await request.GetAsyncResponseTraced();
+                using (await request.GetAsyncResponseTraced()) {}
                 Assert.Fail();
             }
 
