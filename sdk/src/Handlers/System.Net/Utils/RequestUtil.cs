@@ -64,11 +64,11 @@ namespace Amazon.XRay.Recorder.Handlers.System.Net.Utils
                     ["method"] = method
                 };
                 AWSXRayRecorder.Instance.AddHttpInformation("request", requestInformation);
-            }
-
-            if (TraceHeader.TryParse(AWSXRayRecorder.Instance.TraceContext.GetEntity(), out var header))
-            {
-                addHeaderAction(header.ToString());
+                
+                if (TraceHeader.TryParse(AWSXRayRecorder.Instance.TraceContext.GetEntity(), out var header))
+                {
+                    addHeaderAction(header.ToString());
+                }
             }
         }
 
