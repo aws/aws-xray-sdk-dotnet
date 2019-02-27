@@ -70,11 +70,11 @@ namespace Amazon.XRay.Recorder.UnitTests
         }
         
         /// <summary>
-        /// Ensures that when tracing is disabled that HTTP requests can execute as normal. \
+        /// Ensures that when tracing is disabled that HTTP requests can execute as normal.
         /// See https://github.com/aws/aws-xray-sdk-dotnet/issues/57 for more information. 
         /// </summary>
         [TestMethod]
-        public async Task TestSendAsync_XrayDisabled()
+        public async Task TestXrayDisabledSendAsync()
         {
             _recorder = new MockAWSXRayRecorder() { IsTracingDisabledValue = true };
 #if NET45

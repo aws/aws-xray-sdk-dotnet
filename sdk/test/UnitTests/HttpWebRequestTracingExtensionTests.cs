@@ -80,11 +80,11 @@ namespace Amazon.XRay.Recorder.UnitTests
         }
         
         /// <summary>
-        /// Ensures that when tracing is disabled that HTTP requests can execute as normal. \
+        /// Ensures that when tracing is disabled that HTTP requests can execute as normal.
         /// See https://github.com/aws/aws-xray-sdk-dotnet/issues/57 for more information. 
         /// </summary>
         [TestMethod]
-        public void TestGetResponseTraced_XrayDisabled()
+        public void TestXrayDisabledGetResponseTraced()
         {
             _recorder = new MockAWSXRayRecorder() { IsTracingDisabledValue = true };
 #if NET45
@@ -123,6 +123,30 @@ namespace Amazon.XRay.Recorder.UnitTests
                 var responseInfo = segment.Subsegments[0].Http["response"] as Dictionary<string, object>;
                 Assert.AreEqual(200, responseInfo["status"]);
                 Assert.IsNotNull(responseInfo["content_length"]);
+            }
+        }
+        
+        /// <summary>
+        /// Ensures that when tracing is disabled that HTTP requests can execute as normal.
+        /// See https://github.com/aws/aws-xray-sdk-dotnet/issues/57 for more information. 
+        /// </summary>
+        [TestMethod]
+        public async Task TestXrayDisabledGetAsyncResponseTraced()
+        {
+            _recorder = new MockAWSXRayRecorder() { IsTracingDisabledValue = true };
+#if NET45
+            AWSXRayRecorder.InitializeInstance(_recorder);
+#else
+            AWSXRayRecorder.InitializeInstance(recorder: _recorder);
+# endif
+            Assert.IsTrue(AWSXRayRecorder.Instance.IsTracingDisabled());
+
+            var request = (HttpWebRequest)WebRequest.Create(URL);
+            
+            using (var response = await request.GetAsyncResponseTraced() as HttpWebResponse)
+            {
+                Assert.IsNotNull(response);
+                Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
             }
         }
 
