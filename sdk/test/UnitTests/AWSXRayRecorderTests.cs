@@ -184,7 +184,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         }
 
         [TestMethod]
-        public void TestCreateThunsandSubsegmentsParallel()
+        public void TestCreateThousandSubsegmentsParallel()
         {
             _recorder.BeginSegment("parent", TraceId);
             Segment parent = (Segment)AWSXRayRecorder.Instance.TraceContext.GetEntity();
@@ -813,6 +813,23 @@ namespace Amazon.XRay.Recorder.UnitTests
 
             Assert.AreEqual("value1", segment.Metadata["default"]["key1"]);
             Assert.AreEqual("value2", segment.Metadata["aws"]["key2"]);
+        }
+
+        [TestMethod]
+        public void TestUpdateMetadata()
+        {
+            _recorder.BeginSegment("metadata", TraceId);
+            _recorder.AddMetadata("key1", "value1");
+            _recorder.AddMetadata("key1", "updated1");
+
+            _recorder.AddMetadata("aws", "key2", "value2");
+            _recorder.AddMetadata("aws", "key2", "updated2");
+
+            var segment = AWSXRayRecorder.Instance.TraceContext.GetEntity();
+            _recorder.EndSegment();
+
+            Assert.AreEqual("updated1", segment.Metadata["default"]["key1"]);
+            Assert.AreEqual("updated2", segment.Metadata["aws"]["key2"]);
         }
 
         [TestMethod]
