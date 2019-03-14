@@ -126,17 +126,17 @@ namespace Amazon.XRay.Recorder.Core.Sampling
         private SamplingResponse ProcessMatchedRule(SamplingRule sampleRule, TimeStamp time)
         {
             bool shouldSample = true;
-            Reservior reservior = sampleRule.Reservior;
+            Reservoir reservoir = sampleRule.Reservoir;
             SamplingResponse sampleResult = null;
 
             sampleRule.IncrementRequestCount(); // increment request counter for matched rule
-            ReserviorDecision reserviorDecision = reservior.BorrowOrTake(time, sampleRule.CanBorrow); // check if we can borrow or take from reservior
+            ReservoirDecision reservoirDecision = reservoir.BorrowOrTake(time, sampleRule.CanBorrow); // check if we can borrow or take from reservoir
 
-            if (reserviorDecision == ReserviorDecision.Borrow)
+            if (reservoirDecision == ReservoirDecision.Borrow)
             {
                 sampleRule.IncrementBorrowCount();
             }
-            else if (reserviorDecision == ReserviorDecision.Take)
+            else if (reservoirDecision == ReservoirDecision.Take)
             {
                 sampleRule.IncrementSampledCount();
             }
