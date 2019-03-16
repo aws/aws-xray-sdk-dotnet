@@ -89,6 +89,23 @@ namespace Amazon.XRay.Recorder.Handlers.AwsSdk.Internal
             }
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="XRayPipelineHandler" /> class.
+        /// </summary>
+        /// <param name="stream"> stream for manifest which contains the operation parameter whitelist configuration.</param>
+        /// <exception cref="System.ArgumentNullException">Thrown when recorder is null.</exception>
+        public XRayPipelineHandler(Stream stream)
+        {
+            _recorder = AWSXRayRecorder.Instance;
+
+            if (_recorder == null)
+            {
+                throw new ArgumentNullException("recorder");
+            }
+
+            Init(_recorder, stream);
+        }
+
         private static bool TryReadPropertyValue(object obj, string propertyName, out object value)
         {
             value = 0;
@@ -623,11 +640,11 @@ namespace Amazon.XRay.Recorder.Handlers.AwsSdk.Internal
         public string UniqueName { get { return "X-Ray Registration Customization"; } }
         private Boolean registerAll;
         private List<Type> types = new List<Type>();
-        private String path;
         private ReaderWriterLockSlim rwLock = new ReaderWriterLockSlim();
 
         public bool RegisterAll { get => registerAll; set => registerAll = value; }
-        public string Path { get => path; set => path = value; }
+        public string Path { get; set; }
+        public XRayPipelineHandler XRayPipelineHandler { get; set; } = null;
 
         public void Customize(Type serviceClientType, RuntimePipeline pipeline)
         {
@@ -641,13 +658,13 @@ namespace Amazon.XRay.Recorder.Handlers.AwsSdk.Internal
                 addCustomization = ProcessType(serviceClientType, addCustomization);
             }
 
-            if (addCustomization && string.IsNullOrEmpty(Path))
+            if (addCustomization && XRayPipelineHandler == null)
             {
                 pipeline.AddHandlerAfter<EndpointResolver>(new XRayPipelineHandler());
             }
-            else if (addCustomization && !string.IsNullOrEmpty(Path))
+            else if (addCustomization && XRayPipelineHandler != null)
             {
-                pipeline.AddHandlerAfter<EndpointResolver>(new XRayPipelineHandler(Path)); // Custom AWS Manifest file path provided
+                pipeline.AddHandlerAfter<EndpointResolver>(XRayPipelineHandler); // Custom AWS Manifest file path provided
             }
         }
 

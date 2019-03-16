@@ -17,6 +17,7 @@
 using Amazon.Runtime.Internal;
 using Amazon.XRay.Recorder.Handlers.AwsSdk.Internal;
 using System;
+using System.IO;
 
 namespace Amazon.XRay.Recorder.Handlers.AwsSdk
 {
@@ -44,7 +45,7 @@ namespace Amazon.XRay.Recorder.Handlers.AwsSdk
         {
             _customizer = GetCustomizer();
             _customizer.RegisterAll = true;
-            _customizer.Path = path;
+            _customizer.XRayPipelineHandler = new XRayPipelineHandler(path);
         }
 
         /// <summary>
@@ -59,11 +60,21 @@ namespace Amazon.XRay.Recorder.Handlers.AwsSdk
         /// <summary>
         /// Registers file path of AWS Service Manifest file. This file would be used for all the registered <see cref="Runtime.AmazonServiceClient"/> instances. 
         /// </summary>
-        ///  <param name="path"> Absolute path to the file which contains the operation parameter whitelist configuration.</param>
+        /// <param name="path"> Absolute path to the file which contains the operation parameter whitelist configuration.</param>
         public static void RegisterXRayManifest(String path)
         {
             _customizer = GetCustomizer();
-            _customizer.Path = path;
+            _customizer.XRayPipelineHandler = new XRayPipelineHandler(path);
+        }
+
+        /// <summary>
+        /// Registers AWS Service Manifest resource stream. This stream would be used for all the registered <see cref="Runtime.AmazonServiceClient"/> instances. 
+        /// </summary>
+        /// <param name="stream"> stream for manifest which contains the operation parameter whitelist configuration.</param>
+        public static void RegisterXRayManifest(Stream stream)
+        {
+            _customizer = GetCustomizer();
+            _customizer.XRayPipelineHandler = new XRayPipelineHandler(stream);
         }
 
         private static XRayPipelineCustomizer GetCustomizer()
