@@ -103,7 +103,15 @@ namespace Amazon.XRay.Recorder.Handlers.AwsSdk.Internal
                 throw new ArgumentNullException("recorder");
             }
 
-            Init(_recorder, stream);
+            if (stream == null)
+            {
+                _logger.DebugFormat("The provided stream is null, initializing with default AWS whitelist.");
+                InitWithDefaultAWSWhitelist(_recorder);
+            }
+            else
+            {
+                Init(_recorder, stream);
+            }
         }
 
         private static bool TryReadPropertyValue(object obj, string propertyName, out object value)

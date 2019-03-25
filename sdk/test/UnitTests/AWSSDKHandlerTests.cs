@@ -132,6 +132,14 @@ namespace Amazon.XRay.Recorder.UnitTests
         }
 
         [TestMethod]
+        public void TestLoadServiceHandlerManifestWithDefaultConfigurationForAWSSDKHandlerNullStream()
+        {
+            Stream stream = null;
+            var handler = new XRayPipelineHandler(stream);
+            Assert.IsNotNull(handler.AWSServiceHandlerManifest);
+        }
+
+        [TestMethod]
         public void TestLoadServiceHandlerManifestWithDefaultConfigurationForAWSSDKHandlerAsStream()
         {
             using (Stream stream = new FileStream(_path, FileMode.Open, FileAccess.Read))
