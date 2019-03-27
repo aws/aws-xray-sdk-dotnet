@@ -132,6 +132,24 @@ namespace Amazon.XRay.Recorder.UnitTests
         }
 
         [TestMethod]
+        public void TestLoadServiceHandlerManifestWithDefaultConfigurationForAWSSDKHandlerNullStream()
+        {
+            Stream stream = null;
+            var handler = new XRayPipelineHandler(stream);
+            Assert.IsNotNull(handler.AWSServiceHandlerManifest);
+        }
+
+        [TestMethod]
+        public void TestLoadServiceHandlerManifestWithDefaultConfigurationForAWSSDKHandlerAsStream()
+        {
+            using (Stream stream = new FileStream(_path, FileMode.Open, FileAccess.Read))
+            {
+                var handler = new XRayPipelineHandler(stream);
+                Assert.IsNotNull(handler.AWSServiceHandlerManifest);
+            }
+        }
+
+        [TestMethod]
         [ExpectedException(typeof(FileNotFoundException))]
         public void TestLoadServiceInfoManifestInvalidPathForAWSSDKHandler()
         {
@@ -273,6 +291,34 @@ namespace Amazon.XRay.Recorder.UnitTests
 
             Assert.AreEqual("Invoke", segment.Subsegments[0].Aws["operation"]);
             Assert.AreEqual("testFunction", segment.Subsegments[0].Aws["function_name"]);
+        }
+
+        [TestMethod]
+        public void TestRegisterXRayManifestWithStreamLambdaForAWSSDKHandler()
+        {
+            String temp_path = $"JSONs{Path.DirectorySeparatorChar}AWSRequestInfoWithLambda.json"; //registering manifest file with Lambda
+            using (Stream stream = new FileStream(temp_path, FileMode.Open, FileAccess.Read))
+            {
+                AWSSDKHandler.RegisterXRayManifest(stream);
+            }
+            var lambda = new AmazonLambdaClient(new AnonymousAWSCredentials(), RegionEndpoint.USEast1);
+            CustomResponses.SetResponse(lambda, null, null, true);
+            _recorder.BeginSegment("lambda", TraceId);
+#if NET45
+            lambda.Invoke(new InvokeRequest
+            {
+                FunctionName = "testFunction"
+            });
+#else
+            lambda.InvokeAsync(new InvokeRequest
+            {
+                FunctionName = "testFunction"
+            }).Wait();
+#endif
+            var segment = AWSXRayRecorder.Instance.TraceContext.GetEntity();
+            _recorder.EndSegment();
+
+            Assert.AreEqual("Invoke", segment.Subsegments[0].Aws["operation"]);
         }
     }
 }
