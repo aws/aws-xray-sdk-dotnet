@@ -1,11 +1,10 @@
-# AWS X-Ray SDK for .NET and .NET Core 2.0 (beta)
+# AWS X-Ray SDK for .NET and .NET Core
 
 ![Screenshot of the AWS X-Ray console](images/example_servicemap.png?raw=true)
 
 ## Installing
 
-The AWS X-Ray SDK for .NET and .NET Core is in the form of beta Nuget packages. You can install the packages from [Nuget](https://www.nuget.org/packages?q=AWSXRayRecorder) gallery or from Visual Studio editor. Search `AWSXRayRecorder*` to see various middlewares available.  
-*Note*: Since nuget packages are in beta please check box `include prerelease` in Visual Studio for the nuget packages to be visible.
+The AWS X-Ray SDK for .NET and .NET Core (.netstandard 2.0 and above) is in the form of Nuget packages. You can install the packages from [Nuget](https://www.nuget.org/packages?q=AWSXRayRecorder) gallery or from Visual Studio editor. Search `AWSXRayRecorder*` to see various middlewares available.  
 
 ## Getting Help
 
@@ -17,8 +16,8 @@ Use the following community resources for getting help with the SDK. We use the 
 
 ## Opening Issues
 
-If you encounter a bug with the AWS X-Ray SDK for .NET/.NET Core 2.0, we want to hear about
-it. Before opening a new issue, search the [existing issues](https://github.com/aws/aws-xray-sdk-dotnet/issues) to see if others are also experiencing the issue. Include platform (.NET/ .NET Core 2.0). 
+If you encounter a bug with the AWS X-Ray SDK for .NET/.NET Core, we want to hear about
+it. Before opening a new issue, search the [existing issues](https://github.com/aws/aws-xray-sdk-dotnet/issues) to see if others are also experiencing the issue. Include platform (.NET/ .NET Core). 
 In addition, include the repro case when appropriate.
 
 The GitHub issues are intended for bug reports and feature requests. For help and questions about using the AWS X-Ray SDK for .NET and .NET Core, use the resources listed
@@ -30,11 +29,13 @@ The [developer guide](https://docs.aws.amazon.com/xray/latest/devguide) provides
 Following API reference documentation provides guidance for using the SDK and module-level documentation.
 * The [API Reference for .NET](http://docs.aws.amazon.com/xray-sdk-for-dotnet/latest/reference/index.html)
 * The [API Reference for .NET Core](http://docs.aws.amazon.com/xray-sdk-for-dotnetcore/latest/reference/index.html)
+* AWS X-Ray SDK Documentation for [.NET SDK](https://docs.aws.amazon.com/xray/latest/devguide/xray-sdk-dotnet.html)
+* [Sample Apps](https://github.com/aws-samples/aws-xray-dotnet-webapp)
 
 ## Quick Start
 
 1. [Configuration](https://github.com/aws/aws-xray-sdk-dotnet/tree/master#configuration)
-2. [ASP.NET Core 2.0 Framework](https://github.com/aws/aws-xray-sdk-dotnet/tree/master#aspnet-core-20-framework-net-core--nuget)
+2. [ASP.NET Core Framework](https://github.com/aws/aws-xray-sdk-dotnet/tree/master#aspnet-core-framework-net-core--nuget)
 3. [ASP.NET Framework](https://github.com/aws/aws-xray-sdk-dotnet/tree/master#aspnet-framework-net--nuget)
 4. [Trace AWS SDK request](https://github.com/aws/aws-xray-sdk-dotnet/tree/master#trace-aws-sdk-request-net-and-net-core--nuget) 
 5. [Trace out-going HTTP requests](https://github.com/aws/aws-xray-sdk-dotnet/tree/master#trace-out-going-http-requests-net-and-net-core--nuget)
@@ -44,7 +45,7 @@ Following API reference documentation provides guidance for using the SDK and mo
 9. [Creating custom Segment/Subsegment](https://github.com/aws/aws-xray-sdk-dotnet/tree/master#creating-custom-segmentsubsegment-net-and-net-core)
 10. [Adding metadata/annotations](https://github.com/aws/aws-xray-sdk-dotnet/tree/master#adding-metadataannotations-net-and-net-core)
 11. [AWS Lambda support (.NET Core)](https://github.com/aws/aws-xray-sdk-dotnet/tree/master#aws-lambda-support-net-core)
-12. [ASP.NET Core 2.0 on AWS Lambda](https://github.com/aws/aws-xray-sdk-dotnet/tree/master#aspnet-core-20-on-aws-lambda-net-core)
+12. [ASP.NET Core on AWS Lambda](https://github.com/aws/aws-xray-sdk-dotnet/tree/master#aspnet-core-on-aws-lambda-net-core)
 13. [Logging](https://github.com/aws/aws-xray-sdk-dotnet/tree/master#logging-net)
 14. [Enabling X-Ray on Elastic Beanstalk](https://docs.aws.amazon.com/xray/latest/devguide/xray-services-beanstalk.html)
 15. [Enabling X-Ray on AWS Lambda](https://docs.aws.amazon.com/xray/latest/devguide/xray-services-lambda.html)
@@ -101,9 +102,9 @@ AWSXRayRecorder.InitializeInstance(configuration); // pass IConfiguration object
 
 ### Incoming Requests
 
-### ASP.NET Core 2.0 Framework (.NET Core) : [Nuget](https://www.nuget.org/packages/AWSXRayRecorder.Handlers.AspNetCore/)
+### ASP.NET Core Framework (.NET Core) : [Nuget](https://www.nuget.org/packages/AWSXRayRecorder.Handlers.AspNetCore/)
 
-You can instrument X-Ray for your `ASP.NET Core 2.0` App in the `Configure()` method of `Startup.cs` file of your project.  
+You can instrument X-Ray for your `ASP.NET Core` App in the `Configure()` method of `Startup.cs` file of your project.  
 *Note* :  
 1. Use `app.UseXRay()` middleware after `app.UseExceptionHandler("/Error")` in order to catch exceptions.  
 2. You need to install `Amazon.XRay.Recorder.Handlers.AspNetCore` nuget package. This package adds extension methods to the `IApplicationBuilder` to make it easy to register AWS X-Ray to the ASP.NET Core HTTP pipeline.
@@ -138,11 +139,9 @@ public void Configure(IApplicationBuilder app, IHostingEnvironment env)
 
 Instead of name you can also pass `SegmentNamingStrategy` in the above two ways. Please refer: [Link](https://docs.aws.amazon.com/xray/latest/devguide/xray-sdk-dotnet-messagehandler.html#xray-sdk-dotnet-messagehandler-naming)  
 
-### ASP.NET Framework (.NET) : [Nuget](https://www.nuget.org/packages/AWSXRayRecorder.Handlers.AspNet/)
+### ASP.NET Framework (.NET) : [Nuget](https://www.nuget.org/packages/AWSXRayRecorder.Handlers.AspNet/) 
 
-*Note*: We are deprecating `TracingMessageHandler` class (approach 2) that supports just WEB API. Approach 1 includes WEB API support. 
-
-**1. HTTP Message handler for ASP.NET framework (*Recommended*)**  
+**HTTP Message handler for ASP.NET framework**  
 Register your application with X-Ray in the `Init()` method of ***global.asax*** file
 
 ```csharp
@@ -173,37 +172,7 @@ At the start of each Http request, a `segment` is created and stored in the `con
 </script>
 ```
 
-**2. HTTP Message handler for ASP.NET WEB API (*Deprecated*)**  
-
-On the server side, the Web API pipeline invokes message handler before the request reaches controller, and after the response leaves controller. We recommend you inserting the `TracingMessageHandler` as the first message handler to have maximum tracing coverage.
-To add a message handler on the server side, add the handler to the `HttpConfiguration.MessageHandlers` collection.
-
-```csharp
-using AWSXRayRecorder.Handlers.AspNet.WebApi;
-
-public static class WebApiConfig
-{
-    public static void Register(HttpConfiguration config)
-    {
-        // Add the message handler to HttpCofiguration
-    	config.MessageHandlers.Add(new TracingMessageHandler(new FixedSegmentNamingStrategy("defaultName")));
-
-        // Other code not shown...
-    }
-}
-```
-
-Or add the message handler to ***global.asax*** file
-
-```csharp
-GlobalConfiguration.Configuration.MessageHandlers.Add(new TracingMessageHandler(new FixedSegmentNamingStrategy("defaultName")));
-```
-
 ### Trace AWS SDK request (.NET and .NET Core) : [Nuget](https://www.nuget.org/packages/AWSXRayRecorder.Handlers.AwsSdk/)
-
-*Note*: We recommend using *approach 1* since its easy to configure, works well with ASP.NET Core dependency injection and handles async operations in better way. Avoid using both approaches in same project to maintain consistency in results.
-
-1) Following way is *recommended* (.NET and .NET Core):
 
 ```csharp
 using Amazon.XRay.Recorder.Handlers.AwsSdk;
@@ -221,17 +190,6 @@ AWSSDKHandler.RegisterXRay<IAmazonDynamoDB>(); // Registers specific type of Ama
 
 AWSSDKHandler.RegisterXRayManifest(String path); // To configure custom AWS Service Manifest file. This is optional, if you have followed "Configuration" section
 ```
-
-2) Following way is *deprecated* (.NET):
-
-```csharp
-using using Amazon.XRay.Recorder.Handlers.AwsSdk;
-
-var ddbClient = new AmazonDynamoDBClient(RegionEndpoint.USEast1);
-new AwsSdkTracingHandler(AWSXRayRecorder.Instance).AddEventHandler(client);
-```
-
-The `AddEventHandler()` method will subscribe to `BeforeRequestEvent`, `AfterResponseEvent`, `ExceptionEvent` in the service client.
 
 ### Trace out-going HTTP requests (.NET and .NET Core) : [Nuget](https://www.nuget.org/packages/AWSXRayRecorder.Handlers.System.Net/)
 
@@ -475,9 +433,9 @@ public string FunctionHandler(string input, ILambdaContext context)
 }
 ```
 
-### ASP.NET Core 2.0 on AWS Lambda (.NET Core)
+### ASP.NET Core on AWS Lambda (.NET Core)
 
-We support instrumenting ASP.NET Core 2.0 web app on Lambda. Please follow the steps of [ASP.NET Core 2.0](https://github.com/aws/aws-xray-sdk-dotnet/tree/release#aspnet-core-20-framework-net-core) instrumentation.
+We support instrumenting ASP.NET Core web app on Lambda. Please follow the steps of [ASP.NET Core](https://github.com/aws/aws-xray-sdk-dotnet/tree/release#aspnet-core-framework-net-core) instrumentation.
 
 ### Logging (.NET)
 
@@ -538,4 +496,4 @@ log4net.config example:
 
 ## License
 
-The AWS X-Ray SDK for .NET and .NET Core 2.0 is licensed under the Apache 2.0 License. See LICENSE and NOTICE.txt for more information.
+The AWS X-Ray SDK for .NET and .NET Core is licensed under the Apache 2.0 License. See LICENSE and NOTICE.txt for more information.

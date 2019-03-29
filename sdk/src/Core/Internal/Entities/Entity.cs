@@ -505,7 +505,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Entities
         /// <param name="value">The value.</param>
         public void AddMetadata(string nameSpace, string key, object value)
         {
-            _lazyMetadata.Value.GetOrAdd(nameSpace, new ConcurrentDictionary<string, object>()).Add(key, value);
+            _lazyMetadata.Value.GetOrAdd(nameSpace, new ConcurrentDictionary<string, object>())[key] = value;
         }
 
         /// <summary>

@@ -1,6 +1,34 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 2.5.0 (2019-02-05)
+### AWSXRayRecorder.Core (2.5.0)
+#### Breaking Change - .NET and .NET Core
+- Added `HandleEntityMissing()` to `ITraceContext` interface. Users can override this method to define custom trace context missing behavior.
+
+#### Added
+- Merged Hostname support PR for parsing X-Ray daemon address [PR #38](https://github.com/aws/aws-xray-sdk-dotnet/pull/38), [issue #19](https://github.com/aws/aws-xray-sdk-dotnet/issues/19)
+- Added `ExceptionSerializationStrategy` interface for serializing exceptions, users can configure custom max number of stack frames to be recorded for exception using `WithExceptionSerializationStrategy()` on `AWSXRayRecorderBuilder` class.  [issue #8](https://github.com/aws/aws-xray-sdk-dotnet/issues/8)
+- Amazon service exceptions are marked as `remote`
+- Added missing interceptor for `ExecuteDbDataReader()` [PR #48](https://github.com/aws/aws-xray-sdk-dotnet/pull/48)
+
+### AWSXRayRecorder.Handlers.System.Net (2.5.0)
+- Bumped version to address AWSXRayRecorder.Core package change
+
+### AWSXRayRecorder.Handlers.SqlServer (2.5.0)
+- Bumped version to address AWSXRayRecorder.Core package change
+
+### AWSXRayRecorder.Handlers.AwsSdk (2.5.0)
+#### Breaking Change - .NET 
+- Removed `deprecated` class `AWSSdkTracingHandler`. Use [AWSSDKHandler](https://github.com/aws/aws-xray-sdk-dotnet/tree/master#trace-aws-sdk-request-net-and-net-core--nuget) to trace AWS SDK requests.
+
+### AWSXRayRecorder.Handlers.AspNet (2.5.0)
+#### Breaking Change 
+- Removed `deprecated` class `TracingMessageHandler`. Use [AWSXRayASPNET](https://github.com/aws/aws-xray-sdk-dotnet/tree/master#aspnet-framework-net--nuget) middleware for tracing ASP.NET and WEB API requests.
+
+### AWSXRayRecorder.Handlers.AspNetCore (2.5.0)
+- Bumped version to address AWSXRayRecorder.Core package change
+
 ## 2.4.0-beta (2018-11-01)
 ### AWSXRayRecorder.Core (2.4.0-beta)
 #### Breaking Change - .NET and .NET Core

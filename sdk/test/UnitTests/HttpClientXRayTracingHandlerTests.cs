@@ -1,11 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Amazon.XRay.Recorder.Core;
 using Amazon.XRay.Recorder.Core.Internal.Entities;
 using Amazon.XRay.Recorder.Core.Internal.Utils;
 using Amazon.XRay.Recorder.Handlers.System.Net;
+using Amazon.XRay.Recorder.UnitTests.Tools;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Amazon.XRay.Recorder.UnitTests
@@ -50,8 +52,8 @@ namespace Amazon.XRay.Recorder.UnitTests
         {
             AWSXRayRecorder.Instance.BeginSegment("parent", TraceId);
             var request = new HttpRequestMessage(HttpMethod.Get, URL);
-            var response = await _httpClient.SendAsync(request);
-            
+            using(await _httpClient.SendAsync(request)) {}
+
             var segment = AWSXRayRecorder.Instance.TraceContext.GetEntity();
             AWSXRayRecorder.Instance.EndSegment();
 
@@ -66,14 +68,37 @@ namespace Amazon.XRay.Recorder.UnitTests
             Assert.AreEqual(200, responseInfo["status"]);
             Assert.IsNotNull(responseInfo["content_length"]);
         }
+        
+        /// <summary>
+        /// Ensures that when tracing is disabled that HTTP requests can execute as normal.
+        /// See https://github.com/aws/aws-xray-sdk-dotnet/issues/57 for more information. 
+        /// </summary>
+        [TestMethod]
+        public async Task TestXrayDisabledSendAsync()
+        {
+            _recorder = new MockAWSXRayRecorder() { IsTracingDisabledValue = true };
+#if NET45
+            AWSXRayRecorder.InitializeInstance(_recorder);
+#else
+            AWSXRayRecorder.InitializeInstance(recorder: _recorder);
+# endif
+            Assert.IsTrue(AWSXRayRecorder.Instance.IsTracingDisabled());
+            
+            var request = new HttpRequestMessage(HttpMethod.Get, URL);
+            using (var response = await _httpClient.SendAsync(request))
+            {
+                Assert.IsNotNull(response);
+                Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            }
+        }
 
         [TestMethod]
         public async Task Test404SendAsync()
         {
             AWSXRayRecorder.Instance.BeginSegment("parent", TraceId);
             var request = new HttpRequestMessage(HttpMethod.Get, URL404);
-            var response = await _httpClient.SendAsync(request);
-            
+            using(await _httpClient.SendAsync(request)) {}
+
             var segment = AWSXRayRecorder.Instance.TraceContext.GetEntity();
             AWSXRayRecorder.Instance.EndSegment();
 
