@@ -14,3 +14,9 @@ clone_depth: 1
 test_script:
   - cmd : dotnet test sdk/test/UnitTests
 deploy: off
+notifications:
+  - provider: aws-xray-peryton@amazon.com
+    settings: ...
+      on_build_success: false
+      on_build_failure: true
+      on_build_status_changed: false
