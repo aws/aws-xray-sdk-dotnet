@@ -307,7 +307,7 @@ namespace Amazon.XRay.Recorder.Handlers.AwsSdk.Internal
             }
             catch(EntityNotAvailableException e)
             {
-                _recorder.TraceContext.HandleEntityMissing(_recorder,e,"Cannot retreive entity while processing response of AWS SDK request.");
+                _recorder.TraceContext.HandleEntityMissing(_recorder,e,"Cannot get entity from the trace context while processing response of AWS SDK request.");
                 return;
             }
 
@@ -588,12 +588,6 @@ namespace Amazon.XRay.Recorder.Handlers.AwsSdk.Internal
 
         private void PopulateException(Exception e)
         {
-            if (IsTracingDisabled())
-            {
-                _logger.DebugFormat("Tracing is disabled so not processing exception received for the AWS SDK request.");
-                return;
-            }
-
             Entity subsegment;
             try
             {
@@ -601,7 +595,7 @@ namespace Amazon.XRay.Recorder.Handlers.AwsSdk.Internal
             }
             catch (EntityNotAvailableException ex)
             {
-                _recorder.TraceContext.HandleEntityMissing(_recorder, ex, "Cannot retreive entity while processing exception for AWS SDK request.");
+                _recorder.TraceContext.HandleEntityMissing(_recorder, ex, "Cannot get entity from trace context while processing exception for AWS SDK request.");
                 return;
             }
 
