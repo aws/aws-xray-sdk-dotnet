@@ -40,7 +40,7 @@ namespace Amazon.XRay.Recorder.UnitTests
     {
         private const string ManifestKey = "AwsServiceHandlerManifest";
 
-        private static AWSXRayRecorder _recorder;
+        private AWSXRayRecorder _recorder;
 
         private static String _path = $"JSONs{Path.DirectorySeparatorChar}AWSRequestInfo.json";
 #if !NET45
@@ -71,6 +71,29 @@ namespace Amazon.XRay.Recorder.UnitTests
 #endif
             _recorder.Dispose();
             _recorder = null;
+            AWSXRayRecorder.Instance.Dispose();
+        }
+
+        [TestMethod]
+        public void TestContextMissingStrategyForAWSSDKHandler()
+        {
+            AWSXRayRecorder.Instance.ContextMissingStrategy = Core.Strategies.ContextMissingStrategy.LOG_ERROR;
+            AWSSDKHandler.RegisterXRayForAllServices();
+            var dynamo = new AmazonDynamoDBClient(new AnonymousAWSCredentials(), RegionEndpoint.USEast1);
+            CustomResponses.SetResponse(dynamo, null, null, true);
+
+            AWSXRayRecorder.Instance.BeginSegment("test dynamo", TraceId);
+            var segment = AWSXRayRecorder.Instance.TraceContext.GetEntity();
+
+            AWSXRayRecorder.Instance.EndSegment();
+            // The test should not break. No segment is available in the context, however, since the context missing strategy is log error,
+            // no exception should be thrown by below code.
+#if NET45
+            dynamo.ListTables();
+#else
+            dynamo.ListTablesAsync().Wait();
+#endif
+            Assert.IsNotNull(segment);
         }
 
         [TestMethod]

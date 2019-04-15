@@ -31,6 +31,7 @@ using ThirdParty.LitJson;
 using Amazon.Runtime.Internal;
 using System.Threading;
 using Amazon.Runtime.Internal.Transform;
+using Amazon.XRay.Recorder.Core.Exceptions;
 
 namespace Amazon.XRay.Recorder.Handlers.AwsSdk.Internal
 {
@@ -271,7 +272,17 @@ namespace Amazon.XRay.Recorder.Handlers.AwsSdk.Internal
         private void ProcessBeginRequest(IExecutionContext executionContext)
         {
             var request = executionContext.RequestContext.Request;
-            if (TraceHeader.TryParse(_recorder.GetEntity(), out TraceHeader traceHeader))
+            Entity entity = null;
+            try
+            {
+                entity = _recorder.GetEntity();
+            }
+            catch (EntityNotAvailableException e)
+            {
+                _recorder.TraceContext.HandleEntityMissing(_recorder, e, "Cannot get entity while processing AWS SDK request");
+            }
+
+            if (TraceHeader.TryParse(entity, out TraceHeader traceHeader))
             {
                 request.Headers[TraceHeader.HeaderKey] = traceHeader.ToString();
             }
@@ -289,8 +300,17 @@ namespace Amazon.XRay.Recorder.Handlers.AwsSdk.Internal
         /// </summary>
         private void ProcessEndRequest(IExecutionContext executionContext)
         {
-           
-            var subsegment = AWSXRayRecorder.Instance.GetEntity();
+            Entity subsegment;
+            try
+            {
+                subsegment = _recorder.GetEntity();
+            }
+            catch(EntityNotAvailableException e)
+            {
+                _recorder.TraceContext.HandleEntityMissing(_recorder,e,"Cannot get entity from the trace context while processing response of AWS SDK request.");
+                return;
+            }
+
             var responseContext = executionContext.ResponseContext;
             var requestContext = executionContext.RequestContext;
 
@@ -555,14 +575,7 @@ namespace Amazon.XRay.Recorder.Handlers.AwsSdk.Internal
 
                 catch (Exception e)
                 {
-                    var subsegment = AWSXRayRecorder.Instance.GetEntity();
-                    subsegment.AddException(e); // record exception 
-
-                    if (e is AmazonServiceException amazonServiceException)
-                    {
-                        ProcessException(amazonServiceException, subsegment);
-                    }
-
+                    PopulateException(e);
                     throw;
                 }
 
@@ -571,6 +584,28 @@ namespace Amazon.XRay.Recorder.Handlers.AwsSdk.Internal
                     ProcessEndRequest(executionContext);
                 }
             }
+        }
+
+        private void PopulateException(Exception e)
+        {
+            Entity subsegment;
+            try
+            {
+                subsegment = _recorder.GetEntity();
+            }
+            catch (EntityNotAvailableException ex)
+            {
+                _recorder.TraceContext.HandleEntityMissing(_recorder, ex, "Cannot get entity from trace context while processing exception for AWS SDK request.");
+                return;
+            }
+
+            subsegment.AddException(e); // record exception 
+
+            if (e is AmazonServiceException amazonServiceException)
+            {
+                ProcessException(amazonServiceException, subsegment);
+            }
+            return;
         }
 
         private bool ExcludeServiceOperation(IExecutionContext executionContext)
@@ -614,17 +649,7 @@ namespace Amazon.XRay.Recorder.Handlers.AwsSdk.Internal
                 }
                 catch (Exception e)
                 {
-                    if (!AWSXRayRecorder.Instance.IsTracingDisabled())
-                    {
-                        var subsegment = AWSXRayRecorder.Instance.GetEntity();
-                        subsegment.AddException(e); // record exception 
-
-                        if (e is AmazonServiceException amazonServiceException)
-                        {
-                            ProcessException(amazonServiceException, subsegment);
-                        }
-                    }
-
+                    PopulateException(e);
                     throw;
                 }
 

@@ -244,6 +244,11 @@ namespace Amazon.XRay.Recorder.Handlers.AspNet
             {
                 _logger.Error(new EntityNotAvailableException("Failed to cast the entity to Segment.", e), "Failed to  get the segment from trace context for setting sampling decision in the response.");
             }
+
+            catch (EntityNotAvailableException e)
+            {
+                AWSXRayRecorder.Instance.TraceContext.HandleEntityMissing(AWSXRayRecorder.Instance, e, "Failed to get entity since it is not available in trace context while processing ASPNET request.");
+            }
         }
 
         private static void ProcessResponseAttributes(HttpResponse response, Dictionary<string, object> reponseAttributes)
