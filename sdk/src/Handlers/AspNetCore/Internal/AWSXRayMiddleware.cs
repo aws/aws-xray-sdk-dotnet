@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Net.Http.Headers;
+using System.Text;
 
 namespace Amazon.XRay.Recorder.Handlers.AspNetCore.Internal
 {
@@ -44,6 +45,7 @@ namespace Amazon.XRay.Recorder.Handlers.AspNetCore.Internal
         private static readonly Logger _logger = Logger.GetLogger(typeof(AWSXRayMiddleware));
         private readonly AWSXRayRecorder _recorder;
         private static readonly string X_FORWARDED_FOR = "X-Forwarded-For";
+        private const string SchemeDelimiter = "://";
 
         /// <summary>
         /// Gets or sets the segment naming strategy.
@@ -273,9 +275,32 @@ namespace Amazon.XRay.Recorder.Handlers.AspNetCore.Internal
             }
         }
 
+        // Implementing custom logic : https://github.com/aws/aws-xray-sdk-dotnet/issues/64
         private static string GetUrl(HttpRequest request)
         {
-            return Microsoft.AspNetCore.Http.Extensions.UriHelper.GetDisplayUrl(request);
+            if (request == null)
+            {
+                _logger.DebugFormat("HTTPRequest instance is null. Cannot get URL from the request, Setting url to null");
+                return null;
+            }
+            var scheme = request.Scheme ?? string.Empty;
+            var host = request.Host.Value ?? string.Empty;
+            var pathBase = request.PathBase.Value ?? string.Empty;
+            var path = request.Path.Value ?? string.Empty;
+            var queryString = request.QueryString.Value ?? string.Empty;
+
+            // PERF: Calculate string length to allocate correct buffer size for StringBuilder.
+            var length = scheme.Length + SchemeDelimiter.Length + host.Length
+                + pathBase.Length + path.Length + queryString.Length;
+
+            return new StringBuilder(length)
+                .Append(scheme)
+                .Append(SchemeDelimiter)
+                .Append(host)
+                .Append(pathBase)
+                .Append(path)
+                .Append(queryString)
+                .ToString();
         }
 
         private static string GetXForwardedFor(HttpRequest request)
