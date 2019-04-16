@@ -276,7 +276,7 @@ namespace Amazon.XRay.Recorder.Handlers.AspNetCore.Internal
         }
 
         // Implementing custom logic : https://github.com/aws/aws-xray-sdk-dotnet/issues/64
-        public static string GetUrl(HttpRequest request)
+        private static string GetUrl(HttpRequest request)
         {
             if (request == null)
             {
