@@ -217,5 +217,32 @@ namespace Amazon.XRay.Recorder.UnitTests
             }
         }
 #endif
+
+        [TestMethod]
+        public async Task TestContextMissingStrategyGetAsyncResponseTraced()
+        {
+            _recorder = new AWSXRayRecorder();
+#if NET45
+            AWSXRayRecorder.InitializeInstance(_recorder);
+#else
+            AWSXRayRecorder.InitializeInstance(recorder: _recorder);
+# endif
+            Assert.IsFalse(AWSXRayRecorder.Instance.IsTracingDisabled());
+
+            AWSXRayRecorder.Instance.ContextMissingStrategy = Core.Strategies.ContextMissingStrategy.LOG_ERROR;
+
+            _recorder.EndSegment();
+
+            // The test should not break. No segment is available in the context, however, since the context missing strategy is log error,
+            // no exception should be thrown by below code.
+
+            var request = (HttpWebRequest)WebRequest.Create(URL);
+
+            using (var response = await request.GetAsyncResponseTraced() as HttpWebResponse)
+            {
+                Assert.IsNotNull(response);
+                Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+            }
+        }
     }
 }
