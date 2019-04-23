@@ -1,6 +1,34 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 2.6.0 (2019-04-17)
+### AWSXRayRecorder.Core (2.5.1)
+#### Fixed
+- Calling AddMetadata twice with the same key should overwrite values [PR#60](https://github.com/aws/aws-xray-sdk-dotnet/pull/60)
+
+### AWSXRayRecorder.Handlers.System.Net (2.5.1)
+#### Fixed
+- Entity doesn't exist in AsyncLocal exception when X-Ray tracing disabled [issue#57](https://github.com/aws/aws-xray-sdk-dotnet/issues/57), [PR#58](https://github.com/aws/aws-xray-sdk-dotnet/pull/58)
+- Honoring Context missing strategy for all TraceContext.GetEntity() call sites [PR #65](https://github.com/aws/aws-xray-sdk-dotnet/pull/65)
+
+### AWSXRayRecorder.Handlers.SqlServer (2.5.1)
+- Bumped version to address AWSXRayRecorder.Core package change
+
+### AWSXRayRecorder.Handlers.AwsSdk (2.6.0)
+#### Added 
+- Add option to register XRay manifest from embedded resource [Issue #61](https://github.com/aws/aws-xray-sdk-dotnet/issues/61), [PR #63](https://github.com/aws/aws-xray-sdk-dotnet/pull/63)
+
+#### Fixed
+- Honoring Context missing strategy for all TraceContext.GetEntity() call sites [PR #65](https://github.com/aws/aws-xray-sdk-dotnet/pull/65)
+
+### AWSXRayRecorder.Handlers.AspNet (2.5.1)
+#### Fixed
+- Honoring Context missing strategy for all TraceContext.GetEntity() call sites [PR #65](https://github.com/aws/aws-xray-sdk-dotnet/pull/65)
+
+### AWSXRayRecorder.Handlers.AspNetCore (2.5.1)
+#### Fixed
+- Custom logic to get URL from incoming ASP.NET Core request [Issue #64](https://github.com/aws/aws-xray-sdk-dotnet/issues/64), [PR #72](https://github.com/aws/aws-xray-sdk-dotnet/pull/72)
+
 ## 2.5.0 (2019-02-05)
 ### AWSXRayRecorder.Core (2.5.0)
 #### Breaking Change - .NET and .NET Core
