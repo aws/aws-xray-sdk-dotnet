@@ -59,7 +59,7 @@ namespace Amazon.XRay.Recorder.Handlers.AwsSdk.Internal
         public XRayPipelineHandler()
         {
             _recorder = AWSXRayRecorder.Instance;
-            InitWithDefaultAWSWhitelist(_recorder);
+            AWSServiceHandlerManifest  = GetDefaultAWSWhitelist();
         }
 
         /// <summary>
@@ -76,19 +76,9 @@ namespace Amazon.XRay.Recorder.Handlers.AwsSdk.Internal
                 throw new ArgumentNullException("recorder");
             }
 
-            if (string.IsNullOrEmpty(path))
-            {
-                _logger.DebugFormat("The path is null or empty, initializing with default AWS whitelist.");
-                InitWithDefaultAWSWhitelist(_recorder);
-            }
-            else
-            {
-                using (Stream stream = new FileStream(path, FileMode.Open, FileAccess.Read))
-                {
-                    Init(_recorder, stream);
-                }
-            }
+            AWSServiceHandlerManifest = GetAWSServiceManifest(path);
         }
+
 
         /// <summary>
         /// Initializes a new instance of the <see cref="XRayPipelineHandler" /> class.
@@ -104,16 +94,64 @@ namespace Amazon.XRay.Recorder.Handlers.AwsSdk.Internal
                 throw new ArgumentNullException("recorder");
             }
 
-            if (stream == null)
+            AWSServiceHandlerManifest = GetAWSServiceManifest(stream);
+        }
+
+        /// <summary>
+        /// Creates instance of <see cref="XRayPipelineHandler"/> with provided AWS service manifest instance.
+        /// </summary>
+        /// <param name="awsServiceManifest">Instance of <see cref="AWSServiceHandlerManifest"/></param>
+        public XRayPipelineHandler(AWSServiceHandlerManifest awsServiceManifest)
+        {
+            _recorder = AWSXRayRecorder.Instance;
+
+            if (_recorder == null)
             {
-                _logger.DebugFormat("The provided stream is null, initializing with default AWS whitelist.");
-                InitWithDefaultAWSWhitelist(_recorder);
+                throw new ArgumentNullException("recorder");
+            }
+
+            AWSServiceHandlerManifest = awsServiceManifest;
+        }
+
+        /// <summary>
+        /// Extracts <see cref="AWSServiceHandlerManifest"/> instance from provided path of AWS Service manifest file.
+        /// </summary>
+        /// <param name="path">Absolute path to AWS Service Manifest file</param>
+        /// <returns>Instance of <see cref="AWSServiceHandlerManifest"/></returns>
+        public static AWSServiceHandlerManifest GetAWSServiceManifest(string path)
+        {
+            if (string.IsNullOrEmpty(path))
+            {
+                _logger.DebugFormat("The path is null or empty, initializing with default AWS whitelist.");
+                return GetDefaultAWSWhitelist();
             }
             else
             {
-                Init(_recorder, stream);
+                using (Stream stream = new FileStream(path, FileMode.Open, FileAccess.Read))
+                {
+                    return GetAWSServiceHandlerManifest(stream);
+                }
             }
         }
+
+        /// <summary>
+        /// Extracts <see cref="AWSServiceHandlerManifest"/> instance from provided aws service manifest stream.
+        /// </summary>
+        /// <param name="stream">Absolute path to AWS Service Manifest file</param>
+        /// <returns>Instance of <see cref="AWSServiceHandlerManifest"/></returns>
+        public static AWSServiceHandlerManifest GetAWSServiceManifest(Stream stream)
+        {
+            if (stream == null)
+            {
+                _logger.DebugFormat("The provided stream is null, initializing with default AWS whitelist.");
+                return GetDefaultAWSWhitelist();
+            }
+            else
+            {
+                return GetAWSServiceHandlerManifest(stream);
+            }
+        }
+
 
         private static bool TryReadPropertyValue(object obj, string propertyName, out object value)
         {
@@ -241,28 +279,27 @@ namespace Amazon.XRay.Recorder.Handlers.AwsSdk.Internal
             aws[newPropertyName.FromCamelCaseToSnakeCase()] = listValue.Count;
         }
 
-        private void InitWithDefaultAWSWhitelist(AWSXRayRecorder recorder)
+        private static AWSServiceHandlerManifest GetDefaultAWSWhitelist()
         {
             using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(DefaultAwsWhitelistManifestResourceName))
             {
-                Init(recorder, stream);
+                return GetAWSServiceHandlerManifest(stream);
             }
         }
 
-        private void Init(AWSXRayRecorder recorder, Stream stream)
+        private static AWSServiceHandlerManifest GetAWSServiceHandlerManifest(Stream stream)
         {
-            _recorder = recorder;
-
             using (var reader = new StreamReader(stream))
             {
                 try
                 {
-                    AWSServiceHandlerManifest = JsonMapper.ToObject<AWSServiceHandlerManifest>(reader);
+                    return JsonMapper.ToObject<AWSServiceHandlerManifest>(reader);
                 }
                 catch (JsonException e)
                 {
                     _logger.Error(e, "Failed to load AWSServiceHandlerManifest.");
                 }
+                return null;
             }
         }
 
@@ -674,10 +711,11 @@ namespace Amazon.XRay.Recorder.Handlers.AwsSdk.Internal
         private Boolean registerAll;
         private List<Type> types = new List<Type>();
         private ReaderWriterLockSlim rwLock = new ReaderWriterLockSlim();
-
+   
         public bool RegisterAll { get => registerAll; set => registerAll = value; }
-        public string Path { get; set; }
-        public XRayPipelineHandler XRayPipelineHandler { get; set; } = null;
+        public string Path { get; set; } // TODO :: This is not used anymore, remove in next breaking change
+        public XRayPipelineHandler XRayPipelineHandler { get; set; } = null; // TODO :: This is not used anymore, remove in next breaking change
+        public AWSServiceHandlerManifest AWSServiceHandlerManifest { get; set; } = null;
 
         public void Customize(Type serviceClientType, RuntimePipeline pipeline)
         {
@@ -691,13 +729,13 @@ namespace Amazon.XRay.Recorder.Handlers.AwsSdk.Internal
                 addCustomization = ProcessType(serviceClientType, addCustomization);
             }
 
-            if (addCustomization && XRayPipelineHandler == null)
+            if (addCustomization && AWSServiceHandlerManifest == null)
             {
                 pipeline.AddHandlerAfter<EndpointResolver>(new XRayPipelineHandler());
             }
-            else if (addCustomization && XRayPipelineHandler != null)
+            else if (addCustomization && AWSServiceHandlerManifest != null)
             {
-                pipeline.AddHandlerAfter<EndpointResolver>(XRayPipelineHandler); // Custom AWS Manifest file path provided
+                pipeline.AddHandlerAfter<EndpointResolver>(new XRayPipelineHandler(AWSServiceHandlerManifest)); // Custom AWS Manifest file path/stream provided
             }
         }
 
