@@ -45,7 +45,7 @@ namespace Amazon.XRay.Recorder.Handlers.AwsSdk
         {
             _customizer = GetCustomizer();
             _customizer.RegisterAll = true;
-            _customizer.XRayPipelineHandler = new XRayPipelineHandler(path);
+            _customizer.AWSServiceHandlerManifest = XRayPipelineHandler.GetAWSServiceManifest(path);
         }
 
         /// <summary>
@@ -64,7 +64,7 @@ namespace Amazon.XRay.Recorder.Handlers.AwsSdk
         public static void RegisterXRayManifest(String path)
         {
             _customizer = GetCustomizer();
-            _customizer.XRayPipelineHandler = new XRayPipelineHandler(path);
+            _customizer.AWSServiceHandlerManifest = XRayPipelineHandler.GetAWSServiceManifest(path);
         }
 
         /// <summary>
@@ -74,7 +74,7 @@ namespace Amazon.XRay.Recorder.Handlers.AwsSdk
         public static void RegisterXRayManifest(Stream stream)
         {
             _customizer = GetCustomizer();
-            _customizer.XRayPipelineHandler = new XRayPipelineHandler(stream);
+            _customizer.AWSServiceHandlerManifest = XRayPipelineHandler.GetAWSServiceManifest(stream);
         }
 
         private static XRayPipelineCustomizer GetCustomizer()
