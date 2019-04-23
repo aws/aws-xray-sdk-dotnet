@@ -1,6 +1,11 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 2.6.1 (2019-04-24)
+### AWSXRayRecorder.Handlers.AwsSdk (2.6.1)
+#### Fixed
+- AWS SDK handler for registering all clients using custom AWS Service manifest file [issue #74](https://github.com/aws/aws-xray-sdk-dotnet/issues/74) [PR #75](https://github.com/aws/aws-xray-sdk-dotnet/pull/75)
+
 ## 2.6.0 (2019-04-17)
 ### AWSXRayRecorder.Core (2.5.1)
 #### Fixed
