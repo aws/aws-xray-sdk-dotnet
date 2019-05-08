@@ -32,7 +32,7 @@ namespace Amazon.XRay.Recorder.Core
     public class AWSXRayRecorder : AWSXRayRecorderImpl
     {
         private static readonly Logger _logger = Logger.GetLogger(typeof(AWSXRayRecorder));
-        static AWSXRayRecorder _instance;
+        static AWSXRayRecorder _instance = new AWSXRayRecorderBuilder().Build();
         public const String LambdaTaskRootKey = "LAMBDA_TASK_ROOT";
         public const String LambdaTraceHeaderKey = "_X_AMZN_TRACE_ID";
 
