@@ -1,6 +1,23 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 2.6.2
+### AWSXRayRecorder.Core (2.6.2)
+#### Fixed
+- Fixes .NET Core Static Initialization of the AWSXRayRecorder Instance so that thread safe initialization may happen. [issue #67](https://github.com/aws/aws-xray-sdk-dotnet/issues/67) [PR #68](https://github.com/aws/aws-xray-sdk-dotnet/pull/68)
+
+### AWSXRayRecorder.Handlers.AwsSdk (2.6.2)
+- Bumped version to address AWSXRayRecorder.Core package change
+
+### AWSXRayRecorder.Handlers.AspNetCore (2.5.2)
+- Bumped version to address AWSXRayRecorder.Core package change
+
+### AWSXRayRecorder.Handlers.SqlServer (2.5.2)
+- Bumped version to address AWSXRayRecorder.Core package change
+
+### AWSXRayRecorder.Handlers.System.Net (2.5.2)
+- Bumped version to address AWSXRayRecorder.Core package change
+
 ## 2.6.1 (2019-04-24)
 ### AWSXRayRecorder.Handlers.AwsSdk (2.6.1)
 #### Fixed
