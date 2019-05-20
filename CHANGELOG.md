@@ -1,7 +1,7 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## 2.6.2
+## 2.6.2 (2019-05-20)
 ### AWSXRayRecorder.Core (2.6.2)
 #### Fixed
 - Fixes .NET Core Static Initialization of the AWSXRayRecorder Instance so that thread safe initialization may happen. [issue #67](https://github.com/aws/aws-xray-sdk-dotnet/issues/67) [PR #68](https://github.com/aws/aws-xray-sdk-dotnet/pull/68)
