@@ -135,6 +135,11 @@ namespace Amazon.XRay.Recorder.Core
         public ExceptionSerializationStrategy ExceptionSerializationStrategy { get; set; } = new DefaultExceptionSerializationStrategy();
 
         /// <summary>
+        /// Instance of <see cref="IStreamingStrategy"/>, used to define the streaming strategy for segment/subsegment.
+        /// </summary>
+        public IStreamingStrategy StreamingStrategy { get; set; } = new DefaultStreamingStrategy();
+
+        /// <summary>
         /// Begin a tracing segment. A new tracing segment will be created and started.
         /// </summary>
         /// <param name="name">The name of the segment</param>
@@ -694,46 +699,6 @@ namespace Amazon.XRay.Recorder.Core
         }
 
         /// <summary>
-        /// Checks whether subsegments of the current instance of  <see cref="Entity"/> should be streamed.
-        /// </summary>
-        /// <param name="entity">Instance of <see cref="Entity"/></param>
-        /// <returns>True if the subsegments are streamable.</returns>
-        protected static bool ShouldStreamSubsegments(Entity entity)
-        {
-            return entity.Sampled == SampleDecision.Sampled && entity.RootSegment != null && entity.RootSegment.Size >= MaxSubsegmentSize;
-        }
-
-        /// <summary>
-        /// Streams subsegments of instance of <see cref="Entity"/>.
-        /// </summary>
-        /// <param name="entity">Instance of <see cref="Entity"/>.</param>
-        protected void StreamSubsegments(Entity entity)
-        {
-            lock (entity.Subsegments)
-            {
-                foreach (var next in entity.Subsegments)
-                {
-                    StreamSubsegments(next);
-                }
-
-                entity.Subsegments.RemoveAll(x => x.HasStreamed);
-            }
-
-            if (entity is Segment || entity.IsInProgress || entity.Reference > 0 || entity.IsSubsegmentsAdded)
-            {
-                return;
-            }
-
-            Subsegment subsegment = entity as Subsegment;
-            subsegment.TraceId = entity.RootSegment.TraceId;
-            subsegment.Type = "subsegment";
-            subsegment.ParentId = subsegment.Parent.Id;
-            Emitter.Send(subsegment);
-            subsegment.RootSegment.DecrementSize();
-            subsegment.HasStreamed = true;
-        }
-
-        /// <summary>
         /// Returns subsegments.
         /// </summary>
         /// <param name="entity">Instance of <see cref="Entity"/></param>
@@ -796,9 +761,9 @@ namespace Amazon.XRay.Recorder.Core
             {
                 Emitter.Send(segment);
             }
-            else if (ShouldStreamSubsegments(segment))
+            else if (StreamingStrategy.ShouldStreamSubsegments(segment))
             {
-                StreamSubsegments(segment);
+                StreamingStrategy.StreamSubsegments(segment, Emitter);
             }
         }
 
@@ -829,9 +794,9 @@ namespace Amazon.XRay.Recorder.Core
                 // Emit
                 Emitter.Send(subsegment.RootSegment);
             }
-            else if (ShouldStreamSubsegments(subsegment))
+            else if (StreamingStrategy.ShouldStreamSubsegments(subsegment))
             {
-                StreamSubsegments(subsegment.RootSegment);
+                StreamingStrategy.StreamSubsegments(subsegment.RootSegment, Emitter);
             }
         }
 

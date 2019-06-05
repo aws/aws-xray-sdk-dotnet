@@ -333,9 +333,9 @@ namespace Amazon.XRay.Recorder.Core
                 // Emit
                 Emitter.Send(subsegment.RootSegment);
             }
-            else if (ShouldStreamSubsegments(subsegment))
+            else if (StreamingStrategy.ShouldStreamSubsegments(subsegment))
             {
-                StreamSubsegments(subsegment.RootSegment);
+                StreamingStrategy.StreamSubsegments(subsegment.RootSegment, Emitter);
             }
 
             if (TraceContext.IsEntityPresent() && TraceContext.GetEntity().GetType() == typeof(FacadeSegment)) //implies FacadeSegment in the Trace Context
@@ -381,7 +381,7 @@ namespace Amazon.XRay.Recorder.Core
                     PrepEndSegment(facadeSegment);
                     if (facadeSegment.Sampled == SampleDecision.Sampled && facadeSegment.RootSegment != null && facadeSegment.RootSegment.Size >= 0)
                     {
-                        StreamSubsegments(facadeSegment); //Facade segment is not emitted, all its subsegments, if emmittable, are emitted
+                        StreamingStrategy.StreamSubsegments(facadeSegment, Emitter); //Facade segment is not emitted, all its subsegments, if emmittable, are emitted
                     }
                 }
 

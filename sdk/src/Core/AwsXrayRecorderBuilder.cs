@@ -43,6 +43,7 @@ namespace Amazon.XRay.Recorder.Core
         private string _daemonAddress;
         private ITraceContext _traceContext;
         private ExceptionSerializationStrategy _exceptionSerializationStrategy;
+        private IStreamingStrategy _streamingStrategy;
 
         /// <summary>
         /// Gets a read-only copy of current plugins in the builder
@@ -209,6 +210,18 @@ namespace Amazon.XRay.Recorder.Core
         }
 
         /// <summary>
+        /// Adds the given streaming strategy to builder. There can exist only one streaming strategy.
+        /// Any previous value of streaming strategy will be overwritten.
+        /// </summary>
+        /// <param name="newStreamingStrategy">A streaming strategy to add</param>
+        /// <returns>The builder with streaming strategy added</returns>
+        public AWSXRayRecorderBuilder WithStreamingStrategy(IStreamingStrategy newStreamingStrategy)
+        {
+            _streamingStrategy = newStreamingStrategy ?? throw new ArgumentNullException("StreamingStrategy");
+            return this;
+        }
+
+        /// <summary>
         /// Adds the context missing strategy.
         /// </summary>
         /// <param name="strategy">The ContextMissingStrategy.</param>
@@ -319,6 +332,11 @@ namespace Amazon.XRay.Recorder.Core
             if (_samplingStrategy != null)
             {
                 recorder.SamplingStrategy = _samplingStrategy;
+            }
+
+            if (_streamingStrategy != null)
+            {
+                recorder.StreamingStrategy = _streamingStrategy;
             }
 
             if (_daemonAddress != null) 

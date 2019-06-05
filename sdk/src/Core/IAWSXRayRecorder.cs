@@ -42,6 +42,11 @@ namespace Amazon.XRay.Recorder.Core
         ISamplingStrategy SamplingStrategy { get; set; }
 
         /// <summary>
+        /// Get or sets the streaming strategy
+        /// </summary>
+        IStreamingStrategy StreamingStrategy { get; set; }
+
+        /// <summary>
         /// Gets or sets the context missing strategy.
         /// </summary>
         ContextMissingStrategy ContextMissingStrategy { get; set; }

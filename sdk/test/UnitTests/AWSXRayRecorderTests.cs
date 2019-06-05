@@ -66,6 +66,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             Environment.SetEnvironmentVariable(AWSXRayRecorder.EnvironmentVariableContextMissingStrategy, null);
             _recorder.Dispose();
             AWSXRayRecorder.Instance.Dispose();
+            _recorder = null;
         }
 
         [TestMethod]
@@ -1019,6 +1020,7 @@ namespace Amazon.XRay.Recorder.UnitTests
 #endif
             Assert.AreEqual(typeof(DummyTraceContext), AWSXRayRecorder.Instance.TraceContext.GetType()); // Custom trace context
             recorder.Dispose();
+            AWSXRayRecorder.Instance.Dispose();
         }
         public static AWSXRayRecorder BuildAWSXRayRecorder(ISamplingStrategy samplingStrategy = null, ISegmentEmitter segmentEmitter = null, string daemonAddress = null, ITraceContext traceContext = null)
         {
