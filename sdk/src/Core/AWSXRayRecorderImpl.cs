@@ -761,9 +761,9 @@ namespace Amazon.XRay.Recorder.Core
             {
                 Emitter.Send(segment);
             }
-            else if (StreamingStrategy.ShouldStreamSubsegments(segment))
+            else if (StreamingStrategy.ShouldStream(segment))
             {
-                StreamingStrategy.StreamSubsegments(segment, Emitter);
+                StreamingStrategy.Stream(segment, Emitter);
             }
         }
 
@@ -794,9 +794,9 @@ namespace Amazon.XRay.Recorder.Core
                 // Emit
                 Emitter.Send(subsegment.RootSegment);
             }
-            else if (StreamingStrategy.ShouldStreamSubsegments(subsegment))
+            else if (StreamingStrategy.ShouldStream(subsegment))
             {
-                StreamingStrategy.StreamSubsegments(subsegment.RootSegment, Emitter);
+                StreamingStrategy.Stream(subsegment.RootSegment, Emitter);
             }
         }
 

@@ -405,12 +405,12 @@ namespace Amazon.XRay.Recorder.UnitTests
 
         private class DummyStreamingStrategy : IStreamingStrategy
         {
-            public bool ShouldStreamSubsegments(Entity entity)
+            public bool ShouldStream(Entity entity)
             {
                 throw new NotImplementedException();
             }
 
-            public void StreamSubsegments(Entity entity, ISegmentEmitter emitter)
+            public void Stream(Entity entity, ISegmentEmitter emitter)
             {
                 throw new NotImplementedException();
             }

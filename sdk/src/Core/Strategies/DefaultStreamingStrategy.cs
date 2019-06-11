@@ -1,4 +1,5 @@
-﻿using Amazon.XRay.Recorder.Core.Internal.Entities;
+﻿using System;
+using Amazon.XRay.Recorder.Core.Internal.Entities;
 using Amazon.XRay.Recorder.Core.Internal.Emitters;
 using Amazon.XRay.Recorder.Core.Sampling;
 
@@ -30,6 +31,10 @@ namespace Amazon.XRay.Recorder.Core.Strategies
         /// <param name="maxSubsegmentSize"></param>
         public DefaultStreamingStrategy(long maxSubsegmentSize)
         {
+            if(maxSubsegmentSize < 0)
+            {
+                throw new ArgumentException("maxSubsegmentSize cannot be a negative number.");
+            }
             MaxSubsegmentSize = maxSubsegmentSize;
         }
 
@@ -38,7 +43,7 @@ namespace Amazon.XRay.Recorder.Core.Strategies
         /// </summary>
         /// <param name="entity">Instance of <see cref="Entity"/></param>
         /// <returns>True if the subsegments are streamable.</returns>
-        public bool ShouldStreamSubsegments(Entity entity)
+        public bool ShouldStream(Entity entity)
         {
             return entity.Sampled == SampleDecision.Sampled && entity.RootSegment != null && entity.RootSegment.Size >= MaxSubsegmentSize;
         }
@@ -48,13 +53,13 @@ namespace Amazon.XRay.Recorder.Core.Strategies
         /// </summary>
         /// <param name="entity">Instance of <see cref="Entity"/>.</param>
         /// <param name="emitter">Instance of <see cref="ISegmentEmitter"/>.</param>
-        public void StreamSubsegments(Entity entity, ISegmentEmitter emitter)
+        public void Stream(Entity entity, ISegmentEmitter emitter)
         {
             lock (entity.Subsegments)
             {
                 foreach (var next in entity.Subsegments)
                 {
-                    StreamSubsegments(next, emitter);
+                    Stream(next, emitter);
                 }
 
                 entity.Subsegments.RemoveAll(x => x.HasStreamed);

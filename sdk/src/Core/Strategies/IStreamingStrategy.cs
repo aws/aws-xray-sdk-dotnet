@@ -26,17 +26,17 @@ namespace Amazon.XRay.Recorder.Core.Strategies
     public interface IStreamingStrategy
     {
         /// <summary>
-        /// Determines whenther or not the provided segment requires any subsegment streaming.
+        /// Determines whenther or not the provided segment/subsegment requires any subsegment streaming.
         /// </summary>
-        /// <param name="input">An instance of <see cref="Segment"/>.</param>
-        /// <returns>true if the segment should be streamed.</returns>
-        bool ShouldStreamSubsegments(Entity entity);
+        /// <param name="input">An instance of <see cref="Entity"/>.</param>
+        /// <returns>true if the segment/subsegment should be streamed.</returns>
+        bool ShouldStream(Entity entity);
 
         /// <summary>
         /// Streams subsegments of instance of <see cref="Entity"/>.
         /// </summary>
         /// <param name="entity">Instance of <see cref="Entity"/>.</param>
         /// <param name="emitter">Instance if <see cref="ISegmentEmitter"/>.</param>
-        void StreamSubsegments(Entity entity, ISegmentEmitter emitter);
+        void Stream(Entity entity, ISegmentEmitter emitter);
     }
 }

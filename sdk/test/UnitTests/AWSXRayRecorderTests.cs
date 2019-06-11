@@ -1022,6 +1022,18 @@ namespace Amazon.XRay.Recorder.UnitTests
             recorder.Dispose();
             AWSXRayRecorder.Instance.Dispose();
         }
+
+        [TestMethod]
+        public void TestDefaultStreamingStrategy()
+        {
+            IStreamingStrategy defaultStreamingStrategy = new DefaultStreamingStrategy(50);
+            AWSXRayRecorderBuilder builder = new AWSXRayRecorderBuilder().WithStreamingStrategy(defaultStreamingStrategy);
+
+            Assert.AreEqual(typeof(DefaultStreamingStrategy), AWSXRayRecorder.Instance.StreamingStrategy.GetType());
+
+            Assert.ThrowsException<ArgumentException>(() => new DefaultStreamingStrategy(-100));
+        }
+
         public static AWSXRayRecorder BuildAWSXRayRecorder(ISamplingStrategy samplingStrategy = null, ISegmentEmitter segmentEmitter = null, string daemonAddress = null, ITraceContext traceContext = null)
         {
             AWSXRayRecorderBuilder builder = new AWSXRayRecorderBuilder();
