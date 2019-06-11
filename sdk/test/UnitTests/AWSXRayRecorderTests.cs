@@ -1024,14 +1024,32 @@ namespace Amazon.XRay.Recorder.UnitTests
         }
 
         [TestMethod]
-        public void TestDefaultStreamingStrategy()
+        public void TestDefaultStreamingStrategyWithDefaultValue()
+        {
+            IStreamingStrategy defaultStreamingStrategy = new DefaultStreamingStrategy();
+            AWSXRayRecorder recorder = new AWSXRayRecorderBuilder().WithStreamingStrategy(defaultStreamingStrategy).Build();
+
+            Assert.AreEqual(typeof(DefaultStreamingStrategy), recorder.StreamingStrategy.GetType());
+            DefaultStreamingStrategy dss = (DefaultStreamingStrategy)recorder.StreamingStrategy;
+            Assert.AreEqual(100, dss.MaxSubsegmentSize);
+            
+        }
+
+        [TestMethod]
+        public void TestDefaultStreamingStrategyWithCustomValue()
         {
             IStreamingStrategy defaultStreamingStrategy = new DefaultStreamingStrategy(50);
-            AWSXRayRecorderBuilder builder = new AWSXRayRecorderBuilder().WithStreamingStrategy(defaultStreamingStrategy);
+            AWSXRayRecorder recorder = new AWSXRayRecorderBuilder().WithStreamingStrategy(defaultStreamingStrategy).Build();
+            
+            Assert.AreEqual(typeof(DefaultStreamingStrategy), recorder.StreamingStrategy.GetType());
+            DefaultStreamingStrategy dss = (DefaultStreamingStrategy)recorder.StreamingStrategy;
+            Assert.AreEqual(50, dss.MaxSubsegmentSize);
+        }
 
-            Assert.AreEqual(typeof(DefaultStreamingStrategy), AWSXRayRecorder.Instance.StreamingStrategy.GetType());
-
-            Assert.ThrowsException<ArgumentException>(() => new DefaultStreamingStrategy(-100));
+        [TestMethod]
+        public void TestDefaultStreamingStrategyWithNegativeValue()
+        {
+            Assert.ThrowsException<ArgumentException>(() => new AWSXRayRecorderBuilder().WithStreamingStrategy(new DefaultStreamingStrategy(-100)));
         }
 
         public static AWSXRayRecorder BuildAWSXRayRecorder(ISamplingStrategy samplingStrategy = null, ISegmentEmitter segmentEmitter = null, string daemonAddress = null, ITraceContext traceContext = null)

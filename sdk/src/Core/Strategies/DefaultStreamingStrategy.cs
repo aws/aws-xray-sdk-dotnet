@@ -5,6 +5,9 @@ using Amazon.XRay.Recorder.Core.Sampling;
 
 namespace Amazon.XRay.Recorder.Core.Strategies
 {
+    /// <summary>
+    /// The default streaming strategy. It uses the total count of a segment's children subsegments as a threshold. If the threshold is breached, it uses subtree streaming to stream out.
+    /// </summary>
     public class DefaultStreamingStrategy : IStreamingStrategy
     {
         /// <summary>
