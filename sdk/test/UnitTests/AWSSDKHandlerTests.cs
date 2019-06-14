@@ -52,7 +52,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         {
             _recorder = new AWSXRayRecorder();
 #if NET45
-            AWSXRayRecorder.InitializeInstance(_recorder);
+            AWSXRayRecorder.InitializeInstance(recorder:_recorder);
 #else
             AWSXRayRecorder.InitializeInstance(recorder: _recorder);
 # endif
@@ -109,11 +109,11 @@ namespace Amazon.XRay.Recorder.UnitTests
 #else
             s3.GetObjectAsync("testBucket", "testKey").Wait();
 #endif
-            var segment = AWSXRayRecorder.Instance.TraceContext.GetEntity();
+            var segment = _recorder.TraceContext.GetEntity();
             _recorder.EndSegment();
             Assert.AreEqual("S3", segment.Subsegments[0].Name);
             Assert.IsTrue(segment.Subsegments[0].Aws.ContainsKey("version_id"));
-            Assert.AreEqual(segment.Subsegments[0].Aws["bucket_name"],"testBucket");
+            Assert.AreEqual(segment.Subsegments[0].Aws["bucket_name"], "testBucket");
             Assert.AreEqual(segment.Subsegments[0].Aws["operation"], "GetObject");
         }
 

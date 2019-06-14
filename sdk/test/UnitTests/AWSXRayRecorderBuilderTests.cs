@@ -43,9 +43,15 @@ namespace Amazon.XRay.Recorder.UnitTests
     {
         private const string PluginKey = "AWSXRayPlugins";
         private const string UseRuntimeErrors = "UseRuntimeErrors";
+        private AWSXRayRecorder _recorder;
 #if !NET45
         private XRayOptions _xRayOptions = new XRayOptions();
 #endif
+        [TestInitialize]
+        public void Initialize()
+        {
+            _recorder = new AWSXRayRecorder();
+        }
 
         [TestCleanup]
         public new void TestCleanup()
@@ -58,7 +64,11 @@ namespace Amazon.XRay.Recorder.UnitTests
 #else
             _xRayOptions = new XRayOptions();
 #endif
+            _recorder.Dispose();
             AWSXRayRecorder.Instance.Dispose();
+            _recorder = null;
+            
+            
         }
 
         [TestMethod]
@@ -126,6 +136,13 @@ namespace Amazon.XRay.Recorder.UnitTests
         {
             var recorder = new AWSXRayRecorderBuilder().WithSamplingStrategy(new DummySamplingStrategy()).Build();
             Assert.AreEqual(typeof(DummySamplingStrategy).FullName, recorder.SamplingStrategy.GetType().FullName);
+        }
+
+        [TestMethod]
+        public void TestSetStreamingStrategy()
+        {
+            var recorder = new AWSXRayRecorderBuilder().WithStreamingStrategy(new DummyStreamingStrategy()).Build();
+            Assert.AreEqual(typeof(DummyStreamingStrategy).FullName, recorder.StreamingStrategy.GetType().FullName);
         }
 
         [TestMethod]
@@ -254,6 +271,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             Assert.AreEqual(DefaultExceptionSerializationStrategy.DefaultStackFrameSize, actual.MaxStackFrameSize);
         }
 
+
         [TestMethod]
         public void TestExceptionStrategy4() // Test custom exception strategy
         {
@@ -380,6 +398,19 @@ namespace Amazon.XRay.Recorder.UnitTests
         private class DummySamplingStrategy : ISamplingStrategy
         {
             public SamplingResponse ShouldTrace(SamplingInput input)
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        private class DummyStreamingStrategy : IStreamingStrategy
+        {
+            public bool ShouldStream(Entity entity)
+            {
+                throw new NotImplementedException();
+            }
+
+            public void Stream(Entity entity, ISegmentEmitter emitter)
             {
                 throw new NotImplementedException();
             }

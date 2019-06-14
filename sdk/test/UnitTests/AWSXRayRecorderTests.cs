@@ -66,6 +66,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             Environment.SetEnvironmentVariable(AWSXRayRecorder.EnvironmentVariableContextMissingStrategy, null);
             _recorder.Dispose();
             AWSXRayRecorder.Instance.Dispose();
+            _recorder = null;
         }
 
         [TestMethod]
@@ -1019,7 +1020,38 @@ namespace Amazon.XRay.Recorder.UnitTests
 #endif
             Assert.AreEqual(typeof(DummyTraceContext), AWSXRayRecorder.Instance.TraceContext.GetType()); // Custom trace context
             recorder.Dispose();
+            AWSXRayRecorder.Instance.Dispose();
         }
+
+        [TestMethod]
+        public void TestDefaultStreamingStrategyWithDefaultValue()
+        {
+            IStreamingStrategy defaultStreamingStrategy = new DefaultStreamingStrategy();
+            AWSXRayRecorder recorder = new AWSXRayRecorderBuilder().WithStreamingStrategy(defaultStreamingStrategy).Build();
+
+            Assert.AreEqual(typeof(DefaultStreamingStrategy), recorder.StreamingStrategy.GetType());
+            DefaultStreamingStrategy dss = (DefaultStreamingStrategy)recorder.StreamingStrategy;
+            Assert.AreEqual(100, dss.MaxSubsegmentSize);
+            
+        }
+
+        [TestMethod]
+        public void TestDefaultStreamingStrategyWithCustomValue()
+        {
+            IStreamingStrategy defaultStreamingStrategy = new DefaultStreamingStrategy(50);
+            AWSXRayRecorder recorder = new AWSXRayRecorderBuilder().WithStreamingStrategy(defaultStreamingStrategy).Build();
+            
+            Assert.AreEqual(typeof(DefaultStreamingStrategy), recorder.StreamingStrategy.GetType());
+            DefaultStreamingStrategy dss = (DefaultStreamingStrategy)recorder.StreamingStrategy;
+            Assert.AreEqual(50, dss.MaxSubsegmentSize);
+        }
+
+        [TestMethod]
+        public void TestDefaultStreamingStrategyWithNegativeValue()
+        {
+            Assert.ThrowsException<ArgumentException>(() => new AWSXRayRecorderBuilder().WithStreamingStrategy(new DefaultStreamingStrategy(-100)));
+        }
+
         public static AWSXRayRecorder BuildAWSXRayRecorder(ISamplingStrategy samplingStrategy = null, ISegmentEmitter segmentEmitter = null, string daemonAddress = null, ITraceContext traceContext = null)
         {
             AWSXRayRecorderBuilder builder = new AWSXRayRecorderBuilder();
