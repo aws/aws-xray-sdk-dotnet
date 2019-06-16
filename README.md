@@ -200,7 +200,7 @@ AWSSDKHandler.RegisterXRayManifest(String path); // To configure custom AWS Serv
 An extension method `GetResponseTraced()` is provided to trace `GetResponse()` in `System.Net.HttpWebRequest` class. If you want to trace the out-going HTTP request, call the `GetResponseTraced()` instead of `GetResponse()`. The extension method will generate a trace subsegment, inject the trace header to the out-going HTTP request header and collect trace information. 
 
 ```csharp
-using AWSXRayRecorder.Handlers.System.Net;
+using Amazon.XRay.Recorder.Handlers.System.Net;
 
 HttpWebRequest request = (HttpWebRequest) WebRequest.Create(URL); // enter desired url
 
@@ -214,7 +214,7 @@ request.GetResponseTraced();
 An extension method `GetAsyncResponseTraced()` is provided to trace `GetResponseAsync()` in `System.Net.HttpWebRequest` class. If you want to trace the out-going HTTP request, call the `GetAsyncResponseTraced()` instead of `GetResponseAsync()`. The extension method will generate a trace subsegment, inject the trace header to the out-going HTTP request header and collect trace information. 
 
 ```csharp
-using AWSXRayRecorder.Handlers.System.Net;
+using Amazon.XRay.Recorder.Handlers.System.Net;
 
 HttpWebRequest request = (HttpWebRequest) WebRequest.Create(URL); // enter desired url
 
@@ -228,7 +228,7 @@ request.GetAsyncResponseTraced();
 A handler derived from `DelegatingHandler` is provided to trace the `HttpMessageHandler.SendAsync` method
 
 ```csharp
-using AWSXRayRecorder.Handlers.System.Net;
+using Amazon.XRay.Recorder.Handlers.System.Net;
 
 var httpClient = new HttpClient(new HttpClientXRayTracingHandler(new HttpClientHandler()));
 
@@ -244,7 +244,7 @@ The SDK provides a wrapper class for `System.Data.SqlClient.SqlCommand`. The wra
 #### Synchronous query
 
 ```csharp
-using AWSXRayRecorder.Handlers.SqlServer;
+using Amazon.XRay.Recorder.Handlers.SqlServer;
 
 using (var connection = new SqlConnection("fake connection string"))
 using (var command = new TraceableSqlCommand("SELECT * FROM products", connection))
@@ -256,7 +256,7 @@ using (var command = new TraceableSqlCommand("SELECT * FROM products", connectio
 #### Asynchronous query
 
 ```csharp
-using AWSXRayRecorder.Handlers.SqlServer;
+using Amazon.XRay.Recorder.Handlers.SqlServer;
 
 using (var connection = new SqlConnection(ConnectionString))
 {
@@ -271,7 +271,7 @@ using (var connection = new SqlConnection(ConnectionString))
 In multithreaded execution, X-Ray context from current to its child thread is automatically set.  
 
 ```csharp
-using AWSXRayRecorder.Core;
+using Amazon.XRay.Recorder.Core;
 
 private static void TestMultiThreaded()
 {
@@ -316,7 +316,7 @@ It may be useful to further decorate portions of an application for which perfor
 #### Synchronous method
 
 ```csharp
-using AWSXRayRecorder.Core;
+using Amazon.XRay.Recorder.Core;
 
 AWSXRayRecorder.Instance.TraceMethod("custom method", () => DoSomething(arg1, arg2, arg3));
 ```
@@ -324,7 +324,7 @@ AWSXRayRecorder.Instance.TraceMethod("custom method", () => DoSomething(arg1, ar
 #### Asynchronous method
 
 ```csharp
-using AWSXRayRecorder.Core;
+using Amazon.XRay.Recorder.Core;
 
 var response = await AWSXRayRecorder.Instance.TraceMethodAsync("AddProduct", () => AddProduct<Document>(product));
 
@@ -342,7 +342,7 @@ private async Task<Document> AddProduct <TResult>(Product product)
 
 #### Segment
 ```csharp
-using AWSXRayRecorder.Core;
+using Amazon.XRay.Recorder.Core;
 
 AWSXRayRecorder.Instance.BeginSegment("segment name"); // generates `TraceId` for you
 try
@@ -363,7 +363,7 @@ finally
 If you want to pass custom `TraceId`:
 
 ```csharp
-using AWSXRayRecorder.Core;
+using Amazon.XRay.Recorder.Core;
 
 String traceId = TraceId.NewId(); // This function is present in : Amazon.XRay.Recorder.Core.Internal.Entities
 AWSXRayRecorder.Instance.BeginSegment("segment name",traceId); // custom traceId used while creating segment
@@ -386,7 +386,7 @@ finally
 
 *Note*: This should only be used after `BeginSegment()` method.  
 ```csharp
-using AWSXRayRecorder.Core;
+using Amazon.XRay.Recorder.Core;
 
 AWSXRayRecorder.Instance.BeginSubsegment("subsegment name");
 try
