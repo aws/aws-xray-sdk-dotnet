@@ -107,7 +107,7 @@ AWSXRayRecorder.InitializeInstance(configuration); // pass IConfiguration object
 You can instrument X-Ray for your `ASP.NET Core` App in the `Configure()` method of `Startup.cs` file of your project.  
 *Note* :  
 1. Use `app.UseXRay()` middleware after `app.UseExceptionHandler("/Error")` in order to catch exceptions.  
-2. You need to install `Amazon.XRay.Recorder.Handlers.AspNetCore` nuget package. This package adds extension methods to the `IApplicationBuilder` to make it easy to register AWS X-Ray to the ASP.NET Core HTTP pipeline.
+2. You need to install `AWSXRayRecorder.Handlers.AspNetCore` nuget package. This package adds extension methods to the `IApplicationBuilder` to make it easy to register AWS X-Ray to the ASP.NET Core HTTP pipeline.
 
 A) With default configuration:
 
@@ -142,7 +142,7 @@ Instead of name you can also pass `SegmentNamingStrategy` in the above two ways.
 ### ASP.NET Framework (.NET) : [Nuget](https://www.nuget.org/packages/AWSXRayRecorder.Handlers.AspNet/) 
 
 **HTTP Message handler for ASP.NET framework**  
-Register your application with X-Ray in the `Init()` method of ***global.asax*** file
+Register your application with X-Ray in the `Init()` method of ***Global.asax*** file
 
 ```csharp
 using Amazon.XRay.Recorder.Handlers.AspNet;
