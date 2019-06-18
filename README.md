@@ -97,13 +97,32 @@ AWSXRayRecorder.InitializeInstance(configuration); // pass IConfiguration object
 1. You should configure this before initialization of `AWSXRayRecorder` instance and using any AWS X-Ray methods.  
 2. If you manually need to configure `IConfiguration` object refer: [Link](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/configuration/?tabs=basicconfiguration)  
 3. For more information on configuration, please refer : [Link](https://docs.aws.amazon.com/xray/latest/devguide/xray-sdk-dotnet-configuration.html)
-4. You can also set up the `AWSXRayRecorder` instance programmatically instead of a configuration file by simply using the `AWSXRayRecorderBuilder` class. For example, if you want to create a recorder with your custom `IStreamingStrategy`, you can do it through the following code. 
+
+### Programmatic Configuration (.NET and .NET Core)
+
+Alternatively, you can also set up the `AWSXRayRecorder` instance programmatically by using the `AWSXRayRecorderBuilder` class instead of a configuration file. 
+For initializing an AWSXRayRecorder instance with default configurations, simply do the following.
 ```csharp
 using Amazon.XRay.Recorder.Core;
 
-AWSXRayRecorder recorder = new AWSXRayRecorderBuilder().WithStreamingStrategy(new CustomStreamingStrategy()).Build();
+AWSXRayRecorder recorder = new AWSXRayRecorderBuilder().Build();
 AWSXRayRecorder.InitializeInstance(recorder: recorder);
 ```
+
+The following code initializes an `AWSXRayRecorder` instance with a custom `IStreamingStrategy` and a custom `ISamplingStrategy`. 
+```csharp
+using Amazon.XRay.Recorder.Core;
+
+AWSXRayRecorder recorder = new AWSXRayRecorderBuilder().WithStreamingStrategy(new CustomStreamingStrategy()).WithSamplingStrategy(CustomSamplingStrategy()).Build();
+AWSXRayRecorder.InitializeInstance(recorder: recorder);
+```
+
+*Note*:
+1. `CustomStreamingStrategy` and `CustomSamplingStrategy` must implement `IStreamingStrategy` and `ISamplingStrategy` before being used to build the `recorder`.
+2. `recorder` must be instantiated using `AWSXRayRecorder.InitializeInstance(recorder: recorder)` before being used in the program. 
+
+
+
 
 ## How to Use
 
