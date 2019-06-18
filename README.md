@@ -442,7 +442,7 @@ public string FunctionHandler(string input, ILambdaContext context)
 
 ### ASP.NET Core on AWS Lambda (.NET Core)
 
-We support instrumenting ASP.NET Core web app on Lambda. Please follow the steps of [ASP.NET Core](https://github.com/aws/aws-xray-sdk-dotnet/tree/release#aspnet-core-framework-net-core) instrumentation.
+We support instrumenting ASP.NET Core web app on Lambda. Please follow the steps of [ASP.NET Core](https://github.com/aws/aws-xray-sdk-dotnet/tree/master#aspnet-core-framework-net-core--nuget) instrumentation.
 
 ### Logging (.NET)
 
