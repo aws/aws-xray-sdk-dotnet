@@ -98,6 +98,32 @@ AWSXRayRecorder.InitializeInstance(configuration); // pass IConfiguration object
 2. If you manually need to configure `IConfiguration` object refer: [Link](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/configuration/?tabs=basicconfiguration)  
 3. For more information on configuration, please refer : [Link](https://docs.aws.amazon.com/xray/latest/devguide/xray-sdk-dotnet-configuration.html)
 
+### Programmatic Configuration (.NET and .NET Core)
+
+Alternatively, you can also set up the `AWSXRayRecorder` instance programmatically by using the `AWSXRayRecorderBuilder` class instead of a configuration file. 
+For initializing an AWSXRayRecorder instance with default configurations, simply do the following.
+```csharp
+using Amazon.XRay.Recorder.Core;
+
+AWSXRayRecorder recorder = new AWSXRayRecorderBuilder().Build();
+AWSXRayRecorder.InitializeInstance(recorder: recorder);
+```
+
+The following code initializes an `AWSXRayRecorder` instance with a custom `IStreamingStrategy` and a custom `ISamplingStrategy`. 
+```csharp
+using Amazon.XRay.Recorder.Core;
+
+AWSXRayRecorder recorder = new AWSXRayRecorderBuilder().WithStreamingStrategy(new CustomStreamingStrategy()).WithSamplingStrategy(CustomSamplingStrategy()).Build();
+AWSXRayRecorder.InitializeInstance(recorder: recorder);
+```
+
+*Note*:
+1. `CustomStreamingStrategy` and `CustomSamplingStrategy` must implement `IStreamingStrategy` and `ISamplingStrategy` before being used to build the `recorder`.
+2. `recorder` must be instantiated using `AWSXRayRecorder.InitializeInstance(recorder: recorder)` before being used in the program. 
+
+
+
+
 ## How to Use
 
 ### Incoming Requests
@@ -107,7 +133,7 @@ AWSXRayRecorder.InitializeInstance(configuration); // pass IConfiguration object
 You can instrument X-Ray for your `ASP.NET Core` App in the `Configure()` method of `Startup.cs` file of your project.  
 *Note* :  
 1. Use `app.UseXRay()` middleware after `app.UseExceptionHandler("/Error")` in order to catch exceptions.  
-2. You need to install `Amazon.XRay.Recorder.Handlers.AspNetCore` nuget package. This package adds extension methods to the `IApplicationBuilder` to make it easy to register AWS X-Ray to the ASP.NET Core HTTP pipeline.
+2. You need to install `AWSXRayRecorder.Handlers.AspNetCore` nuget package. This package adds extension methods to the `IApplicationBuilder` to make it easy to register AWS X-Ray to the ASP.NET Core HTTP pipeline.
 
 A) With default configuration:
 
@@ -142,7 +168,7 @@ Instead of name you can also pass `SegmentNamingStrategy` in the above two ways.
 ### ASP.NET Framework (.NET) : [Nuget](https://www.nuget.org/packages/AWSXRayRecorder.Handlers.AspNet/) 
 
 **HTTP Message handler for ASP.NET framework**  
-Register your application with X-Ray in the `Init()` method of ***global.asax*** file
+Register your application with X-Ray in the `Init()` method of ***Global.asax*** file
 
 ```csharp
 using Amazon.XRay.Recorder.Handlers.AspNet;
@@ -200,7 +226,7 @@ AWSSDKHandler.RegisterXRayManifest(String path); // To configure custom AWS Serv
 An extension method `GetResponseTraced()` is provided to trace `GetResponse()` in `System.Net.HttpWebRequest` class. If you want to trace the out-going HTTP request, call the `GetResponseTraced()` instead of `GetResponse()`. The extension method will generate a trace subsegment, inject the trace header to the out-going HTTP request header and collect trace information. 
 
 ```csharp
-using AWSXRayRecorder.Handlers.System.Net;
+using Amazon.XRay.Recorder.Handlers.System.Net;
 
 HttpWebRequest request = (HttpWebRequest) WebRequest.Create(URL); // enter desired url
 
@@ -214,7 +240,7 @@ request.GetResponseTraced();
 An extension method `GetAsyncResponseTraced()` is provided to trace `GetResponseAsync()` in `System.Net.HttpWebRequest` class. If you want to trace the out-going HTTP request, call the `GetAsyncResponseTraced()` instead of `GetResponseAsync()`. The extension method will generate a trace subsegment, inject the trace header to the out-going HTTP request header and collect trace information. 
 
 ```csharp
-using AWSXRayRecorder.Handlers.System.Net;
+using Amazon.XRay.Recorder.Handlers.System.Net;
 
 HttpWebRequest request = (HttpWebRequest) WebRequest.Create(URL); // enter desired url
 
@@ -228,7 +254,7 @@ request.GetAsyncResponseTraced();
 A handler derived from `DelegatingHandler` is provided to trace the `HttpMessageHandler.SendAsync` method
 
 ```csharp
-using AWSXRayRecorder.Handlers.System.Net;
+using Amazon.XRay.Recorder.Handlers.System.Net;
 
 var httpClient = new HttpClient(new HttpClientXRayTracingHandler(new HttpClientHandler()));
 
@@ -244,7 +270,7 @@ The SDK provides a wrapper class for `System.Data.SqlClient.SqlCommand`. The wra
 #### Synchronous query
 
 ```csharp
-using AWSXRayRecorder.Handlers.SqlServer;
+using Amazon.XRay.Recorder.Handlers.SqlServer;
 
 using (var connection = new SqlConnection("fake connection string"))
 using (var command = new TraceableSqlCommand("SELECT * FROM products", connection))
@@ -256,7 +282,7 @@ using (var command = new TraceableSqlCommand("SELECT * FROM products", connectio
 #### Asynchronous query
 
 ```csharp
-using AWSXRayRecorder.Handlers.SqlServer;
+using Amazon.XRay.Recorder.Handlers.SqlServer;
 
 using (var connection = new SqlConnection(ConnectionString))
 {
@@ -271,7 +297,7 @@ using (var connection = new SqlConnection(ConnectionString))
 In multithreaded execution, X-Ray context from current to its child thread is automatically set.  
 
 ```csharp
-using AWSXRayRecorder.Core;
+using Amazon.XRay.Recorder.Core;
 
 private static void TestMultiThreaded()
 {
@@ -316,7 +342,7 @@ It may be useful to further decorate portions of an application for which perfor
 #### Synchronous method
 
 ```csharp
-using AWSXRayRecorder.Core;
+using Amazon.XRay.Recorder.Core;
 
 AWSXRayRecorder.Instance.TraceMethod("custom method", () => DoSomething(arg1, arg2, arg3));
 ```
@@ -324,7 +350,7 @@ AWSXRayRecorder.Instance.TraceMethod("custom method", () => DoSomething(arg1, ar
 #### Asynchronous method
 
 ```csharp
-using AWSXRayRecorder.Core;
+using Amazon.XRay.Recorder.Core;
 
 var response = await AWSXRayRecorder.Instance.TraceMethodAsync("AddProduct", () => AddProduct<Document>(product));
 
@@ -342,7 +368,7 @@ private async Task<Document> AddProduct <TResult>(Product product)
 
 #### Segment
 ```csharp
-using AWSXRayRecorder.Core;
+using Amazon.XRay.Recorder.Core;
 
 AWSXRayRecorder.Instance.BeginSegment("segment name"); // generates `TraceId` for you
 try
@@ -363,7 +389,7 @@ finally
 If you want to pass custom `TraceId`:
 
 ```csharp
-using AWSXRayRecorder.Core;
+using Amazon.XRay.Recorder.Core;
 
 String traceId = TraceId.NewId(); // This function is present in : Amazon.XRay.Recorder.Core.Internal.Entities
 AWSXRayRecorder.Instance.BeginSegment("segment name",traceId); // custom traceId used while creating segment
@@ -386,7 +412,7 @@ finally
 
 *Note*: This should only be used after `BeginSegment()` method.  
 ```csharp
-using AWSXRayRecorder.Core;
+using Amazon.XRay.Recorder.Core;
 
 AWSXRayRecorder.Instance.BeginSubsegment("subsegment name");
 try
@@ -435,7 +461,7 @@ public string FunctionHandler(string input, ILambdaContext context)
 
 ### ASP.NET Core on AWS Lambda (.NET Core)
 
-We support instrumenting ASP.NET Core web app on Lambda. Please follow the steps of [ASP.NET Core](https://github.com/aws/aws-xray-sdk-dotnet/tree/release#aspnet-core-framework-net-core) instrumentation.
+We support instrumenting ASP.NET Core web app on Lambda. Please follow the steps of [ASP.NET Core](https://github.com/aws/aws-xray-sdk-dotnet/tree/master#aspnet-core-framework-net-core--nuget) instrumentation.
 
 ### Logging (.NET)
 
