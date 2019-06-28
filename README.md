@@ -439,10 +439,9 @@ AWSXRayRecorder.Instance.AddAnnotation("mykey", "my value");
 AWSXRayRecorder.Instance.AddMetadata("my key", "my value");
 ```
 
-### AWS Lambda support (.NET Core)
-
-You can create `Subsegment` inside lambda function.     
-*Note*: The AWS Lambda execution environment creates a `Segment` before the Lambda function is invoked, so a `Segment` cannot be created inside the Lambda function.
+### AWS Lambda support (.NET Core) 
+You can only create and close `Subsegment` inside a lambda function.     
+*Note*: The AWS Lambda execution environment creates a `FacadeSegment` before the Lambda function is invoked, so a `Segment` cannot be created inside the Lambda function.
 
 ```csharp
 public string FunctionHandler(string input, ILambdaContext context)
