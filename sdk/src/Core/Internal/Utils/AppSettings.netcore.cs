@@ -97,6 +97,6 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
         /// When set to true, the sanitized sql query will be recorded for all the instances of TraceableSqlCommand
         /// in the application, unless it is overridden on the individual <see cref="TraceableSqlCommand" /> instances.
         /// </summary>
-        public bool CollectSqlQueries { get; set; }
+        public bool CollectSqlQueries { get; set; } = false;
     }
 }
