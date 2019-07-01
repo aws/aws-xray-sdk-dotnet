@@ -91,11 +91,11 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
         public bool UseRuntimeErrors { get; set; } = true;
 
         /// <summary>
-        /// Include the <see cref="TraceableSqlCommand.CommandText" /> in the sanitized_query section of 
+        /// Include the TraceableSqlCommand.CommandText in the sanitized_query section of 
         /// the SQL subsegment. Parameterized values will appear in their tokenized form and will not be expanded.
         /// You should not enable this flag if you are not including sensitive information as clear text.
         /// When set to true, the sanitized sql query will be recorded for all the instances of TraceableSqlCommand
-        /// in the application, unless it is overridden on the individual <see cref="TraceableSqlCommand" /> instances.
+        /// in the application, unless it is overridden on the individual TraceableSqlCommand instances.
         /// </summary>
         public bool CollectSqlQueries { get; set; } = false;
     }
