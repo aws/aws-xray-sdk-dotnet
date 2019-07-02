@@ -213,6 +213,36 @@ namespace Amazon.XRay.Recorder.UnitTests
             Assert.AreEqual(AWSXRayRecorder.Instance.ContextMissingStrategy, Core.Strategies.ContextMissingStrategy.RUNTIME_ERROR);
         }
 
+        [TestMethod]
+        public void TestCollectSqlQueriesFalse_WhenNotSpecifiedInJson()
+        {
+            IConfiguration configuration = BuildConfiguration("DisabledXRayMissing.json");
+            _xRayOptions = XRayConfiguration.GetXRayOptions(configuration);
+            AWSXRayRecorder.InitializeInstance(configuration);
+
+            Assert.IsFalse(_xRayOptions.CollectSqlQueries);
+        }
+
+        [TestMethod]
+        public void TestCollecSqlQueriesFalse()
+        {
+            IConfiguration configuration = BuildConfiguration("CollectSqlQueriesFalse.json");
+            _xRayOptions = XRayConfiguration.GetXRayOptions(configuration);
+            AWSXRayRecorder.InitializeInstance(configuration);
+
+            Assert.IsFalse(_xRayOptions.CollectSqlQueries);
+        }
+
+        [TestMethod]
+        public void TestCollecSqlQueriesTrue()
+        {
+            IConfiguration configuration = BuildConfiguration("CollectSqlQueriesTrue.json");
+            _xRayOptions = XRayConfiguration.GetXRayOptions(configuration);
+            AWSXRayRecorder.InitializeInstance(configuration);
+
+            Assert.IsTrue(_xRayOptions.CollectSqlQueries);
+        }
+
         // Creating custom configuration
         private IConfiguration BuildConfiguration(string path)
         {
