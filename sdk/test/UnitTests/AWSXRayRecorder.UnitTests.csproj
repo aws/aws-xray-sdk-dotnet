@@ -79,6 +79,7 @@
     <Compile Remove="TestXRayOptions.cs" />
     <Compile Remove="TestLambdaContext.cs" />
     <Compile Remove="FacadeSegmentTest.cs" />
+    <Compile Remove="DbCommandInterceptorTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System.Web" />
@@ -86,6 +87,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="JSONs\Appsetting\CollectSqlQueriesFalse.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="JSONs\Appsetting\CollectSqlQueriesTrue.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="JSONs\Appsetting\NoXRaySection.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

@@ -31,6 +31,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
         private const string AWSServiceHandlerManifestKey = "AWSServiceHandlerManifest";
         private const string DisableXRayTracingKey = "DisableXRayTracing";
         private const string UseRuntimeErrorsKey = "UseRuntimeErrors";
+        private const string CollectSqlQueries = "CollectSqlQueries";
 
         /// <summary>
         /// Reads configuration from <see cref="IConfiguration"/> object for X-Ray.
@@ -63,6 +64,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
             options.AwsServiceHandlerManifest =GetSetting(AWSServiceHandlerManifestKey, section);
             options.IsXRayTracingDisabled = GetSettingBool(DisableXRayTracingKey,section);
             options.UseRuntimeErrors = GetSettingBool(UseRuntimeErrorsKey, section, defaultValue: true);
+            options.CollectSqlQueries = GetSettingBool(CollectSqlQueries, section, defaultValue: false);
             return options;
         }
 
