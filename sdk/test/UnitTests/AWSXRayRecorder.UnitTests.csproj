@@ -87,6 +87,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="JSONs\Appsetting\CollectSqlQueriesFalse.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="JSONs\Appsetting\CollectSqlQueriesTrue.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="JSONs\Appsetting\NoXRaySection.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

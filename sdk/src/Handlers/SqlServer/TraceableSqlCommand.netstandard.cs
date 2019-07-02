@@ -23,6 +23,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using Amazon.XRay.Recorder.Core;
+using Amazon.XRay.Recorder.Core.Internal.Utils;
 
 namespace Amazon.XRay.Recorder.Handlers.SqlServer
 {

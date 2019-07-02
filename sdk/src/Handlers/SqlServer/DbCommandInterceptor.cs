@@ -136,6 +136,11 @@ namespace Amazon.XRay.Recorder.Handlers.SqlServer
             }
         }
 
+        /// <summary>
+        /// Builds the name of the subsegment in the format database@datasource
+        /// </summary>
+        /// <param name="command"></param>
+        /// <returns>Returns the formed subsegment name as a string.</returns>
         private string BuildSubsegmentName(DbCommand command) 
             => command.Connection.Database + "@" + SqlUtil.RemovePortNumberFromDataSource(command.Connection.DataSource);
 
