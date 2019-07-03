@@ -46,8 +46,8 @@ namespace Amazon.XRay.Recorder.Handlers.SqlServer
         /// <param name="collectSqlQueries">
         /// Include the <see cref="TraceableSqlCommand.CommandText" /> in the sanitized_query section of 
         /// the SQL subsegment. Parameterized values will appear in their tokenized form and will not be expanded.
-        /// You should not enable this flag if you are not including sensitive information as clear text.
-        /// This flag will overridde any behavior configured by <see cref="AppSettings.CollectSqlQueries" />.
+        /// You should not enable this flag if you are including sensitive information as clear text.
+        /// This flag will override any behavior configured by <see cref="AppSettings.CollectSqlQueries" />.
         /// If a value is not provided, then the globally configured value will be used, which is false by default.
         /// See the official documentation on <a href="https://docs.microsoft.com/en-us/dotnet/api/system.data.sqlclient.sqlcommand.parameters?view=netframework-4.7.2">SqlCommand.Parameters</a>
         /// </param>
@@ -64,8 +64,8 @@ namespace Amazon.XRay.Recorder.Handlers.SqlServer
         /// <param name="collectSqlQueries">
         /// Include the <see cref="TraceableSqlCommand.CommandText" /> in the sanitized_query section of 
         /// the SQL subsegment. Parameterized values will appear in their tokenized form and will not be expanded.
-        /// You should not enable this flag if you are not including sensitive information as clear text.
-        /// This flag will overridde any behavior configured by <see cref="AppSettings.CollectSqlQueries" />.
+        /// You should not enable this flag if you are including sensitive information as clear text.
+        /// This flag will override any behavior configured by <see cref="AppSettings.CollectSqlQueries" />.
         /// If a value is not provided, then the globally configured value will be used, which is false by default.
         /// See the official documentation on <a href="https://docs.microsoft.com/en-us/dotnet/api/system.data.sqlclient.sqlcommand.parameters?view=netframework-4.7.2">SqlCommand.Parameters</a>
         /// </param>
@@ -83,8 +83,8 @@ namespace Amazon.XRay.Recorder.Handlers.SqlServer
         /// <param name="collectSqlQueries">
         /// Include the <see cref="TraceableSqlCommand.CommandText" /> in the sanitized_query section of 
         /// the SQL subsegment. Parameterized values will appear in their tokenized form and will not be expanded.
-        /// You should not enable this flag if you are not including sensitive information as clear text.
-        /// This flag will overridde any behavior configured by <see cref="AppSettings.CollectSqlQueries" />.
+        /// You should not enable this flag if you are including sensitive information as clear text.
+        /// This flag will override any behavior configured by <see cref="AppSettings.CollectSqlQueries" />.
         /// If a value is not provided, then the globally configured value will be used, which is false by default.
         /// See the official documentation on <a href="https://docs.microsoft.com/en-us/dotnet/api/system.data.sqlclient.sqlcommand.parameters?view=netframework-4.7.2">SqlCommand.Parameters</a>
         /// </param>
@@ -103,8 +103,8 @@ namespace Amazon.XRay.Recorder.Handlers.SqlServer
         /// <param name="collectSqlQueries">
         /// Include the <see cref="TraceableSqlCommand.CommandText" /> in the sanitized_query section of 
         /// the SQL subsegment. Parameterized values will appear in their tokenized form and will not be expanded.
-        /// You should not enable this flag if you are not including sensitive information as clear text.
-        /// This flag will overridde any behavior configured by <see cref="AppSettings.CollectSqlQueries" />.
+        /// You should not enable this flag if you are including sensitive information as clear text.
+        /// This flag will override any behavior configured by <see cref="AppSettings.CollectSqlQueries" />.
         /// If a value is not provided, then the globally configured value will be used, which is false by default.
         /// See the official documentation on <a href="https://docs.microsoft.com/en-us/dotnet/api/system.data.sqlclient.sqlcommand.parameters?view=netframework-4.7.2">SqlCommand.Parameters</a>
         /// </param>
