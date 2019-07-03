@@ -439,10 +439,10 @@ AWSXRayRecorder.Instance.AddAnnotation("mykey", "my value");
 AWSXRayRecorder.Instance.AddMetadata("my key", "my value");
 ```
 
-### AWS Lambda support (.NET Core)
+### AWS Lambda support (.NET Core) 
+The AWS Lambda execution environment by default creates a `Segment` before each Lambda function invocation and sends it to the X-Ray service. AWS X-Ray .NET/Core SDK will make sure there will be a `FacadeSegment` inside the lambda context so that you can instrument your application successfully through subsegments only. `Subsegments` generated inside a Lambda function are attached to this `FacadeSegment` and only subsegments are streamed by the SDK. In addition to the custom subsegments, the middlewares would generate subsegments for outgoing HTTP calls, SQL queries, and AWS SDK calls within the lambda function the same way they do in a normal application.
 
-You can create `Subsegment` inside lambda function.     
-*Note*: The AWS Lambda execution environment creates a `Segment` before the Lambda function is invoked, so a `Segment` cannot be created inside the Lambda function.
+*Note*: You can only create and close `Subsegment` inside a lambda function. `Segment` cannot be created inside the lambda function. All operations on `Segment` will throw an `UnsupportedOperationException` exception.
 
 ```csharp
 public string FunctionHandler(string input, ILambdaContext context)
