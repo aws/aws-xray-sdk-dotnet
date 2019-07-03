@@ -81,6 +81,7 @@
 //   SimpleSystemsManagement
 //   SimpleWorkflow
 //   Snowball
+//	 SNS
 //   SQS
 //   StepFunctions
 //   StorageGateway
@@ -228,7 +229,16 @@
             }
         }
     },
-    "SQS": {
+    "SNS": {
+		"operations": {
+			"Publish": {
+				"request_parameters": [
+					"TopicArn"
+				]
+			}
+		}
+	},
+	"SQS": {
         "operations": {
             "AddPermission": {
                 "request_parameters": [
