@@ -79,7 +79,6 @@
     <Compile Remove="TestXRayOptions.cs" />
     <Compile Remove="TestLambdaContext.cs" />
     <Compile Remove="FacadeSegmentTest.cs" />
-    <Compile Remove="DbCommandInterceptorTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System.Web" />

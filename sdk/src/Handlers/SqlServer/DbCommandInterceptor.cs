@@ -23,6 +23,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using Amazon.XRay.Recorder.Core;
+using Amazon.XRay.Recorder.Core.Internal.Utils;
 
 namespace Amazon.XRay.Recorder.Handlers.SqlServer
 {
@@ -149,7 +150,7 @@ namespace Amazon.XRay.Recorder.Handlers.SqlServer
             => _collectSqlQueriesOverride ?? _recorder.XRayOptions.CollectSqlQueries;
 #else
         private bool ShouldCollectSqlText()
-            => _collectSqlQueriesOverride ?? false;
+            => _collectSqlQueriesOverride ?? AppSettings.CollectSqlQueries;
 #endif
     }
 }

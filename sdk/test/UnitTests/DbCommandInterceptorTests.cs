@@ -27,6 +27,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Amazon.XRay.Recorder.Core;
 using Amazon.XRay.Recorder.UnitTests.Tools;
+using System.Configuration;
 
 namespace Amazon.XRay.Recorder.UnitTests
 {
@@ -37,6 +38,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         private const string _userId = "admin";
         private const string _connectionString = "Data Source=xyz.com,3306;User ID=" + _userId + ";Password=Secret.123;";
         private const string _sanitizedConnectionString = "Data Source=xyz.com,3306;User ID=" + _userId;
+        private const string _collectSqlQueriesKey = "CollectSqlQueries";
 
         [TestInitialize]
         public void TestInitialize() 
@@ -55,6 +57,10 @@ namespace Amazon.XRay.Recorder.UnitTests
         public new void TestCleanup()
         {
             base.TestCleanup();
+#if NET45
+            ConfigurationManager.AppSettings[_collectSqlQueriesKey] = string.Empty;
+            AppSettings.Reset();
+#endif
             AWSXRayRecorder.Instance.Dispose();
         }
 
@@ -62,9 +68,13 @@ namespace Amazon.XRay.Recorder.UnitTests
         public void Intercept_DoesNot_CollectQueries_When_NotEnabled()
         {
             // arrange
+#if !NET45
             var recorder = new AWSXRayRecorder {
                 XRayOptions = new XRayOptions()
             };
+#else
+            var recorder = new AWSXRayRecorder();
+#endif
             recorder.BeginSegment("test");
             var interceptor = new DbCommandInterceptor(recorder);
 
@@ -82,9 +92,13 @@ namespace Amazon.XRay.Recorder.UnitTests
         public async Task InterceptAsync_DoesNot_CollectQueries_When_NotEnabled()
         {
             // arrange
+#if !NET45
             var recorder = new AWSXRayRecorder {
                 XRayOptions = new XRayOptions()
             };
+#else
+            var recorder = new AWSXRayRecorder();
+#endif
             recorder.BeginSegment("test");
             var interceptor = new DbCommandInterceptor(recorder);
 
@@ -102,9 +116,15 @@ namespace Amazon.XRay.Recorder.UnitTests
         public void Intercept_CollectsQueries_When_DisabledGlobally_And_EnabledLocally()
         {
             // arrange
+#if !NET45
             var recorder = new AWSXRayRecorder {
                 XRayOptions = new XRayOptions { CollectSqlQueries = false }
             };
+#else
+            ConfigurationManager.AppSettings[_collectSqlQueriesKey] = "false";
+            AppSettings.Reset();
+            var recorder = new AWSXRayRecorder();
+#endif
             recorder.BeginSegment("test");
             var interceptor = new DbCommandInterceptor(recorder, collectSqlQueries: true);
 
@@ -120,9 +140,15 @@ namespace Amazon.XRay.Recorder.UnitTests
         public async Task InterceptAsync_CollectsQueries_When_DisabledGlobally_And_EnabledLocally()
         {
             // arrange
+#if !NET45
             var recorder = new AWSXRayRecorder {
                 XRayOptions = new XRayOptions { CollectSqlQueries = false }
             };
+#else
+            ConfigurationManager.AppSettings[_collectSqlQueriesKey] = "false";
+            AppSettings.Reset();
+            var recorder = new AWSXRayRecorder();
+#endif
             recorder.BeginSegment("test");
             var interceptor = new DbCommandInterceptor(recorder, collectSqlQueries: true);
 
@@ -138,9 +164,15 @@ namespace Amazon.XRay.Recorder.UnitTests
         public void Intercept_CollectsQueries_When_EnabledGlobally()
         {
             // arrange
+#if !NET45
             var recorder = new AWSXRayRecorder {
                 XRayOptions = new XRayOptions { CollectSqlQueries = true }
             };
+#else
+            ConfigurationManager.AppSettings[_collectSqlQueriesKey] = "true";
+            AppSettings.Reset();
+            var recorder = new AWSXRayRecorder();
+#endif
             var interceptor = new DbCommandInterceptor(recorder);
             recorder.BeginSegment("test");
 
@@ -156,9 +188,15 @@ namespace Amazon.XRay.Recorder.UnitTests
         public async Task InterceptAsync_CollectsQueries_When_EnabledGlobally()
         {
             // arrange
+#if !NET45
             var recorder = new AWSXRayRecorder {
                 XRayOptions = new XRayOptions { CollectSqlQueries = true }
             };
+#else
+            ConfigurationManager.AppSettings[_collectSqlQueriesKey] = "true";
+            AppSettings.Reset();
+            var recorder = new AWSXRayRecorder();
+#endif
             var interceptor = new DbCommandInterceptor(recorder);
             recorder.BeginSegment("test");
 
@@ -174,9 +212,15 @@ namespace Amazon.XRay.Recorder.UnitTests
         public void Intercept_DoesNot_CollectQueries_When_EnabledGlobally_And_DisabledLocally()
         {
             // arrange
+#if !NET45
             var recorder = new AWSXRayRecorder {
                 XRayOptions = new XRayOptions { CollectSqlQueries = true }
             };
+#else
+            ConfigurationManager.AppSettings[_collectSqlQueriesKey] = "true";
+            AppSettings.Reset();
+            var recorder = new AWSXRayRecorder();
+#endif
             var interceptor = new DbCommandInterceptor(recorder, collectSqlQueries: false);
             recorder.BeginSegment("test");
 
@@ -192,9 +236,15 @@ namespace Amazon.XRay.Recorder.UnitTests
         public async Task InterceptAsync_DoesNot_CollectQueries_When_EnabledGlobally_And_DisabledLocally()
         {
             // arrange
+#if !NET45
             var recorder = new AWSXRayRecorder {
                 XRayOptions = new XRayOptions { CollectSqlQueries = true }
             };
+#else
+            ConfigurationManager.AppSettings[_collectSqlQueriesKey] = "true";
+            AppSettings.Reset();
+            var recorder = new AWSXRayRecorder();
+#endif
             var interceptor = new DbCommandInterceptor(recorder, collectSqlQueries: false);
             recorder.BeginSegment("test");
 
