@@ -267,6 +267,8 @@ httpClient.GetAsync(URL);
 
 The SDK provides a wrapper class for `System.Data.SqlClient.SqlCommand`. The wrapper class can be used interchangable with `SqlCommand` class. By replacing instance of `SqlCommand` to `TraceableSqlCommand`, synchronized/asynchronized method will automatically generate subsegment for the SQL query.
 
+Following examples illustrate the use of `TraceableSqlCommand` to automatically trace SQL Server queries using Synchronous/Asynchronous methods:
+
 #### Synchronous query
 
 ```csharp
@@ -291,6 +293,48 @@ using (var connection = new SqlConnection(ConnectionString))
     await command.ExecuteXmlReaderAsync();
 }
 ```
+
+#### Capture SQL Query text in the traced SQL calls to SQL Server
+
+ You can also opt in to capture the `SqlCommand.CommandText` as part of the subsegment created for your SQL query. The collected `SqlCommand.CommandText` will appear as `sanitized_query` in the subsegment JSON. By default, this feature is disabled due to security reasons. If you want to enable this feature, it can be done in two ways. First, by setting the `CollectSqlQueries` to `true` in the global configuration for your application as follows:
+
+##### For .Net (In `appsettings` of your `App.config` or `Web.config` file)
+
+```xml
+<configuration>
+  <appSettings>
+    ...
+    <add key="CollectSqlQueries" value="true">
+  </appSettings>
+</configuration>
+```
+
+##### For .Net Core (In `appsettings.json` file, configure items under XRay key)
+
+```json
+{
+  "XRay": {
+    ...
+    "CollectSqlQueries":"true"
+  }
+}
+```
+
+This will enable X-Ray to collect all the sql queries made to SQL Server by your application.
+
+Secondly, you can set the `collectSqlQueries` parameter in the `TraceableSqlCommand` instance as `true` to collect the SQL query text for SQL Server query calls made using this instance. If you set this parameter as `false`, it will disable the CollectSqlQuery feature for this `TraceableSqlCommand` instance.
+
+```csharp
+using Amazon.XRay.Recorder.Handlers.SqlServer;
+
+using (var connection = new SqlConnection("fake connection string"))
+using (var command = new TraceableSqlCommand("SELECT * FROM products", connection, collectSqlQueries: true))
+{
+    command.ExecuteNonQuery();
+}
+```
+
+*NOTE:* The value of `collectSqlQueries` in the `TraceableSqlCommand` instance overrides the value set in the global configuration using the `CollectSqlQueries` property. Also, you should not enable either of these properties if you are including sensitive information as clear text in your SQL queries.
 
 ### Multithreaded Execution (.NET and .NET Core) : [Nuget](https://www.nuget.org/packages/AWSXRayRecorder.Core/)
 
