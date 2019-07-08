@@ -303,7 +303,6 @@ using (var connection = new SqlConnection(ConnectionString))
 ```xml
 <configuration>
   <appSettings>
-    ...
     <add key="CollectSqlQueries" value="true">
   </appSettings>
 </configuration>
@@ -314,7 +313,6 @@ using (var connection = new SqlConnection(ConnectionString))
 ```json
 {
   "XRay": {
-    ...
     "CollectSqlQueries":"true"
   }
 }
