@@ -64,6 +64,7 @@ You can configure X-Ray in the `appsettings` of your `App.config` or `Web.config
     <add key="SamplingRuleManifest" value="JSONs\DefaultSamplingRules.json"/>
     <add key="AwsServiceHandlerManifest" value="JSONs\AWSRequestInfo.json"/>
     <add key="UseRuntimeErrors" value="true"/>
+    <add key="CollectSqlQueries" value="false"/>
   </appSettings>
 </configuration>
 ```
@@ -81,7 +82,8 @@ a) In `appsettings.json` file, configure items under `XRay` key
     "SamplingRuleManifest": "SamplingRules.json",
     "AWSXRayPlugins": "EC2Plugin, ECSPlugin, ElasticBeanstalkPlugin",
     "AwsServiceHandlerManifest": "JSONs\AWSRequestInfo.json",
-    "UseRuntimeErrors":"true"
+    "UseRuntimeErrors":"true",
+    "CollectSqlQueries":"false"
   }
 }
 ```
@@ -332,7 +334,10 @@ using (var command = new TraceableSqlCommand("SELECT * FROM products", connectio
 }
 ```
 
-*NOTE:* The value of `collectSqlQueries` in the `TraceableSqlCommand` instance overrides the value set in the global configuration using the `CollectSqlQueries` property. Also, you should not enable either of these properties if you are including sensitive information as clear text in your SQL queries.
+*NOTE:* 
+1. You should **not** enable either of these properties if you are including sensitive information as clear text in your SQL queries.
+2. Parameterized values will appear in their tokenized form and will not be expanded.
+3. The value of `collectSqlQueries` in the `TraceableSqlCommand` instance overrides the value set in the global configuration using the `CollectSqlQueries` property.
 
 ### Multithreaded Execution (.NET and .NET Core) : [Nuget](https://www.nuget.org/packages/AWSXRayRecorder.Core/)
 
