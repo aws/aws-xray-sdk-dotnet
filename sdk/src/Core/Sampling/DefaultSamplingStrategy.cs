@@ -15,6 +15,7 @@
 // </copyright>
 //-----------------------------------------------------------------------------
 using Amazon.Runtime.Internal.Util;
+using Amazon.XRay.Recorder.Core;
 using Amazon.XRay.Recorder.Core.Internal.Utils;
 using Amazon.XRay.Recorder.Core.Sampling.Local;
 using System;
@@ -99,7 +100,7 @@ namespace Amazon.XRay.Recorder.Core.Sampling
         /// <returns>Instance of <see cref="SamplingResponse"/>.</returns>
         public SamplingResponse ShouldTrace(SamplingInput input)
         {
-            if (!_isPollerStarted) // Start pollers lazily
+            if (!_isPollerStarted && !AWSXRayRecorder.Instance.IsTracingDisabled()) // Start pollers lazily and only if tracing is not disabled.
             {
                 Start();
             }
