@@ -29,12 +29,14 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
         private const string AWSServiceHandlerManifestKey = "AWSServiceHandlerManifest";
         private const string DisableXRayTracingKey = "DisableXRayTracing";
         private const string UseRuntimeErrorsKey = "UseRuntimeErrors";
+        private const string CollectSqlQueriesKey = "CollectSqlQueries";
 
         private static string _pluginSetting = GetSetting(PluginSettingKey);
         private static string _samplingRuleManifest = GetSetting(SamplingRuleManifestKey);
         private static string _awsServiceHandlerManifest = GetSetting(AWSServiceHandlerManifestKey);
         private static bool _isXRayTracingDisabled = GetSettingBool(DisableXRayTracingKey);
         private static bool _useRuntimeErrors = GetSettingBoolForRuntimeError(UseRuntimeErrorsKey);
+        private static bool _collectSqlQueries = GetSettingBool(CollectSqlQueriesKey);
 
         /// <summary>
         /// Gets the plugin setting from app settings
@@ -89,6 +91,11 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
         public static bool UseRuntimeErrors { get => _useRuntimeErrors;}
 
         /// <summary>
+        /// Gets the value indicating whether X-Ray should collect sql queries in the trace.
+        /// </summary>
+        public static bool CollectSqlQueries { get => _collectSqlQueries; }
+
+        /// <summary>
         /// Resets this instance.
         /// </summary>
         public static void Reset()
@@ -98,6 +105,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
             _awsServiceHandlerManifest = GetSetting(AWSServiceHandlerManifestKey);
             _isXRayTracingDisabled = GetSettingBool(DisableXRayTracingKey);
             _useRuntimeErrors = GetSettingBoolForRuntimeError(UseRuntimeErrorsKey);
+            _collectSqlQueries = GetSettingBool(CollectSqlQueriesKey);
         }
 
         private static string GetSetting(string key)

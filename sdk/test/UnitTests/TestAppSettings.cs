@@ -28,6 +28,7 @@ namespace Amazon.XRay.Recorder.UnitTests
     {
         private const string DisableXRayTracingKey = "DisableXRayTracing";
         private const string UseRuntimeErrors = "UseRuntimeErrors";
+        private const string CollectSqlQueries = "CollectSqlQueries";
 
         [TestCleanup]
         public void TestCleanup()
@@ -104,6 +105,40 @@ namespace Amazon.XRay.Recorder.UnitTests
             AppSettings.Reset();
             var recorder = GetRecorder();
             Assert.AreEqual(Core.Strategies.ContextMissingStrategy.RUNTIME_ERROR, recorder.ContextMissingStrategy);
+        }
+
+        [TestMethod]
+        public void TestCollectSqlQueriesNoKeyPresent()
+        {
+            AppSettings.Reset();
+            Assert.IsFalse(AppSettings.CollectSqlQueries);
+        }
+
+        [TestMethod]
+        public void TestCollectSqlQueriesSetToFalse()
+        {
+            ConfigurationManager.AppSettings[CollectSqlQueries] = "false";
+            AppSettings.Reset();
+
+            Assert.IsFalse(AppSettings.CollectSqlQueries);
+        }
+
+        [TestMethod]
+        public void TestCollectSqlQueriesSetToTrue()
+        {
+            ConfigurationManager.AppSettings[CollectSqlQueries] = "true";
+            AppSettings.Reset();
+
+            Assert.IsTrue(AppSettings.CollectSqlQueries);
+        }
+
+        [TestMethod]
+        public void TestCollectSqlQueriesSetToInvalid()
+        {
+            ConfigurationManager.AppSettings[CollectSqlQueries] = "invalid";
+            AppSettings.Reset();
+
+            Assert.IsFalse(AppSettings.CollectSqlQueries);
         }
 
         private AWSXRayRecorder GetRecorder()

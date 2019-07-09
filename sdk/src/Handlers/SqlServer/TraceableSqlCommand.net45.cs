@@ -25,6 +25,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using Amazon.XRay.Recorder.Core;
+using Amazon.XRay.Recorder.Core.Internal.Utils;
 
 namespace Amazon.XRay.Recorder.Handlers.SqlServer
 {
@@ -37,21 +38,41 @@ namespace Amazon.XRay.Recorder.Handlers.SqlServer
     {
         private const string DataBaseTypeString = "sqlserver";
 
+        private IDbCommandInterceptor _interceptor { get; set; }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="TraceableSqlCommand"/> class.
         /// </summary>
-        public TraceableSqlCommand()
+        /// <param name="collectSqlQueries">
+        /// Include the <see cref="TraceableSqlCommand.CommandText" /> in the sanitized_query section of 
+        /// the SQL subsegment. Parameterized values will appear in their tokenized form and will not be expanded.
+        /// You should not enable this flag if you are including sensitive information as clear text.
+        /// This flag will override any behavior configured by <see cref="AppSettings.CollectSqlQueries" />.
+        /// If a value is not provided, then the globally configured value will be used, which is false by default.
+        /// See the official documentation on <a href="https://docs.microsoft.com/en-us/dotnet/api/system.data.sqlclient.sqlcommand.parameters?view=netframework-4.7.2">SqlCommand.Parameters</a>
+        /// </param>
+        public TraceableSqlCommand(bool? collectSqlQueries = null)
         {
             InnerSqlCommand = new SqlCommand();
+            _interceptor = new DbCommandInterceptor(AWSXRayRecorder.Instance, collectSqlQueries);
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TraceableSqlCommand"/> class.
         /// </summary>
         /// <param name="cmdText">The text of the query.</param>
-        public TraceableSqlCommand(string cmdText)
+        /// <param name="collectSqlQueries">
+        /// Include the <see cref="TraceableSqlCommand.CommandText" /> in the sanitized_query section of 
+        /// the SQL subsegment. Parameterized values will appear in their tokenized form and will not be expanded.
+        /// You should not enable this flag if you are including sensitive information as clear text.
+        /// This flag will override any behavior configured by <see cref="AppSettings.CollectSqlQueries" />.
+        /// If a value is not provided, then the globally configured value will be used, which is false by default.
+        /// See the official documentation on <a href="https://docs.microsoft.com/en-us/dotnet/api/system.data.sqlclient.sqlcommand.parameters?view=netframework-4.7.2">SqlCommand.Parameters</a>
+        /// </param>
+        public TraceableSqlCommand(string cmdText, bool? collectSqlQueries = null)
         {
             InnerSqlCommand = new SqlCommand(cmdText);
+            _interceptor = new DbCommandInterceptor(AWSXRayRecorder.Instance, collectSqlQueries);
         }
 
         /// <summary>
@@ -59,9 +80,18 @@ namespace Amazon.XRay.Recorder.Handlers.SqlServer
         /// </summary>
         /// <param name="cmdText">The text of the query.</param>
         /// <param name="connection">The connection to an instance of SQL Server.</param>
-        public TraceableSqlCommand(string cmdText, SqlConnection connection)
+        /// <param name="collectSqlQueries">
+        /// Include the <see cref="TraceableSqlCommand.CommandText" /> in the sanitized_query section of 
+        /// the SQL subsegment. Parameterized values will appear in their tokenized form and will not be expanded.
+        /// You should not enable this flag if you are including sensitive information as clear text.
+        /// This flag will override any behavior configured by <see cref="AppSettings.CollectSqlQueries" />.
+        /// If a value is not provided, then the globally configured value will be used, which is false by default.
+        /// See the official documentation on <a href="https://docs.microsoft.com/en-us/dotnet/api/system.data.sqlclient.sqlcommand.parameters?view=netframework-4.7.2">SqlCommand.Parameters</a>
+        /// </param>
+        public TraceableSqlCommand(string cmdText, SqlConnection connection, bool? collectSqlQueries = null)
         {
             InnerSqlCommand = new SqlCommand(cmdText, connection);
+            _interceptor = new DbCommandInterceptor(AWSXRayRecorder.Instance, collectSqlQueries);
         }
 
         /// <summary>
@@ -70,9 +100,18 @@ namespace Amazon.XRay.Recorder.Handlers.SqlServer
         /// <param name="cmdText">The text of the query.</param>
         /// <param name="connection">The connection to an instance of SQL Server.</param>
         /// <param name="transaction">The <see cref="SqlTransaction"/> in which the <see cref="SqlCommand"/> executes.</param>
-        public TraceableSqlCommand(string cmdText, SqlConnection connection, SqlTransaction transaction)
+        /// <param name="collectSqlQueries">
+        /// Include the <see cref="TraceableSqlCommand.CommandText" /> in the sanitized_query section of 
+        /// the SQL subsegment. Parameterized values will appear in their tokenized form and will not be expanded.
+        /// You should not enable this flag if you are including sensitive information as clear text.
+        /// This flag will override any behavior configured by <see cref="AppSettings.CollectSqlQueries" />.
+        /// If a value is not provided, then the globally configured value will be used, which is false by default.
+        /// See the official documentation on <a href="https://docs.microsoft.com/en-us/dotnet/api/system.data.sqlclient.sqlcommand.parameters?view=netframework-4.7.2">SqlCommand.Parameters</a>
+        /// </param>
+        public TraceableSqlCommand(string cmdText, SqlConnection connection, SqlTransaction transaction, bool? collectSqlQueries = null)
         {
             InnerSqlCommand = new SqlCommand(cmdText, connection, transaction);
+            _interceptor = new DbCommandInterceptor(AWSXRayRecorder.Instance, collectSqlQueries);
         }
 
         private TraceableSqlCommand(TraceableSqlCommand from)
@@ -542,71 +581,9 @@ namespace Amazon.XRay.Recorder.Handlers.SqlServer
         }
 
         private TResult Intercept<TResult>(Func<TResult> method)
-        {
-            AWSXRayRecorder recorder = AWSXRayRecorder.Instance;
-            recorder.BeginSubsegment(Connection.Database + "@" + SqlUtil.RemovePortNumberFromDataSource(Connection.DataSource));
-            try
-            {
-                recorder.SetNamespace("remote");
-                var ret = method();
-                CollectSqlInformation();
-
-                return ret;
-            }
-            catch (Exception e)
-            {
-                recorder.AddException(e);
-                throw;
-            }
-            finally
-            {
-                recorder.EndSubsegment();
-            }
-        }
+            => _interceptor.Intercept(method, this);
+        
         private async Task<TResult> InterceptAsync<TResult>(Func<Task<TResult>> method)
-        {
-            AWSXRayRecorder recorder = AWSXRayRecorder.Instance;
-            recorder.BeginSubsegment(Connection.Database + "@" + SqlUtil.RemovePortNumberFromDataSource(Connection.DataSource));
-            try
-            {
-                recorder.SetNamespace("remote");
-                var ret = await method();
-                CollectSqlInformation();
-
-                return ret;
-            }
-            catch (Exception e)
-            {
-                recorder.AddException(e);
-                throw;
-            }
-            finally
-            {
-                recorder.EndSubsegment();
-            }
-        }
-        private void CollectSqlInformation()
-        {
-            AWSXRayRecorder recorder = AWSXRayRecorder.Instance;
-            recorder.AddSqlInformation("database_type", DataBaseTypeString);
-
-            recorder.AddSqlInformation("database_version", Connection.ServerVersion);
-
-            SqlConnectionStringBuilder connectionStringBuilder = new SqlConnectionStringBuilder(Connection.ConnectionString);
-
-            // Remove sensitive information from connection string
-            connectionStringBuilder.Remove("Password");
-
-            if (Connection.Credential != null)
-            {
-                recorder.AddSqlInformation("user", Connection.Credential.UserId);
-            }
-            else
-            {
-                recorder.AddSqlInformation("user", connectionStringBuilder.UserID);
-            }
-
-            recorder.AddSqlInformation("connection_string", connectionStringBuilder.ToString());
-        }
+            => await _interceptor.InterceptAsync(method, this);
     }
 }
