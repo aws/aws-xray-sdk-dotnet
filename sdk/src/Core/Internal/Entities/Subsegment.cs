@@ -50,11 +50,6 @@ namespace Amazon.XRay.Recorder.Core.Internal.Entities
         public Entity Parent { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the segment has been streamed 
-        /// </summary>
-        public bool HasStreamed { get; set; }
-
-        /// <summary>
         /// Gets or sets the type
         /// </summary>
         public string Type { get; set; }

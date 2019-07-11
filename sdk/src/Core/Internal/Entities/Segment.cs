@@ -21,6 +21,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
+using Amazon.XRay.Recorder.Core.Exceptions;
 
 namespace Amazon.XRay.Recorder.Core.Internal.Entities
 {
@@ -59,6 +60,12 @@ namespace Amazon.XRay.Recorder.Core.Internal.Entities
 
             RootSegment = this;
         }
+
+        /// <summary>
+        /// Gets or Sets the User for the segment
+        /// </summary>
+        public string User { get; set; }
+       
 
         /// <summary>
         /// Gets or sets the origin of the segment.
@@ -161,6 +168,42 @@ namespace Amazon.XRay.Recorder.Core.Internal.Entities
         public void SetEndTime(DateTime timestamp)
         {
             EndTime = TimeStamp.ToUnixSeconds(timestamp);
+        }
+
+        /// <summary>
+        /// Checks if the segment has been streamed already
+        /// </summary>
+        /// <exception cref="AlreadyEmittedException">The segment has been already streamed and no further operation can be performed on it.</exception>
+        public void HasAlreadyStreamed()
+        {
+            if(HasStreamed)
+            {
+                throw new AlreadyEmittedException("Segment " + Name + "has already been emitted.");
+            }
+        }
+
+        /// <summary>
+        /// Gets the value of the User for this segment
+        /// </summary>
+        public string GetUser()
+        {
+            return User;
+        }
+
+        /// <summary>
+        /// Sets the User for this segment
+        /// </summary>
+        /// <param name="user">the name of the user</param>
+        /// <exception cref="System.ArgumentNullException">The value of user cannot be null.</exception>
+        public void SetUser(string user)
+        {
+            if (user == null)
+            {
+                throw new ArgumentNullException("user");
+            }
+
+            HasAlreadyStreamed();
+            this.User = user;
         }
     }
 }
