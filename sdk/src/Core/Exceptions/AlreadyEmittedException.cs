@@ -10,7 +10,7 @@ namespace Amazon.XRay.Recorder.Core.Exceptions
     /// The exception that is thrown when the entity is already emitted.
     /// </summary>
     [Serializable]
-    class AlreadyEmittedException : Exception
+    public class AlreadyEmittedException : Exception
     {
         /// <summary>
         /// Initializes a new instance of <see cref="AlreadyEmittedException"/> class
