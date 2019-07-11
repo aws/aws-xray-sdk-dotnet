@@ -403,7 +403,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             var segment = new Segment("SegmentA");
             segment.HasStreamed = true;
 
-            Assert.ThrowsException<AlreadyEmittedException>(() => segment.SetUser("UserA"));
+            Assert.ThrowsException<AlreadyEmittedException>(() => segment.SetUser("UserA"), "Segment SegmentA has already been emitted.");
         }
     }
 }

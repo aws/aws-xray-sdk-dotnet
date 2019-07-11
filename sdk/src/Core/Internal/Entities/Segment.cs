@@ -174,11 +174,11 @@ namespace Amazon.XRay.Recorder.Core.Internal.Entities
         /// Checks if the segment has been streamed already
         /// </summary>
         /// <exception cref="AlreadyEmittedException">The segment has been already streamed and no further operation can be performed on it.</exception>
-        public void HasAlreadyStreamed()
+        private void HasAlreadyStreamed()
         {
             if(HasStreamed)
             {
-                throw new AlreadyEmittedException("Segment " + Name + "has already been emitted.");
+                throw new AlreadyEmittedException("Segment " + Name + " has already been emitted.");
             }
         }
 

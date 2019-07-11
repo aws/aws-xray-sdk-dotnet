@@ -241,7 +241,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Entities
         public bool IsInProgress { get; set; }
 
         /// <summary>
-        /// Gets or sets a value indicating whether the segment has been streamed 
+        /// Gets or sets a value indicating whether the entity has been streamed 
         /// </summary>
         public bool HasStreamed { get; set; }
 
