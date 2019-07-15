@@ -177,6 +177,12 @@ namespace Amazon.XRay.Recorder.Core.Internal.Emitters
                 writer.WritePropertyName("service");
                 JsonMapper.ToJson(segment.Service, writer);
             }
+
+            if (segment.User != null)
+            {
+                writer.WritePropertyName("user");
+                JsonMapper.ToJson(segment.User, writer);
+            }
         }
 
         private static void WriteSubsegmentFields(Subsegment subsegment, JsonWriter writer)
