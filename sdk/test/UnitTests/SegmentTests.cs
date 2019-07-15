@@ -379,5 +379,31 @@ namespace Amazon.XRay.Recorder.UnitTests
             stream.Close();
             return obj;
         }
+
+        [TestMethod]
+        public void TestSetUser()
+        {
+            var segment = new Segment("SegmentA");
+            segment.SetUser("UserA");
+
+            Assert.AreEqual("UserA", segment.GetUser());
+        }
+
+        [TestMethod]
+        public void TestSetUserWithNullValue()
+        {
+            var segment = new Segment("SegmentA");
+
+            Assert.ThrowsException<ArgumentNullException>(() => segment.SetUser(null));
+        }
+
+        [TestMethod]
+        public void TestSetUserWhenSegmentAlreadyStreamed()
+        {
+            var segment = new Segment("SegmentA");
+            segment.HasStreamed = true;
+
+            Assert.ThrowsException<AlreadyEmittedException>(() => segment.SetUser("UserA"), "Segment SegmentA has already been emitted.");
+        }
     }
 }

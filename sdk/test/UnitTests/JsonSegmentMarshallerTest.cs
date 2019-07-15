@@ -310,5 +310,29 @@ namespace Amazon.XRay.Recorder.UnitTests
 
             Assert.AreEqual(actual, expect);
         }
+
+        [TestMethod]
+        public void TestWriteSegmentFields()
+        {
+            var segment = new Segment("SampleSegment", "1-11111111-111111111111111111111111");
+            segment.SetUser("SampleUser");
+
+            var actual = _marshaller.Marshall(segment);
+            var actualJson = JsonMapper.ToObject(actual.Split('\n')[1]);
+
+            Assert.AreEqual("SampleUser", (string)actualJson["user"]);
+        }
+
+        [TestMethod]
+        public void TestWriteSegmentFieldsWithNull()
+        {
+            var segment = new Segment("SampleSegment", "1-11111111-111111111111111111111111");
+            segment.User = null;
+
+            var actual = _marshaller.Marshall(segment);
+            var actualJson = JsonMapper.ToObject(actual.Split('\n')[1]);
+
+            Assert.ThrowsException<KeyNotFoundException>(() => (string)actualJson["user"]);
+        }
     }
 }
