@@ -131,36 +131,5 @@ namespace Amazon.XRay.Recorder.Core.Internal.Entities
         {
             return Reference == 0;
         }
-
-        /// <summary>
-        /// Sets start time of the segment to the provided timestamp.
-        /// </summary>
-        public void SetStartTime(decimal timestamp)
-        {
-            StartTime = timestamp; 
-        }
-        /// <summary>
-        /// Sets end time of the segment to the provided timestamp.
-        /// </summary>
-        public void SetEndTime(decimal timestamp)
-        {
-            EndTime = timestamp;
-        }
-
-        /// <summary>
-        /// Sets start time of the segment to the provided timestamp.
-        /// </summary>
-        public void SetStartTime(DateTime timestamp)
-        {
-            StartTime = TimeStamp.ToUnixSeconds(timestamp);
-        }
-
-        /// <summary>
-        /// Sets end time of the segment to the provided timestamp.
-        /// </summary>
-        public void SetEndTime(DateTime timestamp)
-        {
-            EndTime = TimeStamp.ToUnixSeconds(timestamp);
-        }
     }
 }

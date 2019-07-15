@@ -173,9 +173,10 @@ namespace Amazon.XRay.Recorder.Core
         /// Begin a tracing subsegment. A new segment will be created and added as a subsegment to previous segment/subsegment.
         /// </summary>
         /// <param name="name">Name of the operation</param>
+        /// <param name="timestamp">Sets the start time of the subsegment</param>
         /// <exception cref="ArgumentNullException">The argument has a null value.</exception>
         /// <exception cref="EntityNotAvailableException">Entity is not available in trace context.</exception>
-        public override void BeginSubsegment(string name)
+        public override void BeginSubsegment(string name, DateTime? timestamp = null)
         {
             try
             {
@@ -187,11 +188,11 @@ namespace Amazon.XRay.Recorder.Core
 
                 if (IsLambda())
                 {
-                    ProcessSubsegmentInLambdaContext(name);
+                    ProcessSubsegmentInLambdaContext(name, timestamp);
                 }
                 else
                 {
-                    AddSubsegment(new Subsegment(name));
+                    AddSubsegment(new Subsegment(name), timestamp);
                 }
             }
             catch (EntityNotAvailableException e)
@@ -203,12 +204,12 @@ namespace Amazon.XRay.Recorder.Core
         /// <summary>
         /// Begin a tracing subsegment. A new subsegment will be created and added as a subsegment to previous facade segment or subsegment.
         /// </summary>
-        private void ProcessSubsegmentInLambdaContext(string name)
+        private void ProcessSubsegmentInLambdaContext(string name, DateTime? timestamp = null)
         {
             if (!TraceContext.IsEntityPresent()) // No facade segment available and first subsegment of a subsegment branch needs to be added
             {
                 AddFacadeSegment(name);
-                AddSubsegmentInLambdaContext(new Subsegment(name));
+                AddSubsegmentInLambdaContext(name, timestamp);
             }
             else // Facade / Subsegment already present
             {
@@ -218,11 +219,11 @@ namespace Amazon.XRay.Recorder.Core
                 if ((null != environmentRootTraceId) && !environmentRootTraceId.Equals(entity.RootSegment.TraceId)) // If true, customer has leaked subsegments across invocation
                 {
                     TraceContext.ClearEntity(); // reset TraceContext
-                    BeginSubsegment(name); // This adds Facade segment with updated environment variables
+                    BeginSubsegment(name, timestamp); // This adds Facade segment with updated environment variables
                 }
                 else
                 {
-                    AddSubsegmentInLambdaContext(new Subsegment(name));
+                    AddSubsegmentInLambdaContext(name, timestamp);
                 }
             }
         }
@@ -258,19 +259,27 @@ namespace Amazon.XRay.Recorder.Core
             TraceContext.SetEntity(newSegment);
         }
 
-        private void AddSubsegmentInLambdaContext(Subsegment subsegment)
+        private void AddSubsegmentInLambdaContext(string name, DateTime? timestamp = null)
         {
             // If the request is not sampled, the passed subsegment will still be available in TraceContext to
             // stores the information of the trace. The trace information will still propagated to 
             // downstream service, in case downstream may overwrite the sample decision.
             Entity parentEntity = TraceContext.GetEntity();
+            Subsegment subsegment = new Subsegment(name);
             parentEntity.AddSubsegment(subsegment);
             subsegment.Sampled = parentEntity.Sampled;
-            subsegment.SetStartTimeToNow();
+            if (timestamp == null)
+            {
+                subsegment.SetStartTimeToNow();
+            }
+            else
+            {
+                subsegment.SetStartTime(timestamp.Value);
+            }
             TraceContext.SetEntity(subsegment);
         }
 
-        private void AddSubsegment(Subsegment subsegment)
+        private void AddSubsegment(Subsegment subsegment, DateTime? timestamp = null)
         {
             // If the request is not sampled, a segment will still be available in TraceContext to
             // stores the information of the trace. The trace information will still propagated to 
@@ -286,15 +295,24 @@ namespace Amazon.XRay.Recorder.Core
 
             parentEntity.AddSubsegment(subsegment);
             subsegment.Sampled = parentEntity.Sampled;
-            subsegment.SetStartTimeToNow();
+            if (timestamp == null)
+            {
+                subsegment.SetStartTimeToNow();
+            }
+            else
+            {
+                subsegment.SetStartTime(timestamp.Value);
+            }
+            
             TraceContext.SetEntity(subsegment);
         }
 
         /// <summary>
         /// End a subsegment.
         /// </summary>
+        /// <param name="timestamp">Sets the end time for the subsegment</param>
         /// <exception cref="EntityNotAvailableException">Entity is not available in trace context.</exception>
-        public override void EndSubsegment()
+        public override void EndSubsegment(DateTime? timestamp = null)
         {
             try
             {
@@ -306,11 +324,11 @@ namespace Amazon.XRay.Recorder.Core
 
                 if (IsLambda())
                 {
-                    ProcessEndSubsegmentInLambdaContext();
+                    ProcessEndSubsegmentInLambdaContext(timestamp);
                 }
                 else
                 {
-                    ProcessEndSubsegment();
+                    ProcessEndSubsegment(timestamp);
                 }
             }
             catch (EntityNotAvailableException e)
@@ -323,9 +341,18 @@ namespace Amazon.XRay.Recorder.Core
             }
         }
 
-        private void ProcessEndSubsegmentInLambdaContext()
+        private void ProcessEndSubsegmentInLambdaContext(DateTime? timestamp = null)
         {
             var subsegment = PrepEndSubsegmentInLambdaContext();
+
+            if (timestamp == null)
+            {
+                subsegment.SetEndTimeToNow();
+            }
+            else
+            {
+                subsegment.SetEndTime(timestamp.Value);
+            }
 
             // Check emittable
             if (subsegment.IsEmittable())
@@ -352,8 +379,6 @@ namespace Amazon.XRay.Recorder.Core
             Entity entity = TraceContext.GetEntity();
             Subsegment subsegment = (Subsegment)entity;
 
-            // Set end time
-            subsegment.SetEndTimeToNow();
             subsegment.IsInProgress = false;
 
             // Restore parent segment to trace context

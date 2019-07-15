@@ -234,14 +234,16 @@ namespace Amazon.XRay.Recorder.Core
         /// Begin a tracing subsegment. A new segment will be created and added as a subsegment to previous segment.
         /// </summary>
         /// <param name="name">Name of the operation.</param>
+        /// <param name="timestamp">Sets the start time of the subsegment</param>
         /// <exception cref="ArgumentNullException">The argument has a null value.</exception>
         /// <exception cref="EntityNotAvailableException">Entity is not available in trace context.</exception>
-        public abstract void BeginSubsegment(string name);
+        public abstract void BeginSubsegment(string name, DateTime? timestamp = null);
 
         /// <summary>
         /// End a subsegment.
         /// </summary>
-        public abstract void EndSubsegment();
+        /// <param name="timestamp">Sets the end time for the subsegment</param>
+        public abstract void EndSubsegment(DateTime? timestamp = null);
 
         /// <summary>
         /// Checks whether Tracing is enabled or disabled.
@@ -780,7 +782,7 @@ namespace Amazon.XRay.Recorder.Core
         /// <summary>
         /// Sends root segment of the current subsegment.
         /// </summary>
-        protected void ProcessEndSubsegment()
+        protected void ProcessEndSubsegment(DateTime? timestamp = null)
         {
             var subsegment = PrepEndSubsegment();
 
@@ -788,6 +790,16 @@ namespace Amazon.XRay.Recorder.Core
             {
                 return;
             }
+
+            if (timestamp == null)
+            {
+                subsegment.SetEndTimeToNow();
+            }
+            else
+            {
+                subsegment.SetEndTime(timestamp.Value);
+            }
+
             // Check emittable
             if (subsegment.IsEmittable())
             {
@@ -813,8 +825,6 @@ namespace Amazon.XRay.Recorder.Core
 
             Subsegment subsegment = (Subsegment)entity;
 
-            // Set end time
-            subsegment.SetEndTimeToNow();
             subsegment.IsInProgress = false;
 
             // Restore parent segment to trace context

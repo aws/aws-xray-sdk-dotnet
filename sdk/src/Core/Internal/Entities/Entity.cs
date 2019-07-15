@@ -382,7 +382,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Entities
         }
 
         /// <summary>
-        /// Set start time of the segment to current time
+        /// Set start time of the entity to current time
         /// </summary>
         public void SetStartTimeToNow()
         {
@@ -390,11 +390,42 @@ namespace Amazon.XRay.Recorder.Core.Internal.Entities
         }
 
         /// <summary>
-        /// Set end time of the segment to current time
+        /// Set end time of the entity to current time
         /// </summary>
         public void SetEndTimeToNow()
         {
             EndTime = DateTime.UtcNow.ToUnixTimeSeconds();
+        }
+
+        /// <summary>
+        /// Sets start time of the entity to the provided timestamp.
+        /// </summary>
+        public void SetStartTime(decimal timestamp)
+        {
+            StartTime = timestamp;
+        }
+        /// <summary>
+        /// Sets end time of the entity to the provided timestamp.
+        /// </summary>
+        public void SetEndTime(decimal timestamp)
+        {
+            EndTime = timestamp;
+        }
+
+        /// <summary>
+        /// Sets start time of the entity to the provided timestamp.
+        /// </summary>
+        public void SetStartTime(DateTime timestamp)
+        {
+            StartTime = TimeStamp.ToUnixSeconds(timestamp);
+        }
+
+        /// <summary>
+        /// Sets end time of the entity to the provided timestamp.
+        /// </summary>
+        public void SetEndTime(DateTime timestamp)
+        {
+            EndTime = TimeStamp.ToUnixSeconds(timestamp);
         }
 
         /// <summary>

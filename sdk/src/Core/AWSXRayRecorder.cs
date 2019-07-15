@@ -97,9 +97,10 @@ namespace Amazon.XRay.Recorder.Core
         /// Begin a tracing subsegment. A new segment will be created and added as a subsegment to previous segment.
         /// </summary>
         /// <param name="name">Name of the operation.</param>
+        /// <param name="timestamp">Sets the start time for the subsegment.</param>
         /// <exception cref="ArgumentNullException">The argument has a null value.</exception>
         /// <exception cref="EntityNotAvailableException">Entity is not available in trace context.</exception>
-        public override void BeginSubsegment(string name)
+        public override void BeginSubsegment(string name, DateTime? timestamp = null)
         {
             try
             {
@@ -124,7 +125,15 @@ namespace Amazon.XRay.Recorder.Core
                 Subsegment subsegment = new Subsegment(name);
                 parentEntity.AddSubsegment(subsegment);
                 subsegment.Sampled = parentEntity.Sampled;
-                subsegment.SetStartTimeToNow();
+                if (timestamp == null)
+                {
+                    subsegment.SetStartTimeToNow();
+                }
+                else
+                {
+                    subsegment.SetStartTime(timestamp.Value);
+                }
+                
                 TraceContext.SetEntity(subsegment);
             }
             catch (EntityNotAvailableException e)
@@ -136,8 +145,9 @@ namespace Amazon.XRay.Recorder.Core
         /// <summary>
         /// End a subsegment.
         /// </summary>
+        /// <param name="timestamp">Sets the end time of the subsegment</param>
         /// <exception cref="EntityNotAvailableException">Entity is not available in trace context.</exception>
-        public override void EndSubsegment()
+        public override void EndSubsegment(DateTime? timestamp = null)
         {
             try
             {
@@ -147,7 +157,7 @@ namespace Amazon.XRay.Recorder.Core
                     return;
                 }
 
-                ProcessEndSubsegment();
+                ProcessEndSubsegment(timestamp);
             }
             catch (EntityNotAvailableException e)
             {
