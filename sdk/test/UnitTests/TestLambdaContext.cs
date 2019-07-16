@@ -21,6 +21,7 @@ using Amazon.XRay.Recorder.Core.Internal.Entities;
 using Amazon.XRay.Recorder.Core.Exceptions;
 using Amazon.XRay.Recorder.Core.Sampling;
 using Amazon.XRay.Recorder.Core.Internal.Context;
+using Amazon.XRay.Recorder.Core.Internal.Utils;
 
 namespace Amazon.XRay.Recorder.UnitTests
 {
@@ -183,6 +184,35 @@ namespace Amazon.XRay.Recorder.UnitTests
             _recorder.EndSubsegment();
 
             Assert.IsFalse(AWSXRayRecorder.Instance.TraceContext.IsEntityPresent());
+        }
+
+        [TestMethod]
+        public void TestBeginSubsegmentWithCustomTime()
+        {
+            AWSXRayRecorder recorder = new AWSXRayRecorderBuilder().Build();
+            
+            var custom_time = new DateTime(2019, 07, 14);
+            recorder.BeginSubsegment("Subsegment1", custom_time);
+
+            Subsegment subsegment = (Subsegment)recorder.TraceContext.GetEntity();
+            Assert.AreEqual(1563062400, subsegment.StartTime);
+
+            recorder.EndSubsegment();
+            Assert.IsTrue(DateTime.UtcNow.ToUnixTimeSeconds() >= subsegment.EndTime);
+        }
+
+        [TestMethod]
+        public void TestEndSubsegmentWithCustomTime()
+        {
+            AWSXRayRecorder recorder = new AWSXRayRecorderBuilder().Build();
+            recorder.BeginSubsegment("Subsegment1");
+
+            Subsegment subsegment = (Subsegment)recorder.TraceContext.GetEntity();
+            Assert.IsTrue(DateTime.UtcNow.ToUnixTimeSeconds() >= subsegment.StartTime);
+
+            var custom_time = new DateTime(2019, 07, 14);
+            recorder.EndSubsegment(custom_time);
+            Assert.AreEqual(1563062400, subsegment.EndTime);
         }
     }
 }

@@ -1064,6 +1064,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             Assert.AreEqual(1563062400, subsegment.StartTime);
 
             recorder.EndSubsegment();
+            Assert.IsTrue(DateTime.UtcNow.ToUnixTimeSeconds() >= subsegment.EndTime);
             recorder.EndSegment();
         }
 
@@ -1075,6 +1076,8 @@ namespace Amazon.XRay.Recorder.UnitTests
             recorder.BeginSubsegment("Subsegment1");
 
             Subsegment subsegment = (Subsegment)recorder.TraceContext.GetEntity();
+            Assert.IsTrue(DateTime.UtcNow.ToUnixTimeSeconds() >= subsegment.StartTime);
+
             var custom_time = new DateTime(2019, 07, 14);
             recorder.EndSubsegment(custom_time);
             Assert.AreEqual(1563062400, subsegment.EndTime);
