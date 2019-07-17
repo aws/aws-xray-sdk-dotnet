@@ -94,7 +94,7 @@ namespace Amazon.XRay.Recorder.Core.Sampling
 
         private static decimal GetUnixSeconds(DateTime utcNow)
         {
-            return decimal.Floor(DateTime.UtcNow.ToUnixTimeSeconds());
+            return decimal.Floor(utcNow.ToUnixTimeSeconds());
         }
     }
 }

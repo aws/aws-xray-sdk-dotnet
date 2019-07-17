@@ -92,12 +92,14 @@ namespace Amazon.XRay.Recorder.Core
         /// Start a subsegment with a given segment
         /// </summary>
         /// <param name="name">Name of the operation</param>
-        void BeginSubsegment(string name);
+        /// <param name="timestamp">Sets the start time for the subsegment</param>
+        void BeginSubsegment(string name, DateTime? timestamp = null);
 
         /// <summary>
         /// End a subsegment
         /// </summary>
-        void EndSubsegment();
+        /// <param name="timestamp">Sets the end time for the subsegment</param>
+        void EndSubsegment(DateTime? timestamp = null);
 
         /// <summary>
         /// Set namespace to current segment

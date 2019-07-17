@@ -1052,6 +1052,38 @@ namespace Amazon.XRay.Recorder.UnitTests
             Assert.ThrowsException<ArgumentException>(() => new AWSXRayRecorderBuilder().WithStreamingStrategy(new DefaultStreamingStrategy(-100)));
         }
 
+        [TestMethod]
+        public void TestBeginSubsegmentWithCustomTime()
+        {
+            AWSXRayRecorder recorder = new AWSXRayRecorderBuilder().Build();
+            recorder.BeginSegment("Segment1");
+            var custom_time = new DateTime(2019, 07, 14);
+            recorder.BeginSubsegment("Subsegment1", custom_time);
+
+            Subsegment subsegment = (Subsegment)recorder.TraceContext.GetEntity();
+            Assert.AreEqual(1563062400, subsegment.StartTime);
+
+            recorder.EndSubsegment();
+            Assert.IsTrue(DateTime.UtcNow.ToUnixTimeSeconds() >= subsegment.EndTime);
+            recorder.EndSegment();
+        }
+
+        [TestMethod]
+        public void TestEndSubsegmentWithCustomTime()
+        {
+            AWSXRayRecorder recorder = new AWSXRayRecorderBuilder().Build();
+            recorder.BeginSegment("Segment1");
+            recorder.BeginSubsegment("Subsegment1");
+
+            Subsegment subsegment = (Subsegment)recorder.TraceContext.GetEntity();
+            Assert.IsTrue(DateTime.UtcNow.ToUnixTimeSeconds() >= subsegment.StartTime);
+
+            var custom_time = new DateTime(2019, 07, 14);
+            recorder.EndSubsegment(custom_time);
+            Assert.AreEqual(1563062400, subsegment.EndTime);
+            recorder.EndSegment();
+        }
+
         public static AWSXRayRecorder BuildAWSXRayRecorder(ISamplingStrategy samplingStrategy = null, ISegmentEmitter segmentEmitter = null, string daemonAddress = null, ITraceContext traceContext = null)
         {
             AWSXRayRecorderBuilder builder = new AWSXRayRecorderBuilder();

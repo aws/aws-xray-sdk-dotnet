@@ -140,37 +140,6 @@ namespace Amazon.XRay.Recorder.Core.Internal.Entities
         }
 
         /// <summary>
-        /// Sets start time of the segment to the provided timestamp.
-        /// </summary>
-        public void SetStartTime(decimal timestamp)
-        {
-            StartTime = timestamp; 
-        }
-        /// <summary>
-        /// Sets end time of the segment to the provided timestamp.
-        /// </summary>
-        public void SetEndTime(decimal timestamp)
-        {
-            EndTime = timestamp;
-        }
-
-        /// <summary>
-        /// Sets start time of the segment to the provided timestamp.
-        /// </summary>
-        public void SetStartTime(DateTime timestamp)
-        {
-            StartTime = TimeStamp.ToUnixSeconds(timestamp);
-        }
-
-        /// <summary>
-        /// Sets end time of the segment to the provided timestamp.
-        /// </summary>
-        public void SetEndTime(DateTime timestamp)
-        {
-            EndTime = TimeStamp.ToUnixSeconds(timestamp);
-        }
-
-        /// <summary>
         /// Checks if the segment has been streamed already
         /// </summary>
         /// <exception cref="AlreadyEmittedException">The segment has been already streamed and no further operation can be performed on it.</exception>
