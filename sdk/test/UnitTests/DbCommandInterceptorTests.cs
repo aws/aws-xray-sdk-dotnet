@@ -38,6 +38,8 @@ namespace Amazon.XRay.Recorder.UnitTests
         private const string _userId = "admin";
         private const string _connectionString = "Data Source=xyz.com,3306;User ID=" + _userId + ";Password=Secret.123;";
         private const string _sanitizedConnectionString = "Data Source=xyz.com,3306;User ID=" + _userId;
+        private const string _trustedConnectionString = "Server=myServerAddress;Database=myDataBase;Trusted_Connection=True;";
+        private const string _collectedTrustedConnectionString = "Data Source=myServerAddress;Initial Catalog=myDataBase;Integrated Security=True";
         private const string _collectSqlQueriesKey = "CollectSqlQueries";
 
         [TestInitialize]
@@ -256,34 +258,91 @@ namespace Amazon.XRay.Recorder.UnitTests
             recorder.EndSegment();
         }
 
-        private void AssertNotCollected(AWSXRayRecorder recorder)
+        [TestMethod]
+        public void TestTrustedConnection_DoesNotCollectUserID()
+        {
+            // arrange
+#if !NET45
+            var recorder = new AWSXRayRecorder {
+                XRayOptions = new XRayOptions()
+            };
+#else
+            var recorder = new AWSXRayRecorder();
+#endif
+            InitializeMockTrustedConnection();
+            recorder.BeginSegment("test");
+            var interceptor = new DbCommandInterceptor(recorder);
+
+            // act
+            interceptor.Intercept(() => 0, _command);
+
+            // assert
+            var segment = AWSXRayRecorder.Instance.TraceContext.GetEntity();
+
+            AssertNotCollected(recorder, true);
+            recorder.EndSegment();
+        }
+
+        private void InitializeMockTrustedConnection()
+        {
+            var connectionMock = new Mock<DbConnection>();
+            connectionMock.Setup(c => c.DataSource).Returns("xyz.com,3306");
+            connectionMock.Setup(c => c.Database).Returns("master");
+            connectionMock.Setup(c => c.ServerVersion).Returns("13.0.5026.0");
+            connectionMock.Setup(c => c.ConnectionString).Returns(_trustedConnectionString);
+
+            _command.Connection = connectionMock.Object;
+            _command.CommandText = "SELECT a.* FROM dbo.Accounts a ...";
+        }
+
+        private void AssertNotCollected(AWSXRayRecorder recorder, bool isTrustedConn = false)
         {
             var segment = recorder.TraceContext.GetEntity().Subsegments[0];
             
-            AssertExpectedSqlInformation(segment);
-
-            Assert.AreEqual(4, segment.Sql.Count);
+            AssertExpectedSqlInformation(segment, isTrustedConn);
+            if (!isTrustedConn)
+            {
+                Assert.AreEqual(4, segment.Sql.Count);
+            }
+            else
+            {
+                Assert.AreEqual(3, segment.Sql.Count);
+            }
             Assert.IsFalse(segment.Sql.ContainsKey("sanitized_query"));
         }
 
-        private void AssertCollected(AWSXRayRecorder recorder)
+        private void AssertCollected(AWSXRayRecorder recorder, bool isTrustedConn = false)
         {
             var segment = recorder.TraceContext.GetEntity().Subsegments[0];
             
-            AssertExpectedSqlInformation(segment);
-
-            Assert.AreEqual(5, segment.Sql.Count);            
+            AssertExpectedSqlInformation(segment, isTrustedConn);
+            if (!isTrustedConn)
+            {
+                Assert.AreEqual(5, segment.Sql.Count);
+            }
+            else
+            {
+                Assert.AreEqual(4, segment.Sql.Count);
+            }
+            
             Assert.AreEqual(_command.CommandText, segment.Sql["sanitized_query"]);
         }
 
-        private void AssertExpectedSqlInformation(Subsegment segment)
+        private void AssertExpectedSqlInformation(Subsegment segment, bool isTrustedConn = false)
         {
             Assert.IsNotNull(segment);
             Assert.IsNotNull(segment.Sql);
             Assert.AreEqual("sqlserver", segment.Sql["database_type"]);
             Assert.AreEqual(_command.Connection.ServerVersion, segment.Sql["database_version"]);
-            Assert.AreEqual(_userId, segment.Sql["user"]);
-            Assert.AreEqual(_sanitizedConnectionString, segment.Sql["connection_string"]);
+            if (!isTrustedConn)
+            {
+                Assert.AreEqual(_userId, segment.Sql["user"]);
+                Assert.AreEqual(_sanitizedConnectionString, segment.Sql["connection_string"]);
+            }
+            else
+            {
+                Assert.AreEqual(_collectedTrustedConnectionString, segment.Sql["connection_string"]);
+            }
         }
     }
 }
