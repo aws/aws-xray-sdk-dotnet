@@ -128,7 +128,12 @@ namespace Amazon.XRay.Recorder.Handlers.SqlServer
             // Remove sensitive information from connection string
             connectionStringBuilder.Remove("Password");
 
-            _recorder.AddSqlInformation("user", connectionStringBuilder.UserID);
+            // Do a pre-check for UserID since in the case of TrustedConnection, a UserID may not be available.
+            if (!string.IsNullOrEmpty(connectionStringBuilder.UserID))
+            {
+                _recorder.AddSqlInformation("user", connectionStringBuilder.UserID);
+            }
+            
             _recorder.AddSqlInformation("connection_string", connectionStringBuilder.ToString());
 
             if(ShouldCollectSqlText()) 
