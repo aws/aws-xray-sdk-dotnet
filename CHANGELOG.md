@@ -1,6 +1,37 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 2.7.0 (2019-07-18)
+### AWSXRayRecorder.Core (2.7.0)
+#### Fixed
+- Fixes the issue where rule pollers were started even when the tracing was disabled. [issue #86](https://github.com/aws/aws-xray-sdk-dotnet/issues/86) [PR #91](https://github.com/aws/aws-xray-sdk-dotnet/pull/91)
+
+#### Added
+- Adds IStreamingStrategy interface for custome streaming strategies for subsegments. Also, the MaxSubsegmentSize for the DefaultStreamingStrategy is customizable now. [PR #83](https://github.com/aws/aws-xray-sdk-dotnet/pull/83)
+- Adds the ability to capture CommandText in the sanitized_query field of a sql subsegment. Adds global and override configuration to enable/dsable this feature. [PR #49](https://github.com/aws/aws-xray-sdk-dotnet/pull/49)
+- Whitelists SimpleNotificationService to record the TopicArn on Publish operation. [PR #90](https://github.com/aws/aws-xray-sdk-dotnet/pull/90)
+- Adds a User property to a segment with a supporting SetUser method. [PR #92](https://github.com/aws/aws-xray-sdk-dotnet/pull/92)
+- Adds the ability to set custom StartTime and EndTime for subsegments while doing BeginSubsegment and EndSubsegment respectively. [PR #93](https://github.com/aws/aws-xray-sdk-dotnet/pull/93)
+
+### AWSXRayRecorder.Handlers.AwsSdk (2.7.0)
+- Bumped version to address AWSXRayRecorder.Core package change
+
+### AWSXRayRecorder.Handlers.AspNet (2.6.0)
+- Bumped version to address AWSXRayRecorder.Core package change
+
+### AWSXRayRecorder.Handlers.AspNetCore (2.6.0)
+- Bumped version to address AWSXRayRecorder.Core package change
+
+### AWSXRayRecorder.Handlers.SqlServer (2.6.0)
+#### Fixed
+- Adds validations on UserID before adding it to subsegment. In cases like trusted connections, the UserId may not be present in the connection string. [PR #94](https://github.com/aws/aws-xray-sdk-dotnet/pull/94)
+
+#### Added
+- Adds the ability to capture CommandText in the sanitized_query field of a sql subsegment. Adds global and override configuration to enable/dsable this feature. [PR #49](https://github.com/aws/aws-xray-sdk-dotnet/pull/49)
+
+### AWSXRayRecorder.Handlers.System.Net (2.6.0)
+- Bumped version to address AWSXRayRecorder.Core package change
+
 ## 2.6.2 (2019-05-20)
 ### AWSXRayRecorder.Core (2.6.2)
 #### Fixed
