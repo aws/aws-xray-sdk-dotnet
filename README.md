@@ -134,10 +134,26 @@ AWSXRayRecorder.InitializeInstance(recorder: recorder);
 
 You can instrument X-Ray for your `ASP.NET Core` App in the `Configure()` method of `Startup.cs` file of your project.  
 *Note* :  
-1. Use `app.UseXRay()` middleware after `app.UseExceptionHandler("/Error")` in order to catch exceptions.  
+1. For .Net Core 2.1 and above, use `app.UseXRay()` middleware **before** any other middleware to trace incoming requests. For .Net Core 2.0 place the `app.UseXRay()` middleware **after** the `app.UseExceptionHandler("/Error")` in order to catch exceptions. You would be able to see any runtime exception with its stack trace, however, the status code might show 200 due to a known limitation of the ExceptionHandler middleware in .Net Core 2.0. 
 2. You need to install `AWSXRayRecorder.Handlers.AspNetCore` nuget package. This package adds extension methods to the `IApplicationBuilder` to make it easy to register AWS X-Ray to the ASP.NET Core HTTP pipeline.
 
 A) With default configuration:
+
+* For .Net Core 2.1 and above: 
+
+```csharp
+using Microsoft.AspNetCore.Builder;
+
+public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+{
+    app.UseXRay("SampleApp"); // name of the app
+    app.UseExceptionHandler("/Error");
+    app.UseStaticFiles(); // rest of the middlewares
+    app.UseMVC();
+}
+```
+
+* For .Net Core 2.0: 
 
 ```csharp
 using Microsoft.AspNetCore.Builder;
