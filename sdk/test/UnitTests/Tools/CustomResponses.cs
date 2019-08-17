@@ -29,7 +29,7 @@ namespace Amazon.XRay.Recorder.UnitTests.Tools
 {
     public static class CustomResponses
     {
-#if NET45
+#if NET452
         public static void SetResponse(
             AmazonServiceClient client, string content, string requestId, bool isOK)
         {

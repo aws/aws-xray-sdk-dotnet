@@ -59,7 +59,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         public new void TestCleanup()
         {
             base.TestCleanup();
-#if NET45
+#if NET452
             ConfigurationManager.AppSettings[_collectSqlQueriesKey] = string.Empty;
             AppSettings.Reset();
 #endif
@@ -70,7 +70,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         public void Intercept_DoesNot_CollectQueries_When_NotEnabled()
         {
             // arrange
-#if !NET45
+#if !NET452
             var recorder = new AWSXRayRecorder {
                 XRayOptions = new XRayOptions()
             };
@@ -94,7 +94,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         public async Task InterceptAsync_DoesNot_CollectQueries_When_NotEnabled()
         {
             // arrange
-#if !NET45
+#if !NET452
             var recorder = new AWSXRayRecorder {
                 XRayOptions = new XRayOptions()
             };
@@ -118,7 +118,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         public void Intercept_CollectsQueries_When_DisabledGlobally_And_EnabledLocally()
         {
             // arrange
-#if !NET45
+#if !NET452
             var recorder = new AWSXRayRecorder {
                 XRayOptions = new XRayOptions { CollectSqlQueries = false }
             };
@@ -142,7 +142,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         public async Task InterceptAsync_CollectsQueries_When_DisabledGlobally_And_EnabledLocally()
         {
             // arrange
-#if !NET45
+#if !NET452
             var recorder = new AWSXRayRecorder {
                 XRayOptions = new XRayOptions { CollectSqlQueries = false }
             };
@@ -166,7 +166,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         public void Intercept_CollectsQueries_When_EnabledGlobally()
         {
             // arrange
-#if !NET45
+#if !NET452
             var recorder = new AWSXRayRecorder {
                 XRayOptions = new XRayOptions { CollectSqlQueries = true }
             };
@@ -190,7 +190,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         public async Task InterceptAsync_CollectsQueries_When_EnabledGlobally()
         {
             // arrange
-#if !NET45
+#if !NET452
             var recorder = new AWSXRayRecorder {
                 XRayOptions = new XRayOptions { CollectSqlQueries = true }
             };
@@ -214,7 +214,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         public void Intercept_DoesNot_CollectQueries_When_EnabledGlobally_And_DisabledLocally()
         {
             // arrange
-#if !NET45
+#if !NET452
             var recorder = new AWSXRayRecorder {
                 XRayOptions = new XRayOptions { CollectSqlQueries = true }
             };
@@ -238,7 +238,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         public async Task InterceptAsync_DoesNot_CollectQueries_When_EnabledGlobally_And_DisabledLocally()
         {
             // arrange
-#if !NET45
+#if !NET452
             var recorder = new AWSXRayRecorder {
                 XRayOptions = new XRayOptions { CollectSqlQueries = true }
             };
@@ -262,7 +262,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         public void TestTrustedConnection_DoesNotCollectUserID()
         {
             // arrange
-#if !NET45
+#if !NET452
             var recorder = new AWSXRayRecorder {
                 XRayOptions = new XRayOptions()
             };

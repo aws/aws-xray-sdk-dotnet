@@ -18,7 +18,7 @@
 using System;
 
 using Amazon.Runtime.Internal.Util;
-#if NET45
+#if NET452
 using System.Net.Http;
 #else
 using Microsoft.AspNetCore.Http;
@@ -60,7 +60,7 @@ namespace Amazon.XRay.Recorder.Core.Strategies
         /// </summary>
         public string FixedName { get; set; }
 
-#if NET45
+#if NET452
         /// <summary>
         /// Gets the name of the segment.
         /// </summary>

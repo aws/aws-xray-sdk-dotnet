@@ -27,7 +27,7 @@ namespace Amazon.XRay.Recorder.UnitTests.Tools
 {
     public class MockWebResponse
     {
-#if NET45
+#if NET452
         public static HttpWebResponse CreateFromResource(string resourceName)
         {
             var rawResponse = Utils.GetResourceText(resourceName);

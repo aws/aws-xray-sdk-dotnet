@@ -32,7 +32,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         public void TestInitialize()
         {
             _recorder = new AWSXRayRecorder();
-#if NET45
+#if NET452
             AWSXRayRecorder.InitializeInstance(_recorder);
 #else
             AWSXRayRecorder.InitializeInstance(recorder: _recorder);
@@ -77,7 +77,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         public async Task TestXrayDisabledSendAsync()
         {
             _recorder = new MockAWSXRayRecorder() { IsTracingDisabledValue = true };
-#if NET45
+#if NET452
             AWSXRayRecorder.InitializeInstance(_recorder);
 #else
             AWSXRayRecorder.InitializeInstance(recorder: _recorder);
@@ -117,7 +117,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         public async Task TestXrayContextMissingStrategySendAsync() // Test that respects ContextMissingStrategy
         {
             _recorder = new MockAWSXRayRecorder();
-#if NET45
+#if NET452
             AWSXRayRecorder.InitializeInstance(_recorder);
 #else
             AWSXRayRecorder.InitializeInstance(recorder: _recorder);

@@ -44,7 +44,7 @@ namespace Amazon.XRay.Recorder.IntegrationTests
             Recorder.Dispose();
         }
 
-#if NET45
+#if NET452
         protected BatchGetTracesResponse BatchGetTraces(string traceId)
         {
             var request = new BatchGetTracesRequest();
