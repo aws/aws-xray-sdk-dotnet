@@ -160,7 +160,7 @@ namespace Amazon.XRay.Recorder.Core
 
             if (samplingResponse == null)
             {
-                SamplingInput samplingInput = new SamplingInput();
+                SamplingInput samplingInput = new SamplingInput(name);
                 samplingResponse = SamplingStrategy.ShouldTrace(samplingInput);
             }
 

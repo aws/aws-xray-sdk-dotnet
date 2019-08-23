@@ -26,6 +26,11 @@ namespace Amazon.XRay.Recorder.Core.Sampling
         {
         }
 
+        public SamplingInput(string serviceName)
+        {
+            ServiceName = serviceName;
+        }
+
         public SamplingInput(string host, string url, string method, string serviceName, string serviceType)
         {
             Host = host;
