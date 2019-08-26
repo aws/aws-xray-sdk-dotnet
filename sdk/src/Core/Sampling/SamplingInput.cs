@@ -26,9 +26,8 @@ namespace Amazon.XRay.Recorder.Core.Sampling
         {
         }
 
-        public SamplingInput(string serviceName)
+        public SamplingInput(string serviceName): this(host: null, url: null, method: null, serviceName: serviceName, serviceType: null)
         {
-            ServiceName = serviceName;
         }
 
         public SamplingInput(string host, string url, string method, string serviceName, string serviceType)
