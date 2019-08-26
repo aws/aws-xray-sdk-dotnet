@@ -213,12 +213,46 @@ namespace Amazon.XRay.Recorder.UnitTests
         }
 
         [TestMethod]
+        public void TestGetMatchedRule4() // sampling input has only ServiceName - the rule should be matched 
+        {
+            RuleCache ruleCache = new RuleCache();
+            List<SamplingRule> newRules = new List<SamplingRule>();
+            SamplingInput samplingInput = new SamplingInput("elasticbeanstalk");
+            SamplingRule expectedRule = GetSamplingRule("a", 1, 0.5, 10, serviceName: samplingInput.ServiceName);
+            newRules.Add(expectedRule);
+            ruleCache.LoadRules(newRules);
+            TimeStamp current = TimeStamp.CurrentTime();
+            ruleCache.LastUpdated = current;
+
+            var actualRule = ruleCache.GetMatchedRule(samplingInput, current);
+
+            Assert.IsTrue(actualRule.Equals(expectedRule));
+        }
+
+        [TestMethod]
         public void TestGetMatchedRuleNotMatching() // Rule not matched
         {
             RuleCache ruleCache = new RuleCache();
             List<SamplingRule> newRules = new List<SamplingRule>();
             SamplingInput samplingInput = new SamplingInput("elasticbeanstalk", "/api/1", "GET", "dynamo", "*");
             SamplingRule rule = GetSamplingRule("a", 1, 0.5, 10, "j", samplingInput.ServiceName, samplingInput.Method, samplingInput.Url);
+            newRules.Add(rule);
+            ruleCache.LoadRules(newRules);
+            TimeStamp current = TimeStamp.CurrentTime();
+            ruleCache.LastUpdated = current;
+
+            var actualRule = ruleCache.GetMatchedRule(samplingInput, current);
+
+            Assert.IsNull(actualRule);
+        }
+
+        [TestMethod]
+        public void TestGetMatchedRuleNotMatching2() // SamplingInput with only ServiceName - Rule not matched
+        {
+            RuleCache ruleCache = new RuleCache();
+            List<SamplingRule> newRules = new List<SamplingRule>();
+            SamplingInput samplingInput = new SamplingInput("elasticbeanstalk");
+            SamplingRule rule = GetSamplingRule("a", 1, 0.5, 10, serviceName: "XYZ");
             newRules.Add(rule);
             ruleCache.LoadRules(newRules);
             TimeStamp current = TimeStamp.CurrentTime();
@@ -238,6 +272,25 @@ namespace Amazon.XRay.Recorder.UnitTests
             SamplingRule rule = GetSamplingRule("a", 1, 0.5, 10, "j", "test", samplingInput.Method, samplingInput.Url);
             newRules.Add(rule);
             SamplingRule expectedRule = GetSamplingRule(SamplingRule.Default, 10000, 0.5, 1, "j", "*", "*","*"); // should match to default rule
+            newRules.Add(expectedRule);
+            ruleCache.LoadRules(newRules);
+            TimeStamp current = TimeStamp.CurrentTime();
+            ruleCache.LastUpdated = current;
+
+            var actualRule = ruleCache.GetMatchedRule(samplingInput, current);
+
+            Assert.IsTrue(actualRule.Equals(expectedRule));
+        }
+
+        [TestMethod]
+        public void TestGetMatchedRuleWithDefaultRule2() // SamplingInput with only ServiceName - Matching with default Rule;
+        {
+            RuleCache ruleCache = new RuleCache();
+            List<SamplingRule> newRules = new List<SamplingRule>();
+            SamplingInput samplingInput = new SamplingInput("elasticbeanstalk");
+            SamplingRule rule = GetSamplingRule("a", 1, 0.5, 10, serviceName: "XYZ");
+            newRules.Add(rule);
+            SamplingRule expectedRule = GetSamplingRule(SamplingRule.Default, 10000, 0.5, 1, "j", "*", "*", "*"); // should match to default rule
             newRules.Add(expectedRule);
             ruleCache.LoadRules(newRules);
             TimeStamp current = TimeStamp.CurrentTime();
