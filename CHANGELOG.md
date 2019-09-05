@@ -1,6 +1,26 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 2.7.1 (2019-09-05) 
+### AWSXRayRecorder.Core (2.7.1) 
+#### Fixed 
+- Calling BeginSegment created a SamplingInput with null fields which matched incorrectly with the centralized sampling rules [PR#100](https://github.com/aws/aws-xray-sdk-dotnet/pull/100) 
+ 
+### AWSXRayRecorder.Handlers.AwsSdk (2.7.1) 
+- Bumped version to address AWSXRayRecorder.Core package change 
+ 
+### AWSXRayRecorder.Handlers.AspNet (2.6.1) 
+- Bumped version to address AWSXRayRecorder.Core package change 
+ 
+### AWSXRayRecorder.Handlers.AspNetCore (2.6.1) 
+- Bumped version to address AWSXRayRecorder.Core package change 
+ 
+### AWSXRayRecorder.Handlers.SqlServer (2.6.1) 
+- Bumped version to address AWSXRayRecorder.Core package change 
+ 
+### AWSXRayRecorder.Handlers.System.Net (2.6.1) 
+- Bumped version to address AWSXRayRecorder.Core package change
+
 ## 2.7.0 (2019-07-18)
 ### AWSXRayRecorder.Core (2.7.0)
 #### Fixed
