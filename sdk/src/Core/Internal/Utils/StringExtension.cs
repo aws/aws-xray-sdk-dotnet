@@ -53,11 +53,9 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
                 return false;
             }
 
-            int patternLength = pattern.Length;
-            int textLength = text.Length;
-            if (patternLength == 0)
+            if (pattern.Length == 0)
             {
-                return textLength == 0;
+                return text.Length == 0;
             }
 
             if (IsWildcardGlob(pattern))
@@ -65,59 +63,40 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
                 return true;
             }
 
-            if (isCaseInsensitive)
+            int i = 0, p = 0, iStar = text.Length, pStar = 0;
+            while (i < text.Length)
             {
-                pattern = pattern.ToUpperInvariant();
-                text = text.ToUpperInvariant();
-            }
-
-            // Infix globs are relatively rare, and the below search is expensive especially when
-            // it is used a lot. Check for infix globs and, in their absence, do the simple thing
-            int indexOfGlob = pattern.IndexOf('*');
-            if (indexOfGlob == -1 || indexOfGlob == patternLength - 1)
-            {
-                return SimpleWildcardMatch(text, pattern);
-            }
-
-            // The res[i] is used to record if there is a match
-            // between the first i chars in text and the first j chars in pattern.
-            // So will return res[textLength+1] in the end
-            // Loop from the beginning of the pattern
-            // case not '*': if text[i]==pattern[j] or pattern[j] is '?', and res[i] is true, 
-            //   set res[i+1] to true, otherwise false
-            // case '*': since '*' can match any globing, as long as there is a true in res before i
-            //   all the res[i+1], res[i+2],...,res[textLength] could be true
-            bool[] res = new bool[textLength + 1];
-            res[0] = true;
-            for (int j = 0; j < patternLength; j++)
-            {
-                char p = pattern[j];
-                if (p != '*')
+                if (p < pattern.Length && text[i] == pattern[p])
                 {
-                    for (int i = textLength - 1; i >= 0; i--)
-                    {
-                        char t = text[i];
-                        res[i + 1] = res[i] && (p == '?' || (p == t));
-                    }
+                    ++i;
+                    ++p;
+                }
+                else if (p < pattern.Length && isCaseInsensitive && char.ToLower(text[i]) == char.ToLower(pattern[p]))
+                {
+                    ++i;
+                    ++p;
+                }
+                else if (p < pattern.Length && '?' == pattern[p])
+                {
+                    ++i;
+                    ++p;
+                }
+                else if (p < pattern.Length && pattern[p] == '*')
+                {
+                    iStar = i;
+                    pStar = p++;
+                }
+                else if (iStar != text.Length)
+                {
+                    i = ++iStar;
+                    p = pStar + 1;
                 }
                 else
-                {
-                    int i = 0;
-                    while (i <= textLength && !res[i])
-                    {
-                        i++;
-                    }
-
-                    for (; i <= textLength; i++)
-                    {
-                        res[i] = true;
-                    }
-                }
-
-                res[0] = res[0] && p == '*';
+                    return false;
             }
 
-            return res[textLength]; 
+            while (p < pattern.Length && pattern[p] == '*') ++p;
+            return p == pattern.Length && i == text.Length;
         }
 
         /// <summary>
