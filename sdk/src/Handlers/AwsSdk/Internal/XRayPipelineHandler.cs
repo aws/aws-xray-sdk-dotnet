@@ -319,6 +319,11 @@ namespace Amazon.XRay.Recorder.Handlers.AwsSdk.Internal
                 _recorder.TraceContext.HandleEntityMissing(_recorder, e, "Cannot get entity while processing AWS SDK request");
             }
 
+            _recorder.BeginSubsegment(RemoveAmazonPrefixFromServiceName(request.ServiceName));
+            _recorder.SetNamespace("aws");
+
+            entity = entity == null ? null : _recorder.GetEntity();
+
             if (TraceHeader.TryParse(entity, out TraceHeader traceHeader))
             {
                 request.Headers[TraceHeader.HeaderKey] = traceHeader.ToString();
@@ -327,9 +332,6 @@ namespace Amazon.XRay.Recorder.Handlers.AwsSdk.Internal
             {
                 _logger.DebugFormat("Failed to inject trace header to AWS SDK request as the segment can't be converted to TraceHeader.");
             }
-
-            _recorder.BeginSubsegment(RemoveAmazonPrefixFromServiceName(request.ServiceName));
-            _recorder.SetNamespace("aws");
         }
 
         /// <summary>
