@@ -71,6 +71,7 @@
 //   Route53
 //   Route53Domains
 //   S3
+//   SageMaker
 //   SecurityToken
 //   ServerMigrationService
 //   ServiceCatalog
@@ -425,7 +426,7 @@
             }
         }
      },
-      "S3": {
+    "S3": {
       "operations": {
         "CopyObject": {
           "request_parameters": [
@@ -827,6 +828,15 @@
           ]
         }
       }
-    }
+    },
+	"SageMakerRuntime": {
+		"operations": {
+			"InvokeEndpoint": {
+				"request_parameters": [
+					"EndpointName"
+				]
+			}
+		}
+	}
   }
 }
