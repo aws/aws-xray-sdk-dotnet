@@ -288,7 +288,7 @@ The `Amazon.XRay.Recorder.Handlers.System.Net` package includes a delegate that 
 Register the `HttpClientXRayTracingHandler` as a middleware for your http client.
 
 ```csharp
-services.AddHttpClient<IAmazonClient, AmazonClient>()
+services.AddHttpClient<IFooClient, FooClient>()
         .AddHttpMessageHandler<HttpClientXRayTracingHandler>();
 ```
 or
