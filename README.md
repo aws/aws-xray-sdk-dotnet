@@ -281,6 +281,34 @@ var httpClient = new HttpClient(new HttpClientXRayTracingHandler(new HttpClientH
 httpClient.GetAsync(URL);
 ```
 
+#### Using `System.Net.Http.HttpClientFactory` (.Net Core 2.1 and above)
+
+The `Amazon.XRay.Recorder.Handlers.System.Net` package includes a delegate that can be used to trace outbound requests without the need to specifically wrap outbound requests from that class.
+
+Register the `HttpClientXRayTracingHandler` as a middleware for your http client.
+
+```csharp
+services.AddHttpClient<IAmazonClient, AmazonClient>()
+        .AddHttpMessageHandler<HttpClientXRayTracingHandler>();
+```
+or
+
+```csharp
+services.AddHttpClient("foo")
+        .ConfigurePrimaryHttpMessageHandler(() =>
+        {
+            return new HttpClientXRayTracingHandler(new HttpClientHandler());
+        });
+```
+
+Use the above client factory to create clients with outgoing requests traced.
+
+```csharp
+var client = _clientFactory.CreateClient("foo");
+var request = new HttpRequestMessage(HttpMethod.Get, "https://www.foobar.com");
+var response = await client.SendAsync(request);
+```
+
 ### Trace Query to SQL Server (.NET and .NET Core) : [Nuget](https://www.nuget.org/packages/AWSXRayRecorder.Handlers.SqlServer/)
 
 The SDK provides a wrapper class for `System.Data.SqlClient.SqlCommand`. The wrapper class can be used interchangable with `SqlCommand` class. By replacing instance of `SqlCommand` to `TraceableSqlCommand`, synchronized/asynchronized method will automatically generate subsegment for the SQL query.
