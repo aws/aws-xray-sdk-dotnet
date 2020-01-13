@@ -1053,6 +1053,19 @@ namespace Amazon.XRay.Recorder.UnitTests
         }
 
         [TestMethod]
+        public void TestBeginSegmentWithCustomTime()
+        {
+            var custom_time = new DateTime(2020, 1, 13, 21, 18, 47, 228, DateTimeKind.Utc);
+            AWSXRayRecorder recorder = new AWSXRayRecorderBuilder().Build();
+            recorder.BeginSegment("Segment1", timestamp: custom_time);
+
+            Segment segment = (Segment)recorder.TraceContext.GetEntity();
+            Assert.AreEqual(1578950327.228m, segment.StartTime);
+
+            recorder.EndSegment();
+        }
+
+        [TestMethod]
         public void TestBeginSubsegmentWithCustomTime()
         {
             AWSXRayRecorder recorder = new AWSXRayRecorderBuilder().Build();

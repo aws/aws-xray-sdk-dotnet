@@ -422,7 +422,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Entities
         /// </summary>
         public void SetStartTime(DateTime timestamp)
         {
-            StartTime = TimeStamp.ToUnixSeconds(timestamp);
+            StartTime = timestamp.ToUnixTimeSeconds();
         }
 
         /// <summary>
@@ -430,7 +430,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Entities
         /// </summary>
         public void SetEndTime(DateTime timestamp)
         {
-            EndTime = TimeStamp.ToUnixSeconds(timestamp);
+            EndTime = timestamp.ToUnixTimeSeconds();
         }
 
         /// <summary>

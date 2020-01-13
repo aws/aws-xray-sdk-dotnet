@@ -63,15 +63,6 @@ namespace Amazon.XRay.Recorder.Core.Sampling
             return DateTime.UtcNow;
         }
 
-        /// <summary>
-        /// Converts <see cref="DateTime"/> to unix seconds.
-        /// </summary>
-        /// <param name="time">Instance of <see cref="DateTime"/>.</param>
-        /// <returns>unix seconds.</returns>
-        internal static decimal ToUnixSeconds(DateTime time)
-        {
-            return GetUnixSeconds(time);
-        }
         internal bool IsGreaterThan(TimeStamp timeStamp)
         {
             return Time > timeStamp.Time;
