@@ -38,6 +38,9 @@ namespace Amazon.XRay.Recorder.UnitTests
 
             DateTime time1 = new DateTime(2016, 1, 1, 0, 0, 0, DateTimeKind.Utc);
             Assert.AreEqual(time1.ToUnixTimeSeconds(), 1451606400m);
+
+            DateTime time2 = new DateTime(2020, 1, 13, 21, 18, 47, 228, DateTimeKind.Utc);
+            Assert.AreEqual(time2.ToUnixTimeSeconds(), 1578950327.228m);
         }
 
         [TestMethod]
