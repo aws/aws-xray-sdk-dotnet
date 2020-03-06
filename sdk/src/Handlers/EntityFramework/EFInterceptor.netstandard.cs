@@ -5,13 +5,14 @@ using Amazon.XRay.Recorder.Core.Internal.Entities;
 using Amazon.XRay.Recorder.Core.Exceptions;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 using System.Data.SqlClient;
 
 namespace Amazon.XRay.Recorder.Handlers.EntityFramework
 {
     public class EFInterceptor : Microsoft.EntityFrameworkCore.Diagnostics.DbCommandInterceptor
     {
-        private const string DataBaseTypeString = "sqlserver";
+        private const string DataBaseTypeString = "EntityFramework";
         private readonly AWSXRayRecorder _recorder;
         private readonly bool? _collectSqlQueriesOverride;
 
@@ -127,8 +128,8 @@ namespace Amazon.XRay.Recorder.Handlers.EntityFramework
                 _recorder.TraceContext.HandleEntityMissing(_recorder, e, "Cannot get entity while processing start of Entity Framework command.");
             }
 
-            //_recorder.BeginSubsegment(SqlUtil.BuildSubsegmentName(command)); //commented because its failing with invalid name due to \\
-            _recorder.BeginSubsegment("EF_sub");
+            _recorder.BeginSubsegment(BuildSubsegmentName(command)); //commented because its failing with invalid name due to \\
+            //_recorder.BeginSubsegment("EF_sub");
             _recorder.SetNamespace("remote");
             CollectSqlInformation(command);
         }
@@ -209,6 +210,15 @@ namespace Amazon.XRay.Recorder.Handlers.EntityFramework
             }
             builder.TryGetValue(key, out value);
             return value;
+        }
+
+        private string BuildSubsegmentName(DbCommand command)
+            => command.Connection.Database + "@" + RemovePortNumberFromDataSource(command.Connection.DataSource);
+
+        private string RemovePortNumberFromDataSource(string dataSource)
+        {
+            Regex _portNumberRegex = new Regex(@",\d+$");
+            return _portNumberRegex.Replace(dataSource, string.Empty);
         }
 
 #if !NET45

@@ -105,7 +105,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         {
             var options = new DbContextOptionsBuilder<TestEFContext>()
                 .UseSqlite(connection)
-                .AddInterceptors(new EFInterceptor())
+                .AddInterceptors(new EFInterceptor(true))
                 .Options;
             var context = new TestEFContext(options);
             context.Database.EnsureCreated();
