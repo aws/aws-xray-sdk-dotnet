@@ -21,6 +21,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Net.Http;
+using System.Threading.Tasks;
 using Amazon.DynamoDBv2;
 using Amazon.XRay.Recorder.Core.Internal.Emitters;
 using Amazon.XRay.Recorder.Core.Internal.Entities;
@@ -79,6 +80,41 @@ namespace Amazon.XRay.Recorder.UnitTests
             
             Assert.AreEqual(expect, actual);
         }
+
+        [TestMethod]
+        public void TestMarshallDelegate()
+        {
+            var segment = new Segment("test", "1-11111111-111111111111111111111111");
+            segment.Id = "1111111111111111";
+            segment.StartTime = 1;
+            segment.EndTime = 2;
+
+            Func<object, object> func = SyncFunction;
+            Action<object> action = SyncAction;
+            Func<object, Task<object>> asyncFunc = AsyncFunction;
+
+            var functionName = "function";
+            var actionName = "action";
+            var asyncFunctionName = "asyncFunction";
+
+            segment.AddMetadata(functionName, func);
+            segment.AddMetadata(actionName, action);
+            segment.AddMetadata(asyncFunctionName, asyncFunc);
+
+            var actual = _marshaller.Marshall(segment);
+            var actualJson = JsonMapper.ToObject(actual.Split('\n')[1]);
+
+            Assert.AreEqual("JsonSegmentMarshallerTest.SyncFunction(System.Func`2[System.Object,System.Object])",
+                            (string)actualJson["metadata"]["default"][functionName]);
+            Assert.AreEqual("JsonSegmentMarshallerTest.SyncAction(System.Action`1[System.Object])",
+                            (string)actualJson["metadata"]["default"][actionName]);
+            Assert.AreEqual("JsonSegmentMarshallerTest.AsyncFunction(System.Func`2[System.Object,System.Threading.Tasks.Task`1[System.Object]])",
+                            (string)actualJson["metadata"]["default"][asyncFunctionName]);
+        }
+
+        public object SyncFunction(object obj) => obj;
+        public void SyncAction(object obj) { return; }
+        public async Task<object> AsyncFunction(object obj) => obj;
 
         [TestMethod]
         public void TestMarshallSimpleSegment()
