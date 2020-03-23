@@ -31,13 +31,14 @@ namespace Amazon.XRay.Recorder.Handlers.EntityFramework
     {
         // Some database providers may not support Entity Framework Core 3.0 and above now
         // https://docs.microsoft.com/en-us/ef/core/providers/?tabs=dotnet-core-cli
-        private readonly string[] DatabaseTypes = { "mysql" , "sqlserver" , "sqlite" , "postgresql" , "firebird" , "cosmos" ,
+        private readonly string[] DatabaseTypes = { "mysql" , "sqlserver" , "sqlite" , "postgresql" , "firebirdsql" , "cosmos" ,
                                                     "oracle" , "filecontextcore" , "jet" , "teradata" , "openedge" , "ibm" ,
                                                     "mycat" , "inmemory" };
 
         private const string SqlServerCompact35 = "sqlservercompact35";
         private const string SqlServerCompact40 = "sqlservercompact40";
         private const string DefaultDatabaseType = "EntityFrameworkCore";
+        private readonly string[] UserIdFormatOptions = { "user id" , "username" , "user" }; // case insensitive
         private readonly AWSXRayRecorder _recorder;
         private readonly bool? _collectSqlQueriesOverride;
 
@@ -305,14 +306,16 @@ namespace Amazon.XRay.Recorder.Handlers.EntityFramework
 
             _recorder.AddSqlInformation("database_version", eventData.Command.Connection.ServerVersion);
 
-            DbConnectionStringBuilder connectionStringBuilder = new DbConnectionStringBuilder();
-            connectionStringBuilder.ConnectionString = eventData.Command.Connection.ConnectionString;
+            DbConnectionStringBuilder connectionStringBuilder = new DbConnectionStringBuilder
+            {
+                ConnectionString = eventData.Command.Connection.ConnectionString
+            };
 
             // Remove sensitive information from connection string
             connectionStringBuilder.Remove("Password");
 
             // Do a pre-check for UserID since in the case of TrustedConnection, a UserID may not be available.
-            var user_id = GetConnectionValue(connectionStringBuilder, "User ID");
+            var user_id = GetConnectionValue(connectionStringBuilder);
             if (user_id != null)
             {
                 _recorder.AddSqlInformation("user", user_id.ToString());
@@ -328,8 +331,9 @@ namespace Amazon.XRay.Recorder.Handlers.EntityFramework
 
         private string GetDataBaseType(DbContext context)
         {
-            string databaseProvider = context.Database?.ProviderName?.ToLower();
+            string databaseProvider = context?.Database?.ProviderName?.ToLower();
 
+            // Need to check if the context and its following parameter is null or not to avoid exception
             if (string.IsNullOrEmpty(databaseProvider))
             {
                 return DefaultDatabaseType;
@@ -358,14 +362,16 @@ namespace Amazon.XRay.Recorder.Handlers.EntityFramework
             return databaseType ?? databaseProvider;
         }
 
-        private object GetConnectionValue(DbConnectionStringBuilder builder, string key)
+        private object GetConnectionValue(DbConnectionStringBuilder builder)
         {
             object value = null;
-            if (key == null)
+            foreach (string key in UserIdFormatOptions)
             {
-                return null;
+                if (builder.TryGetValue(key, out value))
+                {
+                    break;
+                }
             }
-            builder.TryGetValue(key, out value);
             return value;
         }
 
@@ -379,7 +385,7 @@ namespace Amazon.XRay.Recorder.Handlers.EntityFramework
 
         private string RemovePortNumberFromDataSource(string dataSource)
         {
-            Regex _portNumberRegex = new Regex(@",\d+$");
+            Regex _portNumberRegex = new Regex(@"[,|:]\d+$"); 
             return _portNumberRegex.Replace(dataSource, string.Empty);
         }
 

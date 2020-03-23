@@ -4,7 +4,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <Company>Amazon.com, Inc</Company>
     <Product>Amazon Web Service X-Ray Recorder</Product>
-    <Copyright>Copyright 2017-2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.</Copyright>
+    <Copyright>Copyright 2017-2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.</Copyright>
     <AssemblyName>AWSXRayRecorder.Handlers.EntityFramework</AssemblyName>
     <RootNamespace>Amazon.XRay.Recorder.Handlers.EntityFramework</RootNamespace>
     <Authors>Amazon Web Services</Authors>
@@ -24,7 +24,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="2.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="3.1.0" />
   </ItemGroup>
 

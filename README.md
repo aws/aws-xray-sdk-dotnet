@@ -395,25 +395,24 @@ For how to start with Entity Framework Core in an ASP.NET Core web app, please t
 
 #### Setup
 
-In order to trace SQL query, you can register your `DbContext` with `EFInterceptor` in the `ConfigureServices` method in `startup.cs` file. 
+In order to trace SQL query, you can register your `DbContext` with `AddXRayInterceptor()` accordingly in the `ConfigureServices` method in `startup.cs` file. 
 
 For instance, when dealing with MySql server using Nuget: [Pomelo.EntityFrameworkCore.MySql](https://www.nuget.org/packages/Pomelo.EntityFrameworkCore.MySql) (V 3.1.1). 
 
 ```csharp
-public void ConfigureServices(IServiceCollection services){ 
-
-    services.AddDbContext<your_DbContext>(options => options.UseMySql(your_connectionString).AddInterceptors(new EFInterceptor()));
-
+public void ConfigureServices(IServiceCollection services)
+{ 
+    services.AddDbContext<your_DbContext>(options => options.UseMySql(your_connectionString).AddXRayInterceptor());
 }
 ```
 
-Alternatively, you can register `EFInterceptor` in the `Onconfiguring` method in your `DbContext` class. Below we are using Nuget: [Microsoft.EntityFrameworkCore.Sqlite](https://www.nuget.org/packages/Microsoft.EntityFrameworkCore.Sqlite) (V 3.1.2)
+Alternatively, you can register `AddXRayInterceptor()` in the `Onconfiguring` method in your `DbContext` class. Below we are using Nuget: [Microsoft.EntityFrameworkCore.Sqlite](https://www.nuget.org/packages/Microsoft.EntityFrameworkCore.Sqlite) (V 3.1.2)
 
 ```csharp
 public class your_DbContext : DbContext 
 {
 	protected override void OnConfiguring(DbContextOptionsBuilder options)
-    => options.UseSqlite(your_connectionString).AddInterceptors(new EFInterceptor());
+    => options.UseSqlite(your_connectionString).AddXRayInterceptor();
 }
 ```
 
@@ -433,13 +432,12 @@ If you want to enable this feature, it can be done in two ways. First, by settin
 }
 ```
 
-Secondly, you can set the `collectSqlQueries` parameter in the `EFInterceptor` instance as **true** to collect the SQL query text. If you set this parameter as **false**, it will disable the `collectSqlQueries` feature for this `EFInterceptor` instance.
+Secondly, you can set the `collectSqlQueries` parameter in the `AddXRayInterceptor()` as **true** to collect the SQL query text. If you set this parameter as **false**, it will disable the `collectSqlQueries` feature for this `AddXRayInterceptor()`.
 
 ```csharp
-public void ConfigureServices(IServiceCollection services){
-
-    services.AddDbContext<your_DbContext>(options => options.UseMySql(your_connectionString).AddInterceptors(new EFInterceptor(true)));
-
+public void ConfigureServices(IServiceCollection services)
+{
+    services.AddDbContext<your_DbContext>(options => options.UseMySql(your_connectionString).AddXRayInterceptor(true));
 }
 ```
 
@@ -449,7 +447,7 @@ Or
 public class your_DbContext : DbContext 
 {
 	protected override void OnConfiguring(DbContextOptionsBuilder options)
-    => options.UseSqlite(your_connectionString).AddInterceptors(new EFInterceptor(true));
+    => options.UseSqlite(your_connectionString).AddXRayInterceptor(true);
 }
 ```
  
