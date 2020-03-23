@@ -387,7 +387,7 @@ using (var command = new TraceableSqlCommand("SELECT * FROM products", connectio
 
 AWS XRay SDK for .NET Core provides interceptor for tracing SQL query through Entity Framework Core (>=3.0).
 
-For how to start with Entity Framework Core in an ASP.NET Core web app, please take reference to [Link](https://docs.microsoft.com/en-us/aspnet/core/data/ef-rp/intro?view=aspnetcore-3.1&tabs=visual-studio)
+For how to start with Entity Framework Core in an ASP.NET Core web app, please take reference to [Link](https://docs.microsoft.com/en-us/aspnet/core/data/ef-mvc/?view=aspnetcore-3.1)
 
 *NOTE:*
 

@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------------
-// <copyright file="TraceableSqlCommand.net45.cs" company="Amazon.com">
+// <copyright file="EFInterceptor.cs" company="Amazon.com">
 //      Copyright 2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 //      Licensed under the Apache License, Version 2.0 (the "License").
@@ -22,23 +22,11 @@ using Amazon.XRay.Recorder.Core.Internal.Entities;
 using Amazon.XRay.Recorder.Core.Exceptions;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Text.RegularExpressions;
-using Microsoft.EntityFrameworkCore;
 
 namespace Amazon.XRay.Recorder.Handlers.EntityFramework
 {
     public class EFInterceptor : DbCommandInterceptor
     {
-        // Some database providers may not support Entity Framework Core 3.0 and above now
-        // https://docs.microsoft.com/en-us/ef/core/providers/?tabs=dotnet-core-cli
-        private readonly string[] DatabaseTypes = { "mysql" , "sqlserver" , "sqlite" , "postgresql" , "firebirdsql" , "cosmos" ,
-                                                    "oracle" , "filecontextcore" , "jet" , "teradata" , "openedge" , "ibm" ,
-                                                    "mycat" , "inmemory" };
-
-        private const string SqlServerCompact35 = "sqlservercompact35";
-        private const string SqlServerCompact40 = "sqlservercompact40";
-        private const string DefaultDatabaseType = "EntityFrameworkCore";
-        private readonly string[] UserIdFormatOptions = { "user id" , "username" , "user" }; // case insensitive
         private readonly AWSXRayRecorder _recorder;
         private readonly bool? _collectSqlQueriesOverride;
 
@@ -301,7 +289,7 @@ namespace Amazon.XRay.Recorder.Handlers.EntityFramework
         protected virtual void CollectSqlInformation(CommandEventData eventData)
         {
             // Get database type from DbContext
-            string databaseType = GetDataBaseType(eventData.Context);
+            string databaseType = EFUtil.GetDataBaseType(eventData.Context);
             _recorder.AddSqlInformation("database_type", databaseType);
 
             _recorder.AddSqlInformation("database_version", eventData.Command.Connection.ServerVersion);
@@ -315,7 +303,7 @@ namespace Amazon.XRay.Recorder.Handlers.EntityFramework
             connectionStringBuilder.Remove("Password");
 
             // Do a pre-check for UserID since in the case of TrustedConnection, a UserID may not be available.
-            var user_id = GetConnectionValue(connectionStringBuilder);
+            var user_id = EFUtil.GetConnectionValue(connectionStringBuilder);
             if (user_id != null)
             {
                 _recorder.AddSqlInformation("user", user_id.ToString());
@@ -329,65 +317,13 @@ namespace Amazon.XRay.Recorder.Handlers.EntityFramework
             }
         }
 
-        private string GetDataBaseType(DbContext context)
-        {
-            string databaseProvider = context?.Database?.ProviderName?.ToLower();
-
-            // Need to check if the context and its following parameter is null or not to avoid exception
-            if (string.IsNullOrEmpty(databaseProvider))
-            {
-                return DefaultDatabaseType;
-            }
-
-            if (databaseProvider.Contains(SqlServerCompact35))
-            {
-                return SqlServerCompact35;
-            }
-            else if (databaseProvider.Contains(SqlServerCompact40))
-            {
-                return SqlServerCompact40;
-            }
-
-            string databaseType = null;
-
-            foreach (string t in DatabaseTypes)
-            {
-                if (databaseProvider.Contains(t))
-                {
-                    databaseType = t;
-                    break;
-                }
-            }
-
-            return databaseType ?? databaseProvider;
-        }
-
-        private object GetConnectionValue(DbConnectionStringBuilder builder)
-        {
-            object value = null;
-            foreach (string key in UserIdFormatOptions)
-            {
-                if (builder.TryGetValue(key, out value))
-                {
-                    break;
-                }
-            }
-            return value;
-        }
-
         /// <summary>
         /// Builds the name of the subsegment in the format database@datasource
         /// </summary>
         /// <param name="command">Instance of <see cref="DbCommand"/>.</param>
         /// <returns>Returns the formed subsegment name as a string.</returns>
         private string BuildSubsegmentName(DbCommand command)
-            => command.Connection.Database + "@" + RemovePortNumberFromDataSource(command.Connection.DataSource);
-
-        private string RemovePortNumberFromDataSource(string dataSource)
-        {
-            Regex _portNumberRegex = new Regex(@"[,|:]\d+$"); 
-            return _portNumberRegex.Replace(dataSource, string.Empty);
-        }
+            => command.Connection.Database + "@" + EFUtil.RemovePortNumberFromDataSource(command.Connection.DataSource);
 
         private bool ShouldCollectSqlText()
             => _collectSqlQueriesOverride ?? _recorder.XRayOptions.CollectSqlQueries;
