@@ -57,14 +57,11 @@ namespace Amazon.XRay.Recorder.UnitTests
         public void Test_EFCore_successful_query()
         {
             // Arrange
-#if !NET45
             var recorder = new AWSXRayRecorder
             {
                 XRayOptions = new XRayOptions { CollectSqlQueries = true }
             };
-#else
-            var recorder = new AWSXRayRecorder();
-#endif
+
             recorder.BeginSegment("TestSegment");
             var context = GetTestEFContext();
             // Act

@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   
   <PropertyGroup>
@@ -10,7 +10,6 @@
     <FileVersion>1.1.0.0</FileVersion>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>../../../buildtools/local-development.snk</AssemblyOriginatorKeyFile>
-    <DelaySign>false</DelaySign>
   </PropertyGroup>
 
   
@@ -45,19 +44,17 @@
     <PackageReference Include="Moq" Version="4.7.137" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.0'">
-    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables">
-      <Version>3.1.0</Version>
+    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="3.1.0">
     </PackageReference>
 
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json">
-      <Version>3.1.0</Version>
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="3.1.0">
     </PackageReference>
 
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="3.1.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="3.1.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="3.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="2.0.0" />
-    
+    <ProjectReference Include="..\..\src\Handlers\EntityFramework\AWSXRayRecorder.Handlers.EntityFramework.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0" />
@@ -69,7 +66,6 @@
     <ProjectReference Include="..\..\src\Handlers\AwsSdk\AWSXRayRecorder.Handlers.AwsSdk.csproj" />
     <ProjectReference Include="..\..\src\Handlers\SqlServer\AWSXRayRecorder.Handlers.SqlServer.csproj" />
     <ProjectReference Include="..\..\src\Handlers\System.Net\AWSXRayRecorder.Handlers.System.Net.csproj" />
-    <ProjectReference Include="..\..\src\Handlers\EntityFramework\AWSXRayRecorder.Handlers.EntityFramework.csproj" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' != 'net452'">

@@ -25,7 +25,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AWSXRayRecorder.UnitTests",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AWSXRayRecorder.Handlers.AspNet", "src\Handlers\AspNet\AWSXRayRecorder.Handlers.AspNet.csproj", "{C647F311-4023-4E0B-9147-074EAF243D54}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AWSXRayRecorder.Handlers.EntityFramework", "src\Handlers\EntityFramework\AWSXRayRecorder.Handlers.EntityFramework.csproj", "{8C95F2F0-3098-4189-8D05-B2517086AC39}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AWSXRayRecorder.Handlers.EntityFramework", "src\Handlers\EntityFramework\AWSXRayRecorder.Handlers.EntityFramework.csproj", "{B5C2F674-6539-4A04-9B7D-14E300962BFE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -82,12 +82,12 @@ Global
 		{C647F311-4023-4E0B-9147-074EAF243D54}.Nuget|Any CPU.Build.0 = Release|Any CPU
 		{C647F311-4023-4E0B-9147-074EAF243D54}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C647F311-4023-4E0B-9147-074EAF243D54}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8C95F2F0-3098-4189-8D05-B2517086AC39}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8C95F2F0-3098-4189-8D05-B2517086AC39}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8C95F2F0-3098-4189-8D05-B2517086AC39}.Nuget|Any CPU.ActiveCfg = Release|Any CPU
-		{8C95F2F0-3098-4189-8D05-B2517086AC39}.Nuget|Any CPU.Build.0 = Release|Any CPU
-		{8C95F2F0-3098-4189-8D05-B2517086AC39}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8C95F2F0-3098-4189-8D05-B2517086AC39}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B5C2F674-6539-4A04-9B7D-14E300962BFE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B5C2F674-6539-4A04-9B7D-14E300962BFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B5C2F674-6539-4A04-9B7D-14E300962BFE}.Nuget|Any CPU.ActiveCfg = Release|Any CPU
+		{B5C2F674-6539-4A04-9B7D-14E300962BFE}.Nuget|Any CPU.Build.0 = Release|Any CPU
+		{B5C2F674-6539-4A04-9B7D-14E300962BFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B5C2F674-6539-4A04-9B7D-14E300962BFE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -101,7 +101,7 @@ Global
 		{7E2D2EC0-DFA6-4B4D-B79F-EBC08CCD2A8A} = {6FD9C919-1504-445D-B70D-D0F8AC2829C4}
 		{B7D60B1F-C452-454E-AD4B-202A40E628E8} = {F0ED74B6-1639-47D3-9511-B4217012AC88}
 		{C647F311-4023-4E0B-9147-074EAF243D54} = {6FD9C919-1504-445D-B70D-D0F8AC2829C4}
-		{8C95F2F0-3098-4189-8D05-B2517086AC39} = {6FD9C919-1504-445D-B70D-D0F8AC2829C4}
+		{B5C2F674-6539-4A04-9B7D-14E300962BFE} = {6FD9C919-1504-445D-B70D-D0F8AC2829C4}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {E3276CD5-62B3-466D-BFDD-2AFDB8819B46}
