@@ -84,6 +84,7 @@
     <Compile Remove="TestLambdaContext.cs" />
     <Compile Remove="FacadeSegmentTest.cs" />
     <Compile Remove="EfCoreTests.cs" />
+    <Compile Remove="EFUtilTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System.Web" />

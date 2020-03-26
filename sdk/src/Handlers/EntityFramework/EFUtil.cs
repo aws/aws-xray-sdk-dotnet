@@ -29,7 +29,7 @@ namespace Amazon.XRay.Recorder.Handlers.EntityFramework
     {
         private static readonly string DefaultDatabaseType = "EntityFrameworkCore";
 
-        private static readonly string[] UserIdFormatOptions = { "user id", "username", "user" }; // case insensitive
+        private static readonly string[] UserIdFormatOptions = { "user id", "username", "user", "userid" }; // case insensitive
 
         // Some database providers may not support Entity Framework Core 3.0 and above now
         // https://docs.microsoft.com/en-us/ef/core/providers/?tabs=dotnet-core-cli

@@ -16,14 +16,10 @@
 //-----------------------------------------------------------------------------
 
 using System;
-using System.Collections.Generic;
-using System.Text;
 using Amazon.XRay.Recorder.UnitTests.Tools;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.EntityFrameworkCore;
-using Amazon.XRay.Recorder.Handlers.EntityFramework;
 using Amazon.XRay.Recorder.Core;
-using Amazon.XRay.Recorder.Core.Internal.Utils;
 using System.Linq;
 using Microsoft.Data.Sqlite;
 using Amazon.XRay.Recorder.Core.Internal.Entities;
@@ -37,13 +33,13 @@ namespace Amazon.XRay.Recorder.UnitTests
         private const String _queryString = "SELECT \"u\".\"UserId\"\r\nFROM \"Users\" AS \"u\"\r\nWHERE \"u\".\"UserId\" = 1";
         private const String _dbVersion = "3.28.0";
         private SqliteConnection connection = null;
+
         [TestInitialize]
         public void TestInitialize()
         {
             // In-memory database only exists while the connection is open
             connection = new SqliteConnection("DataSource=:memory:");
             connection.Open();
-
         }
 
         [TestCleanup]
@@ -57,13 +53,10 @@ namespace Amazon.XRay.Recorder.UnitTests
         public void Test_EFCore_successful_query()
         {
             // Arrange
-            var recorder = new AWSXRayRecorder
-            {
-                XRayOptions = new XRayOptions { CollectSqlQueries = true }
-            };
+            var recorder = new AWSXRayRecorder();
 
             recorder.BeginSegment("TestSegment");
-            var context = GetTestEFContext();
+            var context = GetTestEFContext(true);
             // Act
             var users = context.Users.Where(u => u.UserId == 1).ToList();
 
@@ -76,10 +69,26 @@ namespace Amazon.XRay.Recorder.UnitTests
             recorder.EndSegment();
         }
 
+        [TestMethod]
+        public void Test_EFCore_unsuccessful_query()
+        {
+            var recorder = new AWSXRayRecorder();
+
+            recorder.BeginSegment("TestSegment");
+            var context = GetTestEFContext(false);
+            var users = context.Users.Where(u => u.UserId == 1).ToList();
+
+            var segment = recorder.TraceContext.GetEntity();
+            Assert.AreEqual(3, segment.Subsegments.Count);
+            var query_subsegment = segment.Subsegments[2];
+            AssertQueryNotCollected(query_subsegment);
+            recorder.EndSegment();
+        }
+
         private void AssertQueryCollected(Subsegment subsegment)
         {
             AssertExpectedSqlInformation(subsegment);
-            Assert.AreEqual(_queryString, subsegment.Sql["sanitized_query"]);
+            Assert.IsTrue(subsegment.Sql.ContainsKey("sanitized_query"));
         }
 
         private void AssertQueryNotCollected(Subsegment subsegment)
@@ -96,13 +105,11 @@ namespace Amazon.XRay.Recorder.UnitTests
             Assert.AreEqual(connection.ServerVersion, subsegment.Sql["database_version"]);
         }
 
-
-
-        private TestEFContext GetTestEFContext()
+        private TestEFContext GetTestEFContext(bool collectSqlQueries)
         {
             var options = new DbContextOptionsBuilder<TestEFContext>()
                 .UseSqlite(connection)
-                .AddInterceptors(new EFInterceptor(true))
+                .AddXRayInterceptor(collectSqlQueries)
                 .Options;
             var context = new TestEFContext(options);
             context.Database.EnsureCreated();
