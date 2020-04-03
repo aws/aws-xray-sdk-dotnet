@@ -303,7 +303,7 @@ namespace Amazon.XRay.Recorder.Handlers.EntityFramework
             connectionStringBuilder.Remove("Password");
 
             // Do a pre-check for UserID since in the case of TrustedConnection, a UserID may not be available.
-            var user_id = EFUtil.GetConnectionValue(connectionStringBuilder);
+            var user_id = EFUtil.GetUserId(connectionStringBuilder);
             if (user_id != null)
             {
                 _recorder.AddSqlInformation("user", user_id.ToString());

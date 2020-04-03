@@ -43,7 +43,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             {
                 ConnectionString = mySqlConnectionString
             };
-            object result = EFUtil.GetConnectionValue(builder);
+            object result = EFUtil.GetUserId(builder);
             Assert.AreEqual("root", result.ToString());
         }
 
@@ -54,7 +54,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             {
                 ConnectionString = sqlServerConnectionString
             };
-            object result = EFUtil.GetConnectionValue(builder);
+            object result = EFUtil.GetUserId(builder);
             Assert.AreEqual("myUsername", result.ToString());
         }
 
@@ -65,7 +65,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             {
                 ConnectionString = sqliteConnectionString
             };
-            object result = EFUtil.GetConnectionValue(builder);
+            object result = EFUtil.GetUserId(builder);
             Assert.IsNull(result);
         }
 
@@ -76,7 +76,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             {
                 ConnectionString = postgreSqlConnectionString
             };
-            object result = EFUtil.GetConnectionValue(builder);
+            object result = EFUtil.GetUserId(builder);
             Assert.AreEqual("postgres", result.ToString());
         }
 
@@ -87,7 +87,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             {
                 ConnectionString = firebirdSqlConnectionString
             };
-            object result = EFUtil.GetConnectionValue(builder);
+            object result = EFUtil.GetUserId(builder);
             Assert.AreEqual("SYSDBA", result.ToString());
         }
     }

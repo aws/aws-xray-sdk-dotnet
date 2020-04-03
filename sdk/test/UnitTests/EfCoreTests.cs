@@ -85,6 +85,30 @@ namespace Amazon.XRay.Recorder.UnitTests
             recorder.EndSegment();
         }
 
+        [TestMethod]
+        public void Test_EFCore_query_with_exception()
+        {
+            var recorder = new AWSXRayRecorder();
+
+            recorder.BeginSegment("TestSegment");
+            var context = GetTestEFContext(true);
+
+            try
+            {
+                context.Database.ExecuteSqlCommand("Select * From FakeTable"); // A false sql command which results in 'no such table: FakeTable' exception
+            }
+            catch
+            {
+                // ignore
+            }
+
+            var segment = recorder.TraceContext.GetEntity();
+            Assert.AreEqual(3, segment.Subsegments.Count);
+            var subsegment = segment.Subsegments[2];
+            Assert.AreEqual(true, subsegment.HasFault);
+            recorder.EndSegment();
+        }
+
         private void AssertQueryCollected(Subsegment subsegment)
         {
             AssertExpectedSqlInformation(subsegment);

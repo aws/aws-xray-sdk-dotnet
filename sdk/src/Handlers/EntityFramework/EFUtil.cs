@@ -96,7 +96,7 @@ namespace Amazon.XRay.Recorder.Handlers.EntityFramework
         /// </summary>
         /// <param name="builder">Instance of <see cref="DbConnectionStringBuilder"/>.</param>
         /// <returns></returns>
-        public static object GetConnectionValue(DbConnectionStringBuilder builder)
+        public static object GetUserId(DbConnectionStringBuilder builder)
         {
             object value = null;
             foreach (string key in UserIdFormatOptions)
