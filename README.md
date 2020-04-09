@@ -383,6 +383,74 @@ using (var command = new TraceableSqlCommand("SELECT * FROM products", connectio
 2. Parameterized values will appear in their tokenized form and will not be expanded.
 3. The value of `collectSqlQueries` in the `TraceableSqlCommand` instance overrides the value set in the global configuration using the `CollectSqlQueries` property.
 
+### Trace SQL Query through Entity Framework Core 3.0 and above (.NET Core)
+
+AWS XRay SDK for .NET Core provides interceptor for tracing SQL query through Entity Framework Core (>=3.0).
+
+For how to start with Entity Framework Core in an ASP.NET Core web app, please take reference to [Link](https://docs.microsoft.com/en-us/aspnet/core/data/ef-mvc/?view=aspnetcore-3.1)
+
+*NOTE:*
+
+* Not all database provider support Entity Framework Core 3.0 and above, please make sure that you are using the [Nuget package](https://docs.microsoft.com/en-us/ef/core/providers/?tabs=dotnet-core-cli) with a compatible version (EF Core >= 3.0).
+
+#### Setup
+
+In order to trace SQL query, you can register your `DbContext` with `AddXRayInterceptor()` accordingly in the `ConfigureServices` method in `startup.cs` file. 
+
+For instance, when dealing with MySql server using Nuget: [Pomelo.EntityFrameworkCore.MySql](https://www.nuget.org/packages/Pomelo.EntityFrameworkCore.MySql) (V 3.1.1). 
+
+```csharp
+public void ConfigureServices(IServiceCollection services)
+{ 
+    services.AddDbContext<your_DbContext>(options => options.UseMySql(your_connectionString).AddXRayInterceptor());
+}
+```
+
+Alternatively, you can register `AddXRayInterceptor()` in the `Onconfiguring` method in your `DbContext` class. Below we are using Nuget: [Microsoft.EntityFrameworkCore.Sqlite](https://www.nuget.org/packages/Microsoft.EntityFrameworkCore.Sqlite) (V 3.1.2)
+
+```csharp
+public class your_DbContext : DbContext 
+{
+	protected override void OnConfiguring(DbContextOptionsBuilder options)
+    => options.UseSqlite(your_connectionString).AddXRayInterceptor();
+}
+```
+
+The connection string can be either hard coded or configured from `appsettings.json` file.
+
+#### Capture SQL Query text in the traced SQL calls to SQL Server
+
+You can also opt in to capture the `DbCommand.CommandText` as part of the subsegment created for your SQL query. The collected `DbCommand.CommandText` will appear as `sanitized_query` in the subsegment JSON. By default, this feature is disabled due to security reasons. 
+
+If you want to enable this feature, it can be done in two ways. First, by setting the `CollectSqlQueries` to **true** in the `appsettings.json` file as follows:
+
+```json
+{
+  "XRay": {
+    "CollectSqlQueries":"true"
+  }
+}
+```
+
+Secondly, you can set the `collectSqlQueries` parameter in the `AddXRayInterceptor()` as **true** to collect the SQL query text. If you set this parameter as **false**, it will disable the `collectSqlQueries` feature for this `AddXRayInterceptor()`.
+
+```csharp
+public void ConfigureServices(IServiceCollection services)
+{
+    services.AddDbContext<your_DbContext>(options => options.UseMySql(your_connectionString).AddXRayInterceptor(true));
+}
+```
+
+Or
+
+```csharp
+public class your_DbContext : DbContext 
+{
+	protected override void OnConfiguring(DbContextOptionsBuilder options)
+    => options.UseSqlite(your_connectionString).AddXRayInterceptor(true);
+}
+```
+
 ### Multithreaded Execution (.NET and .NET Core) : [Nuget](https://www.nuget.org/packages/AWSXRayRecorder.Core/)
 
 In multithreaded execution, X-Ray context from current to its child thread is automatically set.  
