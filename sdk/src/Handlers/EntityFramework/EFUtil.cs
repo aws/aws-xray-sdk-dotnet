@@ -35,14 +35,12 @@ namespace Amazon.XRay.Recorder.Handlers.EntityFramework
         // https://docs.microsoft.com/en-us/ef/core/providers/?tabs=dotnet-core-cli
         private static readonly Dictionary<string, string> DatabaseTypes = new Dictionary<string, string>()
         {
-            // Support tracing
             { "Microsoft.EntityFrameworkCore.SqlServer" , "sqlserver" },
             { "Microsoft.EntityFrameworkCore.Sqlite" , "sqlite" },
             { "Npgsql.EntityFrameworkCore.PostgreSQL" , "postgresql" },
             { "Pomelo.EntityFrameworkCore.MySql" , "mysql" },
             { "FirebirdSql.EntityFrameworkCore.Firebird" , "firebirdsql" },
 
-            // Not support tracing so far
             { "Microsoft.EntityFrameworkCore.InMemory" , "inmemory" },
             { "Microsoft.EntityFrameworkCore.Cosmos" , "cosmosdb" },
             { "Devart.Data.MySql.EFCore" , "mysql" },
