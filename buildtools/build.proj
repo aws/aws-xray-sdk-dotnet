@@ -41,8 +41,8 @@
         WorkingDirectory="..\sdk\src\Handlers\AspNetCore"/>
     <Exec Command="$(Command)"
         WorkingDirectory="..\sdk\src\Handlers\AwsSdk"/>
-	<Exec Command="$(Command)"
-		WorkingDirectory="..\sdk\src\Handlers\EntityFramework"/>
+	  <Exec Command="$(Command)"
+        WorkingDirectory="..\sdk\src\Handlers\EntityFramework"/>
     <Exec Command="$(Command)"
         WorkingDirectory="..\sdk\src\Handlers\SqlServer"/>
     <Exec Command="$(Command)"
