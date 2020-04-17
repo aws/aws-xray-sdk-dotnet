@@ -1,6 +1,34 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 2.8.0 (2020-04-17)
+### AWSXRayRecorder.Core (2.8.0)
+#### Fixed
+- Fixed customer start/end timestamps floor [PR#119](https://github.com/aws/aws-xray-sdk-dotnet/pull/119)
+- Added DelegateExporter to JasonSegmentMarshaller [PR#122](https://github.com/aws/aws-xray-sdk-dotnet/pull/122)
+
+### AWSXRayRecorder.Handlers.AwsSdk (2.8.0)
+#### Improved
+- Added Whitelisting EndpointName parameter for InvokeEndpoint operation for SageMakerRuntime [PR#117](https://github.com/aws/aws-xray-sdk-dotnet/pull/117)
+
+### AWSXRayRecorder.Handlers.EntityFramework (1.0.0)
+#### New Feature
+- Added tracing support for Entity Framework Core 3.0 and above [PR#124](https://github.com/aws/aws-xray-sdk-dotnet/pull/124)
+- Modified README.md and removed some code comments [PR#127](https://github.com/aws/aws-xray-sdk-dotnet/pull/127)
+- Added EF Core package for build [PR#129](https://github.com/aws/aws-xray-sdk-dotnet/pull/129)
+
+### AWSXRayRecorder.Handlers.AspNet (2.7.0)
+- Bumped version to address AWSXRayRecorder.Core package change
+
+### AWSXRayRecorder.Handlers.AspNetCore (2.7.0)
+- Bumped version to address AWSXRayRecorder.Core package change
+
+### AWSXRayRecorder.Handlers.SqlServer (2.7.0)
+- Bumped version to address AWSXRayRecorder.Core package change
+
+### AWSXRayRecorder.Handlers.System.Net (2.7.0)
+- Bumped version to address AWSXRayRecorder.Core package change
+
 ## 2.7.2 (2019-10-09)   
 ### AWSXRayRecorder.Core (2.7.2)    
 #### Improved    
