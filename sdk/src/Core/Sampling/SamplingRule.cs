@@ -32,7 +32,7 @@ namespace Amazon.XRay.Recorder.Core.Sampling
         public string Host { get; set; }
         public string RuleName { get; set; }
         public int Priority { get; set; }
-        public Reservior Reservior { get; set; }
+        public Reservoir Reservoir { get; set; }
         public double Rate { get; private set; }
         public int ReservoirSize { get; private set; }
         public string HTTPMethod { get; set; }
@@ -63,7 +63,7 @@ namespace Amazon.XRay.Recorder.Core.Sampling
             ServiceType = serviceType;
             ResourceARN = resourceARN;
             Attributes = attributes;
-            Reservior = new Reservior();
+            Reservoir = new Reservoir();
             Statistics = new Statistics();
         }
 
@@ -156,7 +156,7 @@ namespace Amazon.XRay.Recorder.Core.Sampling
 
         internal bool ShouldReport(TimeStamp now)
         {
-            if (EverMatched() && Reservior.ShouldReport(now))
+            if (EverMatched() && Reservoir.ShouldReport(now))
             {
                 return true;
             }
@@ -172,7 +172,7 @@ namespace Amazon.XRay.Recorder.Core.Sampling
         internal void Merge(SamplingRule oldRule)
         {
             Statistics.CopyFrom(oldRule.Statistics);
-            Reservior.CopyFrom(oldRule.Reservior);
+            Reservoir.CopyFrom(oldRule.Reservoir);
             oldRule = null;
         }
 

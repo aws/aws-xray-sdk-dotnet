@@ -29,9 +29,9 @@ namespace Amazon.XRay.Recorder.Core.Sampling
         public double FixedRate;
 
         /// <summary>
-        /// Reservior quota for the rule.
+        /// Reservoir quota for the rule.
         /// </summary>
-        public int? ReserviorQuota;
+        public int? ReservoirQuota;
 
         /// <summary>
         /// TTL for the rule.
@@ -51,7 +51,7 @@ namespace Amazon.XRay.Recorder.Core.Sampling
         {
             RuleName = ruleName;
             FixedRate = fixedRate;
-            ReserviorQuota = reservoirQuota;
+            ReservoirQuota = reservoirQuota;
             TTL = new TimeStamp(ttl);
             Interval = interval;
         }

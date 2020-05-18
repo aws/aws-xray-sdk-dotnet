@@ -125,7 +125,7 @@ namespace Amazon.XRay.Recorder.Core.Sampling
                 {
                     if (_cache.TryGetValue(t.RuleName, out SamplingRule rule))
                     {
-                        rule.Reservior.LoadQuota(t, now);
+                        rule.Reservoir.LoadQuota(t, now);
                         rule.SetRate(t.FixedRate);
                     }
                 }

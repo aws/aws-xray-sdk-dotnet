@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------------
-// <copyright file="ReserviorDecision.cs" company="Amazon.com">
+// <copyright file="ReservoirDecision.cs" company="Amazon.com">
 //      Copyright 2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 //      Licensed under the Apache License, Version 2.0 (the "License").
@@ -21,7 +21,7 @@ namespace Amazon.XRay.Recorder.Core.Sampling
     /// An Enum of decisions, the reservoir could make based on
     /// assigned quota with TTL and the current timestamp/usage.
     /// </summary>
-    public enum ReserviorDecision
+    public enum ReservoirDecision
     {
         Take = 't',
         Borrow = 'b',
