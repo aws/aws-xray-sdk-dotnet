@@ -384,7 +384,7 @@ using (var command = new TraceableSqlCommand("SELECT * FROM products", connectio
 2. Parameterized values will appear in their tokenized form and will not be expanded.
 3. The value of `collectSqlQueries` in the `TraceableSqlCommand` instance overrides the value set in the global configuration using the `CollectSqlQueries` property.
 
-### Trace SQL Query through Entity Framework Core 3.0 and above (.NET Core)
+### Trace SQL Query through Entity Framework Core 3.0 and above (.NET Core) : [Nuget](https://www.nuget.org/packages/AWSXRayRecorder.Handlers.EntityFramework/)
 
 AWS XRay SDK for .NET Core provides interceptor for tracing SQL query through Entity Framework Core (>=3.0).
 
@@ -401,6 +401,8 @@ In order to trace SQL query, you can register your `DbContext` with `AddXRayInte
 For instance, when dealing with MySql server using Nuget: [Pomelo.EntityFrameworkCore.MySql](https://www.nuget.org/packages/Pomelo.EntityFrameworkCore.MySql) (V 3.1.1). 
 
 ```csharp
+using Microsoft.EntityFrameworkCore;
+
 public void ConfigureServices(IServiceCollection services)
 { 
     services.AddDbContext<your_DbContext>(options => options.UseMySql(your_connectionString).AddXRayInterceptor());
@@ -410,6 +412,8 @@ public void ConfigureServices(IServiceCollection services)
 Alternatively, you can register `AddXRayInterceptor()` in the `Onconfiguring` method in your `DbContext` class. Below we are using Nuget: [Microsoft.EntityFrameworkCore.Sqlite](https://www.nuget.org/packages/Microsoft.EntityFrameworkCore.Sqlite) (V 3.1.2)
 
 ```csharp
+using Microsoft.EntityFrameworkCore;
+
 public class your_DbContext : DbContext 
 {
 	protected override void OnConfiguring(DbContextOptionsBuilder options)
@@ -436,6 +440,8 @@ If you want to enable this feature, it can be done in two ways. First, by settin
 Secondly, you can set the `collectSqlQueries` parameter in the `AddXRayInterceptor()` as **true** to collect the SQL query text. If you set this parameter as **false**, it will disable the `collectSqlQueries` feature for this `AddXRayInterceptor()`.
 
 ```csharp
+using Microsoft.EntityFrameworkCore;
+
 public void ConfigureServices(IServiceCollection services)
 {
     services.AddDbContext<your_DbContext>(options => options.UseMySql(your_connectionString).AddXRayInterceptor(true));
@@ -445,6 +451,8 @@ public void ConfigureServices(IServiceCollection services)
 Or
 
 ```csharp
+using Microsoft.EntityFrameworkCore;
+
 public class your_DbContext : DbContext 
 {
 	protected override void OnConfiguring(DbContextOptionsBuilder options)
