@@ -30,7 +30,7 @@ namespace Microsoft.AspNetCore.Builder
     public static class AWSXRayMiddlewareExtensions
     {
         /// <summary>
-        /// Adds <see cref="AWSXRayMiddleware"/> to the application's request pipeline.
+        /// Adds <see cref="AWSXRayMiddleware"/> to the applicaion's request pipeline.
         /// </summary>
         /// <param name="builder">Instance of <see cref="IApplicationBuilder"/>.</param>
         /// <param name="segmentName">Segment name.</param>
@@ -41,7 +41,7 @@ namespace Microsoft.AspNetCore.Builder
         }
 
         /// <summary>
-        /// Adds <see cref="AWSXRayMiddleware"/> to the application's request pipeline.
+        /// Adds <see cref="AWSXRayMiddleware"/> to the applicaion's request pipeline.
         /// </summary>
         /// <param name="builder">Instance of <see cref="IApplicationBuilder"/></param>
         /// <param name="segmentName">Segment name.</param>
@@ -53,7 +53,7 @@ namespace Microsoft.AspNetCore.Builder
         }
 
         /// <summary>
-        /// Adds <see cref="AWSXRayMiddleware"/> to the application's request pipeline.
+        /// Adds <see cref="AWSXRayMiddleware"/> to the applicaion's request pipeline.
         /// </summary>
         /// <param name="builder">Instance of <see cref="IApplicationBuilder"/>.</param>
         /// <param name="segmentNamingStrategy"></param>
@@ -64,7 +64,7 @@ namespace Microsoft.AspNetCore.Builder
         }
 
         /// <summary>
-        /// Adds <see cref="AWSXRayMiddleware"/> to the application's request pipeline.
+        /// Adds <see cref="AWSXRayMiddleware"/> to the applicaion's request pipeline.
         /// </summary>
         /// <param name="builder">Instance of <see cref="IApplicationBuilder"/>.</param>
         /// <param name="segmentNamingStrategy"></param>
