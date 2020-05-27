@@ -15,9 +15,12 @@
 // </copyright>
 //-----------------------------------------------------------------------------
 
+using System;
 using System.Collections.Generic;
+using System.Net.Http;
+using System.Threading.Tasks;
 using Amazon.Runtime.Internal.Util;
-using Amazon.Util;
+using ThirdParty.LitJson;
 
 namespace Amazon.XRay.Recorder.Core.Plugins
 {
@@ -27,6 +30,7 @@ namespace Amazon.XRay.Recorder.Core.Plugins
     public class EC2Plugin : IPlugin
     {
         private static readonly Logger _logger = Logger.GetLogger(typeof(EC2Plugin));
+        private static readonly HttpClient _client = new HttpClient();
 
         /// <summary>
         /// Gets the name of the origin associated with this plugin.
@@ -60,36 +64,79 @@ namespace Amazon.XRay.Recorder.Core.Plugins
         public bool TryGetRuntimeContext(out IDictionary<string, object> context)
         {
             context = null;
-
             var dict = new Dictionary<string, object>();
-            if (EC2InstanceMetadata.InstanceId != null)
-            {
-                dict.Add("instance_id", EC2InstanceMetadata.InstanceId);
-            }
+            const string metadata_base_url = "http://169.254.169.254/latest/";
 
-            if (EC2InstanceMetadata.AvailabilityZone != null)
+            try
             {
-                dict.Add("availability_zone", EC2InstanceMetadata.AvailabilityZone);
-            }
+                // try IMDSv2 endpoint for metadata
+                // get the token
+                Dictionary<string, string> header = new Dictionary<string, string>(1);
+                header.Add("X-aws-ec2-metadata-token-ttl-seconds", "60");
+                string token = DoRequest(metadata_base_url + "api/token", HttpMethod.Put, header).Result;
 
-            if (EC2InstanceMetadata.InstanceType != null)
-            {
-                dict.Add("instance_size", EC2InstanceMetadata.InstanceType);
-            }
+                header = new Dictionary<string, string>(1);
+                header.Add("X-aws-ec2-metadata-token", token);
 
-            if (EC2InstanceMetadata.AmiId != null)
-            {
-                dict.Add("ami_id", EC2InstanceMetadata.AmiId);
+                string resp = DoRequest(metadata_base_url + "dynamic/instance-identity/document", HttpMethod.Get, header).Result;
+                dict = ParseMetadata(resp);
             }
-
-            if (dict.Count == 0)
+            catch (Exception e)
             {
-                _logger.DebugFormat("Unable to contact EC2 metadata service, failed to get runtime context.");
-                return false;
+                _logger.Error(e, "Exception occurred while getting EC2 metadata from IMDSv2");
+                _logger.DebugFormat("Unable to get metadata from IMDSv2 endpoint. Falling back to IMDSv1 endpoint");
+
+                // try IMDSv1 endpoint for metadata
+                try
+                {
+                    string resp = DoRequest(metadata_base_url + "dynamic/instance-identity/document", HttpMethod.Get).Result;
+                    dict = ParseMetadata(resp);
+                }
+                catch (Exception e2)
+                {
+                    _logger.Error(e2, "Exception occurred while getting EC2 metadata from IMDSv1");
+                    _logger.DebugFormat("Failed to get EC2 instance metadata.");
+                    return false;
+                }
             }
 
             context = dict;
             return true;
+        }
+
+        private static async Task<string> DoRequest(string url, HttpMethod method, Dictionary<string, string> headers = null)
+        {
+            HttpRequestMessage request = new HttpRequestMessage(method, url);
+            if (headers != null)
+            {
+                foreach (var item in headers)
+                {
+                    request.Headers.Add(item.Key, item.Value);
+                }
+            }
+
+            HttpResponseMessage response = await _client.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadAsStringAsync();
+            }
+            else
+            {
+                throw new Exception("Unable to complete the request successfully");
+            }
+        }
+
+        private static Dictionary<string, object> ParseMetadata(string jsonString)
+        {
+            JsonData data = JsonMapper.ToObject(jsonString);
+            Dictionary<string, object> ec2_meta_dict = new Dictionary<string, object>();
+
+            ec2_meta_dict.Add("instance_id", data["instanceId"]);
+            ec2_meta_dict.Add("availability_zone", data["availabilityZone"]);
+            ec2_meta_dict.Add("instance_size", data["instanceType"]);
+            ec2_meta_dict.Add("ami_id", data["imageId"]);
+
+            return ec2_meta_dict;
         }
     }
 }
