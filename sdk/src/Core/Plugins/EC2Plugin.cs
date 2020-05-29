@@ -32,6 +32,7 @@ namespace Amazon.XRay.Recorder.Core.Plugins
     {
         private static readonly Logger _logger = Logger.GetLogger(typeof(EC2Plugin));
         private readonly HttpClient _client = new HttpClient();
+        const string metadata_base_url = "http://169.254.169.254/latest/";
 
         /// <summary>
         /// Gets the name of the origin associated with this plugin.
@@ -65,46 +66,63 @@ namespace Amazon.XRay.Recorder.Core.Plugins
         public bool TryGetRuntimeContext(out IDictionary<string, object> context)
         {
             context = null;
-            var dict = new Dictionary<string, object>();
-            const string metadata_base_url = "http://169.254.169.254/latest/";
+            IDictionary<string, object> dict = new Dictionary<string, object>();
 
-            try
+            // get the token
+            string token = GetToken();
+
+            // get the metadata
+            dict = GetMetadata(token);
+
+            if (dict == null || dict.Count == 0)
             {
-                // try IMDSv2 endpoint for metadata
-                // get the token
-                Dictionary<string, string> header = new Dictionary<string, string>(1);
-                header.Add("X-aws-ec2-metadata-token-ttl-seconds", "60");
-                string token = DoRequest(metadata_base_url + "api/token", HttpMethod.Put, header).Result;
-
-                header = new Dictionary<string, string>(1);
-                header.Add("X-aws-ec2-metadata-token", token);
-                
-                // get the metadata
-                string resp = DoRequest(metadata_base_url + "dynamic/instance-identity/document", HttpMethod.Get, header).Result;
-                dict = ParseMetadata(resp);
-            }
-            catch (Exception e)
-            {
-                _logger.Error(e, "Exception occurred while getting EC2 metadata from IMDSv2");
-                _logger.DebugFormat("Unable to get metadata from IMDSv2 endpoint. Falling back to IMDSv1 endpoint");
-
-                // try IMDSv1 endpoint for metadata
-                try
-                {
-                    string resp = DoRequest(metadata_base_url + "dynamic/instance-identity/document", HttpMethod.Get).Result;
-                    dict = ParseMetadata(resp);
-                }
-                catch (Exception e2)
-                {
-                    _logger.Error(e2, "Exception occurred while getting EC2 metadata from IMDSv1");
-                    _logger.DebugFormat("Failed to get EC2 instance metadata.");
-                    return false;
-                }
+                _logger.DebugFormat("Could not get instance metadata");
+                return false;
             }
 
             context = dict;
             return true;
         }
+
+        private string GetToken()
+        {
+            string token = null;
+            try
+            {
+                Dictionary<string, string> header = new Dictionary<string, string>(1);
+                header.Add("X-aws-ec2-metadata-token-ttl-seconds", "60");
+                token = DoRequest(metadata_base_url + "api/token", HttpMethod.Put, header).Result;
+            }
+            catch (Exception)
+            {
+                _logger.DebugFormat("Failed to get token for IMDSv2");
+            }
+
+            return token;
+        }
+
+
+        private IDictionary<string, object> GetMetadata(string token)
+        {
+            try
+            {
+                Dictionary<string, string> headers = null;
+                if (token != null)
+                {
+                    headers = new Dictionary<string, string>(1);
+                    headers.Add("X-aws-ec2-metadata-token", token);
+                }
+                string identity_doc_url = metadata_base_url + "dynamic/instance-identity/document";
+                string doc_string = DoRequest(identity_doc_url, HttpMethod.Get, headers).Result;
+                return ParseMetadata(doc_string);
+            }
+            catch (Exception)
+            {
+                _logger.DebugFormat("Error occurred while getting EC2 metadata");
+                return null;
+            }
+        }
+
 
         protected virtual async Task<string> DoRequest(string url, HttpMethod method, Dictionary<string, string> headers = null)
         {
@@ -129,7 +147,7 @@ namespace Amazon.XRay.Recorder.Core.Plugins
         }
 
 
-        private Dictionary<string, object> ParseMetadata(string jsonString)
+        private IDictionary<string, object> ParseMetadata(string jsonString)
         {
             JsonData data = JsonMapper.ToObject(jsonString);
             Dictionary<string, object> ec2_meta_dict = new Dictionary<string, object>();
