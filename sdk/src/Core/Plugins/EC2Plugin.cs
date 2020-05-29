@@ -61,20 +61,19 @@ namespace Amazon.XRay.Recorder.Core.Plugins
         /// <summary>
         /// Gets the context of the runtime that this plugin is associated with.
         /// </summary>
-        /// <param name="context">When the method returns, contains the runtime context of the plugin, or null if the runtime context is not available.</param>
+        /// <param name="context">When the method returns, contains the runtime context of the plugin.</param>
         /// <returns>true if the runtime context is available; Otherwise, false.</returns>
         public bool TryGetRuntimeContext(out IDictionary<string, object> context)
         {
             context = null;
-            IDictionary<string, object> dict = new Dictionary<string, object>();
 
             // get the token
             string token = GetToken();
 
             // get the metadata
-            dict = GetMetadata(token);
+            IDictionary<string, object> dict = GetMetadata(token);
 
-            if (dict == null || dict.Count == 0)
+            if (dict.Count == 0)
             {
                 _logger.DebugFormat("Could not get instance metadata");
                 return false;
@@ -119,7 +118,7 @@ namespace Amazon.XRay.Recorder.Core.Plugins
             catch (Exception)
             {
                 _logger.DebugFormat("Error occurred while getting EC2 metadata");
-                return null;
+                return new Dictionary<string, object>();
             }
         }
 
