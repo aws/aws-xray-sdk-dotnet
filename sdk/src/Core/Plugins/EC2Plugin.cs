@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Amazon.Runtime.Internal.Util;
@@ -30,7 +31,7 @@ namespace Amazon.XRay.Recorder.Core.Plugins
     public class EC2Plugin : IPlugin
     {
         private static readonly Logger _logger = Logger.GetLogger(typeof(EC2Plugin));
-        private static readonly HttpClient _client = new HttpClient();
+        private readonly HttpClient _client = new HttpClient();
 
         /// <summary>
         /// Gets the name of the origin associated with this plugin.
@@ -77,7 +78,8 @@ namespace Amazon.XRay.Recorder.Core.Plugins
 
                 header = new Dictionary<string, string>(1);
                 header.Add("X-aws-ec2-metadata-token", token);
-
+                
+                // get the metadata
                 string resp = DoRequest(metadata_base_url + "dynamic/instance-identity/document", HttpMethod.Get, header).Result;
                 dict = ParseMetadata(resp);
             }
@@ -104,7 +106,7 @@ namespace Amazon.XRay.Recorder.Core.Plugins
             return true;
         }
 
-        private static async Task<string> DoRequest(string url, HttpMethod method, Dictionary<string, string> headers = null)
+        protected virtual async Task<string> DoRequest(string url, HttpMethod method, Dictionary<string, string> headers = null)
         {
             HttpRequestMessage request = new HttpRequestMessage(method, url);
             if (headers != null)
@@ -126,7 +128,8 @@ namespace Amazon.XRay.Recorder.Core.Plugins
             }
         }
 
-        private static Dictionary<string, object> ParseMetadata(string jsonString)
+
+        private Dictionary<string, object> ParseMetadata(string jsonString)
         {
             JsonData data = JsonMapper.ToObject(jsonString);
             Dictionary<string, object> ec2_meta_dict = new Dictionary<string, object>();
