@@ -65,21 +65,18 @@ namespace Amazon.XRay.Recorder.Core.Plugins
         /// <returns>true if the runtime context is available; Otherwise, false.</returns>
         public bool TryGetRuntimeContext(out IDictionary<string, object> context)
         {
-            context = null;
-
             // get the token
             string token = GetToken();
 
             // get the metadata
-            IDictionary<string, object> dict = GetMetadata(token);
+            context = GetMetadata(token);
 
-            if (dict.Count == 0)
+            if (context.Count == 0)
             {
                 _logger.DebugFormat("Could not get instance metadata");
                 return false;
             }
 
-            context = dict;
             return true;
         }
 

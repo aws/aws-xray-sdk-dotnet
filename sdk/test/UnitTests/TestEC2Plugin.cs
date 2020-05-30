@@ -102,7 +102,7 @@ namespace Amazon.XRay.Recorder.UnitTests
 
             // Assert
             Assert.IsFalse(ret);
-            Assert.IsNull(context);
+            Assert.AreEqual(0, context.Count);
         }
     }
 
