@@ -1,6 +1,39 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 2.9.0 (2020-06-09)
+### AWSXRayRecorder.Core (2.9.0)
+#### Fixed
+- Added .gitattributes file and normalized line endings [PR#132](https://github.com/aws/aws-xray-sdk-dotnet/pull/132)
+
+#### Improved
+- Added IMDSv2 support [PR#134](https://github.com/aws/aws-xray-sdk-dotnet/pull/134)
+
+### AWSXRayRecorder.Handlers.AwsSdk (2.8.1)
+#### Fixed
+- Added .gitattributes file and normalized line endings [PR#132](https://github.com/aws/aws-xray-sdk-dotnet/pull/132)
+
+### AWSXRayRecorder.Handlers.EntityFramework (1.0.1)
+#### Fixed
+- Added .gitattributes file and normalized line endings [PR#132](https://github.com/aws/aws-xray-sdk-dotnet/pull/132)
+
+### AWSXRayRecorder.Handlers.AspNet (2.7.1)
+#### Fixed
+- Added .gitattributes file and normalized line endings [PR#132](https://github.com/aws/aws-xray-sdk-dotnet/pull/132)
+
+### AWSXRayRecorder.Handlers.AspNetCore (2.7.1)
+#### Fixed
+- Fixed typo in AWSXRayMiddlewareExtensions.cs. From Applicaion to Application [PR#131](https://github.com/aws/aws-xray-sdk-dotnet/pull/131)
+- Added .gitattributes file and normalized line endings [PR#132](https://github.com/aws/aws-xray-sdk-dotnet/pull/132)
+
+### AWSXRayRecorder.Handlers.SqlServer (2.7.1)
+#### Fixed
+- Added .gitattributes file and normalized line endings [PR#132](https://github.com/aws/aws-xray-sdk-dotnet/pull/132)
+
+### AWSXRayRecorder.Handlers.System.Net (2.7.1)
+#### Fixed
+- Added .gitattributes file and normalized line endings [PR#132](https://github.com/aws/aws-xray-sdk-dotnet/pull/132)
+
 ## 2.8.0 (2020-04-17)
 ### AWSXRayRecorder.Core (2.8.0)
 #### Fixed
