@@ -131,6 +131,7 @@ namespace Amazon.XRay.Recorder.Core.Plugins
                 }
             }
 
+            _client.Timeout = TimeSpan.FromSeconds(2); // 2 seconds timeout
             HttpResponseMessage response = await _client.SendAsync(request);
             if (response.IsSuccessStatusCode)
             {
