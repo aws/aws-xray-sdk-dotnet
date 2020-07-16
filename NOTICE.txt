@@ -1,6 +1,3 @@
-AWS X-Ray Recorder SDK for .NET
-Copyright 2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
-
 **********************
 THIRD PARTY COMPONENTS
 **********************
