@@ -40,7 +40,7 @@ Following API reference documentation provides guidance for using the SDK and mo
 4. [Trace AWS SDK request](https://github.com/aws/aws-xray-sdk-dotnet/tree/master#trace-aws-sdk-request-net-and-net-core--nuget) 
 5. [Trace out-going HTTP requests](https://github.com/aws/aws-xray-sdk-dotnet/tree/master#trace-out-going-http-requests-net-and-net-core--nuget)
 6. [Trace Query to SQL Server](https://github.com/aws/aws-xray-sdk-dotnet/tree/master#trace-query-to-sql-server-net-and-net-core--nuget)
-7. [Trace SQL Query through Entity Framework Core 3.0 and above](https://github.com/aws/aws-xray-sdk-dotnet/tree/master#trace-sql-query-through-entity-framework-core-30-and-above-net-core)
+7. [Trace SQL Query through Entity Framework Core 3.0 and above](https://github.com/aws/aws-xray-sdk-dotnet/tree/master#trace-sql-query-through-entity-framework-core-30-and-above-net-core--nuget)
 8. [Multithreaded Execution](https://github.com/aws/aws-xray-sdk-dotnet/tree/master#multithreaded-execution-net-and-net-core--nuget)
 9. [Trace custom methods ](https://github.com/aws/aws-xray-sdk-dotnet/tree/master#trace-custom-methods-net-and-net-core)
 10. [Creating custom Segment/Subsegment](https://github.com/aws/aws-xray-sdk-dotnet/tree/master#creating-custom-segmentsubsegment-net-and-net-core)
