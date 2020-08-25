@@ -392,6 +392,7 @@ For how to start with Entity Framework Core in an ASP.NET Core web app, please t
 
 *NOTE:*
 
+* You need to install `AWSXRayRecorder.Handlers.EntityFramework` nuget package. This package adds extension methods to the `DbContextOptionsBuilder` to make it easy to register AWS X-Ray interceptor.
 * Not all database provider support Entity Framework Core 3.0 and above, please make sure that you are using the [Nuget package](https://docs.microsoft.com/en-us/ef/core/providers/?tabs=dotnet-core-cli) with a compatible version (EF Core >= 3.0).
 
 #### Setup
