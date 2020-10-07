@@ -15,6 +15,7 @@
 // </copyright>
 //-----------------------------------------------------------------------------
 
+using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
@@ -44,6 +45,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Emitters
             JsonMapper.RegisterExporter<Annotations>(AnnotationsExporter);
             JsonMapper.RegisterExporter<HttpMethod>(HttpMethodExporter);
             JsonMapper.RegisterExporter<ConstantClass>(ConstantClassExporter);
+            JsonMapper.RegisterExporter<Delegate>(DelegateExporter);
         }
 
         /// <summary>
@@ -323,6 +325,13 @@ namespace Amazon.XRay.Recorder.Core.Internal.Emitters
         private static void ConstantClassExporter(ConstantClass constantClass, JsonWriter writer)
         {
             writer.Write(constantClass.Value);
+        }
+
+        private static void DelegateExporter(Delegate method, JsonWriter writer)
+        {
+            var methodInfo = method.Method;
+            var str = $"{methodInfo.ReflectedType.Name}.{methodInfo.Name}({method})";
+            writer.Write(str);
         }
     }
 }

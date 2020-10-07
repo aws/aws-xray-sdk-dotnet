@@ -1,0 +1,41 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Company>Amazon.com, Inc</Company>
+    <Product>Amazon Web Service X-Ray Recorder</Product>
+    <Copyright>Copyright 2017-2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.</Copyright>
+    <AssemblyVersion>1.0.1.0</AssemblyVersion>
+    <FileVersion>1.0.1.0</FileVersion>
+    <Version>1.0.1</Version>
+    <AssemblyName>AWSXRayRecorder.Handlers.EntityFramework</AssemblyName>
+    <RootNamespace>Amazon.XRay.Recorder.Handlers.EntityFramework</RootNamespace>
+    <Authors>Amazon Web Services</Authors>
+    <Description>This package contains libraries to trace SQL queries through Entity Framework Core.</Description>
+    <PackageLicenseUrl>http://aws.amazon.com/apache2.0/</PackageLicenseUrl>
+    <PackageProjectUrl>https://aws.amazon.com/documentation/xray/</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/aws/aws-xray-sdk-dotnet</RepositoryUrl>
+    <PackageIconUrl>https://sdk-for-net.amazonwebservices.com/images/AWSLogo128x128.png</PackageIconUrl>
+    <PackageTags>AWS Amazon cloud AWSXRay XRay</PackageTags>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>../../../../buildtools/local-development.snk</AssemblyOriginatorKeyFile>
+    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <NoWarn>1701;1702;1591;</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <NoWarn>1701;1702;1591;</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="3.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Core\AWSXRayRecorder.Core.csproj" />
+  </ItemGroup>
+
+</Project>

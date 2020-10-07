@@ -1,6 +1,67 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 2.9.0 (2020-06-09)
+### AWSXRayRecorder.Core (2.9.0)
+#### Fixed
+- Added .gitattributes file and normalized line endings [PR#132](https://github.com/aws/aws-xray-sdk-dotnet/pull/132)
+
+#### Improved
+- Added IMDSv2 support [PR#134](https://github.com/aws/aws-xray-sdk-dotnet/pull/134)
+
+### AWSXRayRecorder.Handlers.AwsSdk (2.8.1)
+#### Fixed
+- Added .gitattributes file and normalized line endings [PR#132](https://github.com/aws/aws-xray-sdk-dotnet/pull/132)
+
+### AWSXRayRecorder.Handlers.EntityFramework (1.0.1)
+#### Fixed
+- Added .gitattributes file and normalized line endings [PR#132](https://github.com/aws/aws-xray-sdk-dotnet/pull/132)
+
+### AWSXRayRecorder.Handlers.AspNet (2.7.1)
+#### Fixed
+- Added .gitattributes file and normalized line endings [PR#132](https://github.com/aws/aws-xray-sdk-dotnet/pull/132)
+
+### AWSXRayRecorder.Handlers.AspNetCore (2.7.1)
+#### Fixed
+- Fixed typo in AWSXRayMiddlewareExtensions.cs. From Applicaion to Application [PR#131](https://github.com/aws/aws-xray-sdk-dotnet/pull/131)
+- Added .gitattributes file and normalized line endings [PR#132](https://github.com/aws/aws-xray-sdk-dotnet/pull/132)
+
+### AWSXRayRecorder.Handlers.SqlServer (2.7.1)
+#### Fixed
+- Added .gitattributes file and normalized line endings [PR#132](https://github.com/aws/aws-xray-sdk-dotnet/pull/132)
+
+### AWSXRayRecorder.Handlers.System.Net (2.7.1)
+#### Fixed
+- Added .gitattributes file and normalized line endings [PR#132](https://github.com/aws/aws-xray-sdk-dotnet/pull/132)
+
+## 2.8.0 (2020-04-17)
+### AWSXRayRecorder.Core (2.8.0)
+#### Fixed
+- Fixed customer start/end timestamps floor [PR#119](https://github.com/aws/aws-xray-sdk-dotnet/pull/119)
+- Added DelegateExporter to JasonSegmentMarshaller [PR#122](https://github.com/aws/aws-xray-sdk-dotnet/pull/122)
+
+### AWSXRayRecorder.Handlers.AwsSdk (2.8.0)
+#### Improved
+- Added Whitelisting EndpointName parameter for InvokeEndpoint operation for SageMakerRuntime [PR#117](https://github.com/aws/aws-xray-sdk-dotnet/pull/117)
+
+### AWSXRayRecorder.Handlers.EntityFramework (1.0.0)
+#### New Feature
+- Added tracing support for Entity Framework Core 3.0 and above [PR#124](https://github.com/aws/aws-xray-sdk-dotnet/pull/124)
+- Modified README.md and removed some code comments [PR#127](https://github.com/aws/aws-xray-sdk-dotnet/pull/127)
+- Added EF Core package for build [PR#129](https://github.com/aws/aws-xray-sdk-dotnet/pull/129)
+
+### AWSXRayRecorder.Handlers.AspNet (2.7.0)
+- Bumped version to address AWSXRayRecorder.Core package change
+
+### AWSXRayRecorder.Handlers.AspNetCore (2.7.0)
+- Bumped version to address AWSXRayRecorder.Core package change
+
+### AWSXRayRecorder.Handlers.SqlServer (2.7.0)
+- Bumped version to address AWSXRayRecorder.Core package change
+
+### AWSXRayRecorder.Handlers.System.Net (2.7.0)
+- Bumped version to address AWSXRayRecorder.Core package change
+
 ## 2.7.2 (2019-10-09)   
 ### AWSXRayRecorder.Core (2.7.2)    
 #### Improved    
