@@ -16,6 +16,7 @@
 //-----------------------------------------------------------------------------
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Diagnostics;
@@ -768,7 +769,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             var segment = AWSXRayRecorder.Instance.TraceContext.GetEntity();
             _recorder.EndSegment();
 
-            IDictionary<string, string> xray = (Dictionary<string, string>)segment.Aws["xray"];
+            IDictionary<string, string> xray = (ConcurrentDictionary<string, string>)segment.Aws["xray"];
             var versionText =
                 FileVersionInfo.GetVersionInfo(Assembly.GetAssembly(typeof(AWSXRayRecorderBuilder)).Location)
                     .ProductVersion;
