@@ -46,12 +46,8 @@ namespace Amazon.XRay.Recorder.Core.Sampling
         internal void Poll(IConnector connector)
         {
             _connector = connector;
-            _timer = InitializeTimer();
-        }
-
-        private Timer InitializeTimer()
-        {
-            return new Timer(Start, null, 0, 0);
+            _timer = new Timer(Start);
+            _timer.Change(0, 0);
         }
 
         internal async void Start(Object state)
@@ -93,7 +89,10 @@ namespace Amazon.XRay.Recorder.Core.Sampling
         internal void WakeUp()
         {
             _timer.Dispose();
-            _timer = InitializeTimer(); // Perform out of band polling
+
+            // Perform out of band polling
+            _timer = new Timer(Start);
+            _timer.Change(0, 0);
         }
 
         private int GetDelay()
