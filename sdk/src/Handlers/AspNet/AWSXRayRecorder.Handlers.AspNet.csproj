@@ -30,10 +30,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AWSSDK.Core" Version="[3.3.25.1,4.0)" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\..\Core\AWSXRayRecorder.Core.csproj" />
   </ItemGroup>
 
