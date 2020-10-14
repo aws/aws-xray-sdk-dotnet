@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 using Amazon.Runtime;
 using Amazon.Runtime.Internal;
@@ -145,6 +146,28 @@ namespace Amazon.XRay.Recorder.UnitTests.Tools
                 throw new HttpErrorResponseException(new HttpWebRequestResponseData(response));
 
             }
+        }
+
+        public Task<Stream> GetRequestContentAsync(CancellationToken cancellationToken)
+        {
+            return Task.FromResult<Stream>(new MemoryStream());
+        }
+
+        public Task WriteToRequestBodyAsync(Stream requestContent, Stream contentStream, IDictionary<string, string> contentHeaders, IRequestContext requestContext)
+        {
+            Assert.IsNotNull(requestContent);
+            Assert.IsNotNull(contentStream);
+            Assert.IsNotNull(contentHeaders);
+            Assert.IsNotNull(requestContext);
+            return Task.FromResult(0);
+        }
+
+        public Task WriteToRequestBodyAsync(Stream requestContent, byte[] requestData, IDictionary<string, string> headers, CancellationToken cancellationToken)
+        {
+            Assert.IsNotNull(requestContent);
+            Assert.IsNotNull(requestData);
+            Assert.IsNotNull(headers);
+            return Task.FromResult(0);
         }
     }
 }
