@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------------
-// <copyright file="GetSamplingRulesResponse.cs" company="Amazon.com">
-//      Copyright 2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// <copyright file="XRayConfig.cs" company="Amazon.com">
+//      Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 //      Licensed under the Apache License, Version 2.0 (the "License").
 //      You may not use this file except in compliance with the License.
@@ -14,29 +14,15 @@
 //      permissions and limitations under the License.
 // </copyright>
 //-----------------------------------------------------------------------------
-using System.Collections.Generic;
 
 namespace Amazon.XRay.Recorder.Core.Sampling
 {
-    public class GetSamplingRulesResponse
+    public class XRayConfig
     {
-        /// <summary>
-        /// List of <see cref="SamplingRule"/>.
-        /// </summary>
-        public List<SamplingRule> Rules;
+        public string ServiceURL { get; set; }
 
-        /// <summary>
-        /// Instance of <see cref="GetSamplingRulesResponse"/>.
-        /// </summary>
-        /// <param name="rules"> List of <see cref="SamplingRule"/>.</param>
-        public GetSamplingRulesResponse(List<SamplingRule> rules)
+        public XRayConfig()
         {
-            Rules = rules;
-        }
-
-        internal bool IsRulePresent()
-        {
-            return Rules.Count > 0 ? true : false;
         }
     }
 }

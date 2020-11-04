@@ -85,9 +85,9 @@ namespace Amazon.XRay.Recorder.Core.Sampling
         /// <summary>
         /// Validates sampling rule. ResourceARN with "*" value is valid. SDK doesn't support Atrributes parameter with any value.
         /// </summary>
-        /// <param name ="rule">Instance of <see cref="Model.SamplingRule"/></param>
+        /// <param name ="rule">Instance of <see cref="Model.SamplingRuleModel"/></param>
         /// <returns> True, if the rule is valid else false.</returns>
-        internal static bool IsValid(Model.SamplingRule rule)
+        internal static bool IsValid(Model.SamplingRuleModel rule)
         {
             if (!string.Equals(rule.ResourceARN, "*"))
             {

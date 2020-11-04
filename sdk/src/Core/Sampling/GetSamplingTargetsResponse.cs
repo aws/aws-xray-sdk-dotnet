@@ -18,9 +18,6 @@ using System.Collections.Generic;
 
 namespace Amazon.XRay.Recorder.Core.Sampling
 {
-    /// <summary>
-    /// Wrapper for <see cref="AmazonXRayClient.GetSamplingTargetsAsync(Model.GetSamplingTargetsRequest, System.Threading.CancellationToken)"/> API call response.
-    /// </summary>
     public class GetSamplingTargetsResponse
     {
         /// <summary>
