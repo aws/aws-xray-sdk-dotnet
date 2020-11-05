@@ -18,7 +18,7 @@
 namespace Amazon.XRay.Recorder.Core.Sampling.Model
 {
     /// <summary>
-    /// Class model for unmarshall sampling rule record from sampling rule response json.
+    /// Class model for unmarshalling sampling rule record from sampling rule response json.
     /// </summary>
     public class SamplingRuleRecordsModel
     {

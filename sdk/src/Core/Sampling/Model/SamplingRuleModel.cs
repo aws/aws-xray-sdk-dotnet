@@ -20,7 +20,7 @@ using System.Collections.Generic;
 namespace Amazon.XRay.Recorder.Core.Sampling.Model
 {
     /// <summary>
-    /// Class model for unmarshall sampling rule from sampling rule response json.
+    /// Class model for unmarshalling sampling rule from sampling rule response json.
     /// </summary>
     public class SamplingRuleModel
     {

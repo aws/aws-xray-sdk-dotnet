@@ -18,6 +18,9 @@ using System.Collections.Generic;
 
 namespace Amazon.XRay.Recorder.Core.Sampling
 {
+    /// <summary>
+    /// Class for keep list of sampling rules from x-ray backend.
+    /// </summary>
     public class GetSamplingRulesResponse
     {
         /// <summary>

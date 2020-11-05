@@ -17,6 +17,9 @@
 
 namespace Amazon.XRay.Recorder.Core.Sampling
 {
+    /// <summary>
+    /// Class for xray configuration for getting sampling rules and sampling targets.
+    /// </summary>
     public class XRayConfig
     {
         public string ServiceURL { get; set; }

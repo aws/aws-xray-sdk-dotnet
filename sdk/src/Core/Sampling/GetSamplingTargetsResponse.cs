@@ -18,6 +18,9 @@ using System.Collections.Generic;
 
 namespace Amazon.XRay.Recorder.Core.Sampling
 {
+    /// <summary>
+    /// Class for keep last rule modification timestamp and list of sampling targets from x-ray backend.
+    /// </summary>
     public class GetSamplingTargetsResponse
     {
         /// <summary>
