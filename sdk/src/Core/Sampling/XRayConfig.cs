@@ -22,8 +22,14 @@ namespace Amazon.XRay.Recorder.Core.Sampling
     /// </summary>
     public class XRayConfig
     {
+        /// <summary>
+        /// Gets and sets of the ServiceURL property.
+        /// </summary>
         public string ServiceURL { get; set; }
 
+        /// <summary>
+        /// Default constructor.
+        /// </summary>
         public XRayConfig()
         {
         }
