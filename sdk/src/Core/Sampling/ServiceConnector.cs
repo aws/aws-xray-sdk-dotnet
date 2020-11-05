@@ -21,10 +21,9 @@ using System;
 using Amazon.XRay.Recorder.Core.Internal.Utils;
 using Amazon.Runtime.Internal.Util;
 using Amazon.XRay.Recorder.Core.Sampling.Model;
-using System.Net;
 using ThirdParty.LitJson;
-using System.IO;
 using System.Text;
+using System.Net.Http;
 
 namespace Amazon.XRay.Recorder.Core.Sampling
 {
@@ -41,6 +40,7 @@ namespace Amazon.XRay.Recorder.Core.Sampling
         private const int Version = 1;
         private readonly DaemonConfig _daemonConfig;
         private readonly DateTime EpochStart = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        private static readonly HttpClient _httpClient = new HttpClient();
 
         /// <summary>
         /// Client id for the instance. Its 24 digit hex number.
@@ -87,15 +87,13 @@ namespace Amazon.XRay.Recorder.Core.Sampling
         /// <returns></returns>
         public async Task<GetSamplingRulesResponse> GetSamplingRules()
         {
-            Task<WebResponse> responseTask;
+            Task<string> responseTask;
             lock (_xrayClientLock)
             {
                 RefreshEndPoint();
-                responseTask = GetSamplingInfoAsync(_xrayConfig.ServiceURL + "/GetSamplingRules");
+                responseTask = GetSamplingInfoAsync(_xrayConfig.ServiceURL + "/GetSamplingRules", string.Empty);
             }
-            var response = await responseTask;
-
-            var responseContent = GetResponseContent(response);
+            var responseContent = await responseTask;
 
             List<SamplingRule> samplingRules = UnmarshallSamplingRuleResponse(responseContent);
 
@@ -103,24 +101,16 @@ namespace Amazon.XRay.Recorder.Core.Sampling
             return result;
         }
 
-        private Task<WebResponse> GetSamplingInfoAsync(string url, string content = null)
+        private async Task<string> GetSamplingInfoAsync(string url, string content)
         {
-            var request = (HttpWebRequest)WebRequest.Create(url);
-            request.Method = "POST";
-            request.ContentType = "application/json";
-
-            if (content != null)
+            using (var stringContent = new StringContent(content, Encoding.UTF8, "application/json"))
             {
-                using (Stream dataStream = request.GetRequestStream())
+                using (var response = await _httpClient.PostAsync(url, stringContent))
                 {
-                    byte[] byteArray = Encoding.UTF8.GetBytes(content);
-                    dataStream.Write(byteArray, 0, byteArray.Length);
+                    response.EnsureSuccessStatusCode();
+                    return await response.Content.ReadAsStringAsync();
                 }
             }
-
-            Task<WebResponse> responseTask = request.GetResponseAsync();
-
-            return responseTask;
         }
 
         private List<SamplingRule> UnmarshallSamplingRuleResponse(string responseContent)
@@ -171,15 +161,15 @@ namespace Amazon.XRay.Recorder.Core.Sampling
 
             string requestContent = JsonMapper.ToJson(samplingStatisticsModel); // Marshall SamplingStatisticsDocument to json
 
-            Task<WebResponse> responseTask;
+            Task<string> responseTask;
             lock (_xrayClientLock)
             {
                 RefreshEndPoint();
                 responseTask = GetSamplingInfoAsync(_xrayConfig.ServiceURL + "/SamplingTargets", requestContent);
             }
-            var response = await responseTask;
+            var responseContent = await responseTask;
 
-            var samplingTargetResponse = UnmarshallSamplingTargetResponse(response);
+            var samplingTargetResponse = UnmarshallSamplingTargetResponse(responseContent);
 
             var targetList = ConvertTargetList(samplingTargetResponse.SamplingTargetDocuments);
 
@@ -206,29 +196,11 @@ namespace Amazon.XRay.Recorder.Core.Sampling
             return result;
         }
 
-        private SamplingTargetResponseModel UnmarshallSamplingTargetResponse(WebResponse response)
+        private SamplingTargetResponseModel UnmarshallSamplingTargetResponse(string responseContent)
         {
-            var responseContent = GetResponseContent(response);
-
             var samplingTargetResponse = JsonMapper.ToObject<SamplingTargetResponseModel>(responseContent);
 
             return samplingTargetResponse;
-        }
-
-        private string GetResponseContent(WebResponse response)
-        {
-            string responseContent = "";
-            using (Stream stream = response.GetResponseStream())
-            {
-                using (StreamReader streamReader = new StreamReader(stream))
-                {
-                    responseContent = streamReader.ReadToEnd();
-                }
-            }
-
-            response.Close();
-
-            return responseContent;
         }
 
         private List<SamplingStatisticsDocumentModel> GetSamplingStatisticsDocuments(List<SamplingRule> rules, DateTime currentTime)
