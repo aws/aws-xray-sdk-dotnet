@@ -19,7 +19,7 @@ using System.Collections.Generic;
 namespace Amazon.XRay.Recorder.Core.Sampling
 {
     /// <summary>
-    /// Wrapper to <see cref="AmazonXRayClient.GetSamplingRulesAsync(Model.GetSamplingRulesRequest, System.Threading.CancellationToken)"/> API call response.
+    /// Class for keep list of sampling rules from x-ray backend.
     /// </summary>
     public class GetSamplingRulesResponse
     {

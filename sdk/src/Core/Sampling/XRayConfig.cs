@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------------
-// <copyright file="GetSamplingTargetsResponse.cs" company="Amazon.com">
-//      Copyright 2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// <copyright file="XRayConfig.cs" company="Amazon.com">
+//      Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 //      Licensed under the Apache License, Version 2.0 (the "License").
 //      You may not use this file except in compliance with the License.
@@ -14,32 +14,24 @@
 //      permissions and limitations under the License.
 // </copyright>
 //-----------------------------------------------------------------------------
-using System.Collections.Generic;
 
 namespace Amazon.XRay.Recorder.Core.Sampling
 {
     /// <summary>
-    /// Class for keep last rule modification timestamp and list of sampling targets from x-ray backend.
+    /// Class for xray configuration for getting sampling rules and sampling targets.
     /// </summary>
-    public class GetSamplingTargetsResponse
+    public class XRayConfig
     {
         /// <summary>
-        /// Instance of <see cref="GetSamplingTargetsResponse"/>.
+        /// Gets and sets of the ServiceURL property.
         /// </summary>
-        /// <param name="newTargets">List of <see cref="Target"/>.</param>
-        public GetSamplingTargetsResponse(IList<Target> newTargets)
+        public string ServiceURL { get; set; }
+
+        /// <summary>
+        /// Default constructor.
+        /// </summary>
+        public XRayConfig()
         {
-            Targets = newTargets;
         }
-
-        /// <summary>
-        /// Sets Last rule modification timestamp returned by the GetSamplingTargets() API call.
-        /// </summary>
-        public TimeStamp RuleFreshness { get; set; }
-
-        /// <summary>
-        /// List of <see cref="Target"/>.
-        /// </summary>
-        public IList<Target> Targets { get; set; }
     }
 }
