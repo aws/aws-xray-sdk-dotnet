@@ -105,6 +105,9 @@ namespace Amazon.XRay.Recorder.Core.Sampling
         {
             using (var stringContent = new StringContent(content, Encoding.UTF8, "application/json"))
             {
+                // Need to set header "ExpectContinue" as false for Daemon to sign properly.
+                // https://github.com/aws/aws-sdk-net/blob/master/sdk/src/Core/Amazon.Runtime/Internal/AmazonWebServiceRequest.cs#L41
+                _httpClient.DefaultRequestHeaders.ExpectContinue = false; 
                 using (var response = await _httpClient.PostAsync(url, stringContent))
                 {
                     response.EnsureSuccessStatusCode();
