@@ -26,6 +26,7 @@ using Amazon.Lambda;
 using Amazon.Lambda.Model;
 using Amazon.Runtime;
 using Amazon.S3;
+using Amazon.SimpleNotificationService;
 using Amazon.XRay.Recorder.Core;
 using Amazon.XRay.Recorder.Core.Internal.Utils;
 using Amazon.XRay.Recorder.Handlers.AwsSdk;
@@ -80,7 +81,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             AWSXRayRecorder.Instance.ContextMissingStrategy = Core.Strategies.ContextMissingStrategy.LOG_ERROR;
             AWSSDKHandler.RegisterXRayForAllServices();
             var dynamo = new AmazonDynamoDBClient(new AnonymousAWSCredentials(), RegionEndpoint.USEast1);
-            CustomResponses.SetResponse(dynamo, null, null, true);
+            CustomResponses.SetResponse(dynamo, null, null, null, true);
 
             AWSXRayRecorder.Instance.BeginSegment("test dynamo", TraceId);
             var segment = AWSXRayRecorder.Instance.TraceContext.GetEntity();
@@ -101,7 +102,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         {
             AWSSDKHandler.RegisterXRay<IAmazonS3>();
             var s3 = new AmazonS3Client(new AnonymousAWSCredentials(), RegionEndpoint.USEast1);
-            CustomResponses.SetResponse(s3, null, null, true);
+            CustomResponses.SetResponse(s3, null, null, "TestAmazonId", true);
 
             _recorder.BeginSegment("test s3", TraceId);
 #if NET45
@@ -115,6 +116,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             Assert.IsTrue(segment.Subsegments[0].Aws.ContainsKey("version_id"));
             Assert.AreEqual(segment.Subsegments[0].Aws["bucket_name"], "testBucket");
             Assert.AreEqual(segment.Subsegments[0].Aws["operation"], "GetObject");
+            Assert.AreEqual(segment.Subsegments[0].Aws["id_2"], "TestAmazonId");
         }
 
         [TestMethod]
@@ -126,7 +128,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             using (var client = new AmazonDynamoDBClient(new AnonymousAWSCredentials(), RegionEndpoint.USEast1))
             {
                 string requestId = @"fakerequ-esti-dfak-ereq-uestidfakere";
-                CustomResponses.SetResponse(client, null, requestId, true);
+                CustomResponses.SetResponse(client, null, requestId, null, true);
 
                 _recorder.BeginSegment("test", TraceId);
 #if NET45
@@ -184,7 +186,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         {
             using (var client = new AmazonDynamoDBClient(new AnonymousAWSCredentials(), RegionEndpoint.USEast1))
             {
-                CustomResponses.SetResponse(client, null, null, true);
+                CustomResponses.SetResponse(client, null, null, null, true);
                 _recorder.BeginSegment("test", TraceId);
                 var segment = AWSXRayRecorder.Instance.TraceContext.GetEntity();
 
@@ -255,7 +257,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         public void TestDynamoSubsegmentNameIsCorrectForAWSSDKHandler()
         {
             var dynamo = new AmazonDynamoDBClient(new AnonymousAWSCredentials(), RegionEndpoint.USEast1);
-            CustomResponses.SetResponse(dynamo, null, null, true);
+            CustomResponses.SetResponse(dynamo, null, null, null, true);
             _recorder.BeginSegment("test dynamo", TraceId);
 #if NET45
             dynamo.ListTables();
@@ -272,7 +274,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         public void TestManifestFileNoLambda() //At this point, current manifest file doen't contain Lambda service.
         {
             var lambda = new AmazonLambdaClient(new AnonymousAWSCredentials(), RegionEndpoint.USEast1);
-            CustomResponses.SetResponse(lambda, null, null, true);
+            CustomResponses.SetResponse(lambda, null, null, null, true);
             _recorder.BeginSegment("lambda", TraceId);
 #if NET45
             lambda.Invoke(new InvokeRequest
@@ -296,7 +298,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             String temp_path = $"JSONs{Path.DirectorySeparatorChar}AWSRequestInfoWithLambda.json"; //registering manifest file with Lambda
             AWSSDKHandler.RegisterXRayManifest(temp_path);
             var lambda = new AmazonLambdaClient(new AnonymousAWSCredentials(), RegionEndpoint.USEast1);
-            CustomResponses.SetResponse(lambda, null, null, true);
+            CustomResponses.SetResponse(lambda, null, null, null, true);
             _recorder.BeginSegment("lambda", TraceId);
 #if NET45
             lambda.Invoke(new InvokeRequest
@@ -325,7 +327,7 @@ namespace Amazon.XRay.Recorder.UnitTests
                 AWSSDKHandler.RegisterXRayManifest(stream);
             }
             var lambda = new AmazonLambdaClient(new AnonymousAWSCredentials(), RegionEndpoint.USEast1);
-            CustomResponses.SetResponse(lambda, null, null, true);
+            CustomResponses.SetResponse(lambda, null, null, null, true);
             _recorder.BeginSegment("lambda", TraceId);
 #if NET45
             lambda.Invoke(new InvokeRequest
@@ -342,6 +344,33 @@ namespace Amazon.XRay.Recorder.UnitTests
             _recorder.EndSegment();
 
             Assert.AreEqual("Invoke", segment.Subsegments[0].Aws["operation"]);
+        }
+
+        [TestMethod]
+        public void TestSNSSubsegment()
+        {
+            AWSSDKHandler.RegisterXRay<IAmazonSimpleNotificationService>();
+            var sns = new AmazonSimpleNotificationServiceClient(new AnonymousAWSCredentials(), RegionEndpoint.USEast1);
+            CustomResponses.SetResponse(sns, null, null, null, true);
+
+            _recorder.BeginSegment("test sns", TraceId);
+
+            try
+            {
+                sns.ListTopicsAsync().Wait();
+            }
+            catch
+            {
+                // will throw exception for using anonymous AWS credentials, but will not affect generating traces
+            }
+
+            var segment = _recorder.TraceContext.GetEntity();
+            _recorder.EndSegment();
+            Assert.AreEqual(1, segment.Subsegments.Count);
+            Assert.AreEqual("SNS", segment.Subsegments[0].Name); // Name should be SNS instead of SimpleNotificationService
+            Assert.AreEqual("ListTopics", segment.Subsegments[0].Aws["operation"]);
+            Assert.AreEqual("us-east-1", segment.Subsegments[0].Aws["region"]);
+            Assert.AreEqual("aws", segment.Subsegments[0].Namespace);
         }
     }
 }

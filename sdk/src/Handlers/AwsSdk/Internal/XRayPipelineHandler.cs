@@ -319,7 +319,8 @@ namespace Amazon.XRay.Recorder.Handlers.AwsSdk.Internal
                 _recorder.TraceContext.HandleEntityMissing(_recorder, e, "Cannot get entity while processing AWS SDK request");
             }
 
-            _recorder.BeginSubsegment(RemoveAmazonPrefixFromServiceName(request.ServiceName));
+            var serviceName = RemoveAmazonPrefixFromServiceName(request.ServiceName);
+            _recorder.BeginSubsegment(AWSXRaySDKUtils.FormatServiceName(serviceName));
             _recorder.SetNamespace("aws");
 
             entity = entity == null ? null : _recorder.GetEntity();
@@ -394,6 +395,13 @@ namespace Amazon.XRay.Recorder.Handlers.AwsSdk.Internal
             else
             {
                 subsegment.Aws["request_id"] = responseContext.Response.ResponseMetadata.RequestId;
+
+                // try getting x-amz-id-2 if dealing with s3 request
+                if (responseContext.Response.ResponseMetadata.Metadata.TryGetValue(S3ExtendedRequestIdHeaderKey, out string extendedRequestId))
+                {
+                    subsegment.Aws[ExtendedRquestIdSegmentKey] = extendedRequestId;
+                }
+
                 AddResponseSpecificInformation(serviceName, operation, responseContext.Response, subsegment.Aws);
             }
 
@@ -451,6 +459,14 @@ namespace Amazon.XRay.Recorder.Handlers.AwsSdk.Internal
             _recorder.AddHttpInformation("response", responseAttributes);
 
             subsegment.Aws["request_id"] = ex.RequestId;
+
+            // Try to obtain x-amz-id-2 from s3 exception
+            // https://github.com/aws/aws-sdk-net/blob/master/sdk/src/Services/S3/Custom/AmazonS3Exception.cs#L125
+            var property = ex.GetType().GetProperty("AmazonId2");
+            if (property != null)
+            {
+                subsegment.Aws[ExtendedRquestIdSegmentKey] = (string)property.GetValue(ex, null);
+            }
         }
 
         private void AddRequestSpecificInformation(string serviceName, string operation, AmazonWebServiceRequest request, IDictionary<string, object> aws)

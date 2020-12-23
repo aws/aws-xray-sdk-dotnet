@@ -31,9 +31,9 @@ namespace Amazon.XRay.Recorder.UnitTests.Tools
     {
 #if NET45
         public static void SetResponse(
-            AmazonServiceClient client, string content, string requestId, bool isOK)
+            AmazonServiceClient client, string content, string requestId, string amazonId, bool isOK)
         {
-            var response = Create(content, requestId, isOK);
+            var response = Create(content, requestId, amazonId, isOK);
             SetResponse(client, response);
         }
 
@@ -54,7 +54,7 @@ namespace Amazon.XRay.Recorder.UnitTests.Tools
         }
 
         private static Func<MockHttpRequest, HttpWebResponse> Create(
-            string content, string requestId, bool isOK)
+            string content, string requestId, string amazonId, bool isOK)
         {
             var status = isOK ? HttpStatusCode.OK : HttpStatusCode.NotFound;
 
@@ -65,6 +65,13 @@ namespace Amazon.XRay.Recorder.UnitTests.Tools
                 {
                     headers.Add(HeaderKeys.RequestIdHeader, requestId);
                 }
+
+                // https://aws.amazon.com/premiumsupport/knowledge-center/s3-request-id-values/
+                if (!string.IsNullOrEmpty(amazonId))
+                {
+                    headers.Add(HeaderKeys.XAmzId2Header, amazonId);
+                }
+
                 var response = MockWebResponse.Create(status, headers, content);
 
                 if (isOK)
@@ -77,9 +84,9 @@ namespace Amazon.XRay.Recorder.UnitTests.Tools
         }
 #else
 
-        public static void SetResponse(AmazonServiceClient client, string content, string requestId, bool isOK)
+        public static void SetResponse(AmazonServiceClient client, string content, string requestId, string amazonId, bool isOK)
         {
-            var response = Create(content, requestId, isOK);
+            var response = Create(content, requestId, amazonId, isOK);
             SetResponse(client, response);
         }
 
@@ -98,7 +105,7 @@ namespace Amazon.XRay.Recorder.UnitTests.Tools
         }
 
         private static Func<MockHttpRequest, HttpResponseMessage> Create(
-            string content, string requestId, bool isOK)
+            string content, string requestId, string amazonId, bool isOK)
         {
             var status = isOK ? HttpStatusCode.OK : HttpStatusCode.NotFound;
 
@@ -109,6 +116,13 @@ namespace Amazon.XRay.Recorder.UnitTests.Tools
                 {
                     headers.Add(HeaderKeys.RequestIdHeader, requestId);
                 }
+
+                // https://aws.amazon.com/premiumsupport/knowledge-center/s3-request-id-values/
+                if (!string.IsNullOrEmpty(amazonId))
+                {
+                    headers.Add(HeaderKeys.XAmzId2Header, amazonId);
+                }
+
                 var response = MockWebResponse.Create(status, headers, content);
 
                 if (isOK)
