@@ -80,7 +80,11 @@ namespace Amazon.XRay.Recorder.Handlers.EntityFramework
         /// <param name="result">Result from <see cref="IInterceptor"/>.</param>
         /// <param name="cancellationToken">Instance of <see cref="CancellationToken"/>.</param>
         /// <returns>Task representing the async operation.</returns>
+#if NET5_0
+        public override ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand command, CommandEventData eventData, InterceptionResult<DbDataReader> result, CancellationToken cancellationToken = default)
+#else
         public override Task<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand command, CommandEventData eventData, InterceptionResult<DbDataReader> result, CancellationToken cancellationToken = default)
+#endif
         {
             ProcessBeginCommand(eventData);
             return base.ReaderExecutingAsync(command, eventData, result, cancellationToken);
@@ -94,7 +98,11 @@ namespace Amazon.XRay.Recorder.Handlers.EntityFramework
         /// <param name="result">Result from <see cref="DbDataReader"/>.</param>
         /// <param name="cancellationToken">Instance of <see cref="CancellationToken"/>.</param>
         /// <returns>Task representing the async operation.</returns>
+#if NET5_0
+        public override ValueTask<DbDataReader> ReaderExecutedAsync(DbCommand command, CommandExecutedEventData eventData, DbDataReader result, CancellationToken cancellationToken = default)
+#else
         public override Task<DbDataReader> ReaderExecutedAsync(DbCommand command, CommandExecutedEventData eventData, DbDataReader result, CancellationToken cancellationToken = default)
+#endif
         {
             ProcessEndCommand();
             return base.ReaderExecutedAsync(command, eventData, result, cancellationToken);
@@ -145,7 +153,11 @@ namespace Amazon.XRay.Recorder.Handlers.EntityFramework
         /// <param name="result">Result from <see cref="IInterceptor"/>.</param>
         /// <param name="cancellationToken">Instance of <see cref="CancellationToken"/>.</param>
         /// <returns>Task representing the async operation.</returns>
+#if NET5_0
+        public override ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand command, CommandEventData eventData, InterceptionResult<int> result, CancellationToken cancellationToken = default)
+#else
         public override Task<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand command, CommandEventData eventData, InterceptionResult<int> result, CancellationToken cancellationToken = default)
+#endif
         {
             ProcessBeginCommand(eventData);
             return base.NonQueryExecutingAsync(command, eventData, result, cancellationToken);
@@ -172,7 +184,11 @@ namespace Amazon.XRay.Recorder.Handlers.EntityFramework
         /// <param name="result">Result as integer.</param>
         /// <param name="cancellationToken">Instance of <see cref="CancellationToken"/>.</param>
         /// <returns>Task representing the async operation.</returns>
+#if NET5_0
+        public override ValueTask<int> NonQueryExecutedAsync(DbCommand command, CommandExecutedEventData eventData, int result, CancellationToken cancellationToken = default)
+#else
         public override Task<int> NonQueryExecutedAsync(DbCommand command, CommandExecutedEventData eventData, int result, CancellationToken cancellationToken = default)
+#endif
         {
             ProcessEndCommand();
             return base.NonQueryExecutedAsync(command, eventData, result, cancellationToken);
@@ -199,7 +215,11 @@ namespace Amazon.XRay.Recorder.Handlers.EntityFramework
         /// <param name="result">Result from <see cref="IInterceptor"/>.</param>
         /// <param name="cancellationToken">Instance of <see cref="CancellationToken"/>.</param>
         /// <returns>Task representing the async operation.</returns>
+#if NET5_0
+        public override ValueTask<InterceptionResult<object>> ScalarExecutingAsync(DbCommand command, CommandEventData eventData, InterceptionResult<object> result, CancellationToken cancellationToken = default)
+#else
         public override Task<InterceptionResult<object>> ScalarExecutingAsync(DbCommand command, CommandEventData eventData, InterceptionResult<object> result, CancellationToken cancellationToken = default)
+#endif
         {
             ProcessBeginCommand(eventData);
             return base.ScalarExecutingAsync(command, eventData, result, cancellationToken);
@@ -226,7 +246,11 @@ namespace Amazon.XRay.Recorder.Handlers.EntityFramework
         /// <param name="result">Result object.</param>
         /// <param name="cancellationToken">Instance of <see cref="CancellationToken"/>.</param>
         /// <returns>Task representing the async operation.</returns>
+#if NET5_0
+        public override ValueTask<object> ScalarExecutedAsync(DbCommand command, CommandExecutedEventData eventData, object result, CancellationToken cancellationToken = default)
+#else
         public override Task<object> ScalarExecutedAsync(DbCommand command, CommandExecutedEventData eventData, object result, CancellationToken cancellationToken = default)
+#endif
         {
             ProcessEndCommand();
             return base.ScalarExecutedAsync(command, eventData, result, cancellationToken);
