@@ -44,9 +44,6 @@ namespace Amazon.XRay.Recorder.Handlers.AwsSdk.Internal
         private const string DefaultAwsWhitelistManifestResourceName = "Amazon.XRay.Recorder.Handlers.AwsSdk.DefaultAWSWhitelist.json";
         private static readonly Logger _logger = Runtime.Internal.Util.Logger.GetLogger(typeof(AWSXRayRecorder));
         private AWSXRayRecorder _recorder;
-        private const String S3RequestIdHeaderKey = "x-amz-request-id";
-        private const String S3ExtendedRequestIdHeaderKey = "x-amz-id-2";
-        private const String ExtendedRquestIdSegmentKey = "id_2";
 
         /// <summary>
         /// Gets AWS service manifest of operation parameter whitelist.
@@ -381,14 +378,14 @@ namespace Amazon.XRay.Recorder.Handlers.AwsSdk.Internal
                 // s3 doesn't follow request header id convention
                 else
                 {
-                    if (requestContext.Request.Headers.TryGetValue(S3RequestIdHeaderKey, out requestId))
+                    if (requestContext.Request.Headers.TryGetValue("x-amz-request-id", out requestId))
                     {
                         subsegment.Aws["request_id"] = requestId;
                     }
 
-                    if (requestContext.Request.Headers.TryGetValue(S3ExtendedRequestIdHeaderKey, out requestId))
+                    if (requestContext.Request.Headers.TryGetValue("x-amz-id-2", out requestId))
                     {
-                        subsegment.Aws[ExtendedRquestIdSegmentKey] = requestId;
+                        subsegment.Aws["id_2"] = requestId;
                     }
                 }
             }
@@ -397,9 +394,9 @@ namespace Amazon.XRay.Recorder.Handlers.AwsSdk.Internal
                 subsegment.Aws["request_id"] = responseContext.Response.ResponseMetadata.RequestId;
 
                 // try getting x-amz-id-2 if dealing with s3 request
-                if (responseContext.Response.ResponseMetadata.Metadata.TryGetValue(S3ExtendedRequestIdHeaderKey, out string extendedRequestId))
+                if (responseContext.Response.ResponseMetadata.Metadata.TryGetValue("x-amz-id-2", out string extendedRequestId))
                 {
-                    subsegment.Aws[ExtendedRquestIdSegmentKey] = extendedRequestId;
+                    subsegment.Aws["id_2"] = extendedRequestId;
                 }
 
                 AddResponseSpecificInformation(serviceName, operation, responseContext.Response, subsegment.Aws);
@@ -460,12 +457,11 @@ namespace Amazon.XRay.Recorder.Handlers.AwsSdk.Internal
 
             subsegment.Aws["request_id"] = ex.RequestId;
 
-            // Try to obtain x-amz-id-2 from s3 exception
-            // https://github.com/aws/aws-sdk-net/blob/master/sdk/src/Services/S3/Custom/AmazonS3Exception.cs#L125
+            // AmazonId2 property in AmazonS3Exception corresponds to the x-amz-id-2 Http header
             var property = ex.GetType().GetProperty("AmazonId2");
             if (property != null)
             {
-                subsegment.Aws[ExtendedRquestIdSegmentKey] = (string)property.GetValue(ex, null);
+                subsegment.Aws["id_2"] = (string)property.GetValue(ex, null);
             }
         }
 

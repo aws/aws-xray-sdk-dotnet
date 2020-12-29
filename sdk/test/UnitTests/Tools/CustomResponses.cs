@@ -31,9 +31,9 @@ namespace Amazon.XRay.Recorder.UnitTests.Tools
     {
 #if NET45
         public static void SetResponse(
-            AmazonServiceClient client, string content, string requestId, string amazonId, bool isOK)
+            AmazonServiceClient client, string content, string requestId, string s3ExtendedRequestId, bool isOK)
         {
-            var response = Create(content, requestId, amazonId, isOK);
+            var response = Create(content, requestId, s3ExtendedRequestId, isOK);
             SetResponse(client, response);
         }
 
@@ -54,7 +54,7 @@ namespace Amazon.XRay.Recorder.UnitTests.Tools
         }
 
         private static Func<MockHttpRequest, HttpWebResponse> Create(
-            string content, string requestId, string amazonId, bool isOK)
+            string content, string requestId, string s3ExtendedRequestId, bool isOK)
         {
             var status = isOK ? HttpStatusCode.OK : HttpStatusCode.NotFound;
 
@@ -67,9 +67,9 @@ namespace Amazon.XRay.Recorder.UnitTests.Tools
                 }
 
                 // https://aws.amazon.com/premiumsupport/knowledge-center/s3-request-id-values/
-                if (!string.IsNullOrEmpty(amazonId))
+                if (!string.IsNullOrEmpty(s3ExtendedRequestId))
                 {
-                    headers.Add(HeaderKeys.XAmzId2Header, amazonId);
+                    headers.Add(HeaderKeys.XAmzId2Header, s3ExtendedRequestId);
                 }
 
                 var response = MockWebResponse.Create(status, headers, content);
@@ -84,9 +84,9 @@ namespace Amazon.XRay.Recorder.UnitTests.Tools
         }
 #else
 
-        public static void SetResponse(AmazonServiceClient client, string content, string requestId, string amazonId, bool isOK)
+        public static void SetResponse(AmazonServiceClient client, string content, string requestId, string s3ExtendedRequestId, bool isOK)
         {
-            var response = Create(content, requestId, amazonId, isOK);
+            var response = Create(content, requestId, s3ExtendedRequestId, isOK);
             SetResponse(client, response);
         }
 
@@ -105,7 +105,7 @@ namespace Amazon.XRay.Recorder.UnitTests.Tools
         }
 
         private static Func<MockHttpRequest, HttpResponseMessage> Create(
-            string content, string requestId, string amazonId, bool isOK)
+            string content, string requestId, string s3ExtendedRequestId, bool isOK)
         {
             var status = isOK ? HttpStatusCode.OK : HttpStatusCode.NotFound;
 
@@ -118,9 +118,9 @@ namespace Amazon.XRay.Recorder.UnitTests.Tools
                 }
 
                 // https://aws.amazon.com/premiumsupport/knowledge-center/s3-request-id-values/
-                if (!string.IsNullOrEmpty(amazonId))
+                if (!string.IsNullOrEmpty(s3ExtendedRequestId))
                 {
-                    headers.Add(HeaderKeys.XAmzId2Header, amazonId);
+                    headers.Add(HeaderKeys.XAmzId2Header, s3ExtendedRequestId);
                 }
 
                 var response = MockWebResponse.Create(status, headers, content);
