@@ -81,7 +81,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             AWSXRayRecorder.Instance.ContextMissingStrategy = Core.Strategies.ContextMissingStrategy.LOG_ERROR;
             AWSSDKHandler.RegisterXRayForAllServices();
             var dynamo = new AmazonDynamoDBClient(new AnonymousAWSCredentials(), RegionEndpoint.USEast1);
-            CustomResponses.SetResponse(dynamo, null, null, null, true);
+            CustomResponses.SetResponse(dynamo);
 
             AWSXRayRecorder.Instance.BeginSegment("test dynamo", TraceId);
             var segment = AWSXRayRecorder.Instance.TraceContext.GetEntity();
@@ -102,7 +102,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         {
             AWSSDKHandler.RegisterXRay<IAmazonS3>();
             var s3 = new AmazonS3Client(new AnonymousAWSCredentials(), RegionEndpoint.USEast1);
-            CustomResponses.SetResponse(s3, null, null, "TestAmazonId", true);
+            CustomResponses.SetResponse(s3, null, "TestAmazonId");
 
             _recorder.BeginSegment("test s3", TraceId);
 #if NET45
@@ -128,7 +128,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             using (var client = new AmazonDynamoDBClient(new AnonymousAWSCredentials(), RegionEndpoint.USEast1))
             {
                 string requestId = @"fakerequ-esti-dfak-ereq-uestidfakere";
-                CustomResponses.SetResponse(client, null, requestId, null, true);
+                CustomResponses.SetResponse(client, requestId);
 
                 _recorder.BeginSegment("test", TraceId);
 #if NET45
@@ -186,7 +186,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         {
             using (var client = new AmazonDynamoDBClient(new AnonymousAWSCredentials(), RegionEndpoint.USEast1))
             {
-                CustomResponses.SetResponse(client, null, null, null, true);
+                CustomResponses.SetResponse(client);
                 _recorder.BeginSegment("test", TraceId);
                 var segment = AWSXRayRecorder.Instance.TraceContext.GetEntity();
 
@@ -257,7 +257,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         public void TestDynamoSubsegmentNameIsCorrectForAWSSDKHandler()
         {
             var dynamo = new AmazonDynamoDBClient(new AnonymousAWSCredentials(), RegionEndpoint.USEast1);
-            CustomResponses.SetResponse(dynamo, null, null, null, true);
+            CustomResponses.SetResponse(dynamo);
             _recorder.BeginSegment("test dynamo", TraceId);
 #if NET45
             dynamo.ListTables();
@@ -274,7 +274,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         public void TestManifestFileNoLambda() //At this point, current manifest file doen't contain Lambda service.
         {
             var lambda = new AmazonLambdaClient(new AnonymousAWSCredentials(), RegionEndpoint.USEast1);
-            CustomResponses.SetResponse(lambda, null, null, null, true);
+            CustomResponses.SetResponse(lambda);
             _recorder.BeginSegment("lambda", TraceId);
 #if NET45
             lambda.Invoke(new InvokeRequest
@@ -298,7 +298,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             String temp_path = $"JSONs{Path.DirectorySeparatorChar}AWSRequestInfoWithLambda.json"; //registering manifest file with Lambda
             AWSSDKHandler.RegisterXRayManifest(temp_path);
             var lambda = new AmazonLambdaClient(new AnonymousAWSCredentials(), RegionEndpoint.USEast1);
-            CustomResponses.SetResponse(lambda, null, null, null, true);
+            CustomResponses.SetResponse(lambda);
             _recorder.BeginSegment("lambda", TraceId);
 #if NET45
             lambda.Invoke(new InvokeRequest
@@ -327,7 +327,7 @@ namespace Amazon.XRay.Recorder.UnitTests
                 AWSSDKHandler.RegisterXRayManifest(stream);
             }
             var lambda = new AmazonLambdaClient(new AnonymousAWSCredentials(), RegionEndpoint.USEast1);
-            CustomResponses.SetResponse(lambda, null, null, null, true);
+            CustomResponses.SetResponse(lambda);
             _recorder.BeginSegment("lambda", TraceId);
 #if NET45
             lambda.Invoke(new InvokeRequest
@@ -351,7 +351,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         {
             AWSSDKHandler.RegisterXRay<IAmazonSimpleNotificationService>();
             var sns = new AmazonSimpleNotificationServiceClient(new AnonymousAWSCredentials(), RegionEndpoint.USEast1);
-            CustomResponses.SetResponse(sns, null, null, null, true);
+            CustomResponses.SetResponse(sns);
 
             _recorder.BeginSegment("test sns", TraceId);
 

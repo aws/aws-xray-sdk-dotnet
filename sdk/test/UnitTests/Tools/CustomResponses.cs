@@ -31,7 +31,7 @@ namespace Amazon.XRay.Recorder.UnitTests.Tools
     {
 #if NET45
         public static void SetResponse(
-            AmazonServiceClient client, string content, string requestId, string s3ExtendedRequestId, bool isOK)
+            AmazonServiceClient client, string requestId = null, string s3ExtendedRequestId = null, string content = null, bool isOK = true)
         {
             var response = Create(content, requestId, s3ExtendedRequestId, isOK);
             SetResponse(client, response);
@@ -84,7 +84,7 @@ namespace Amazon.XRay.Recorder.UnitTests.Tools
         }
 #else
 
-        public static void SetResponse(AmazonServiceClient client, string content, string requestId, string s3ExtendedRequestId, bool isOK)
+        public static void SetResponse(AmazonServiceClient client, string requestId = null, string s3ExtendedRequestId = null, string content = null, bool isOK = true)
         {
             var response = Create(content, requestId, s3ExtendedRequestId, isOK);
             SetResponse(client, response);
