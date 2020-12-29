@@ -40,6 +40,7 @@
     <PackageReference Include="AWSSDK.DynamoDBv2" Version="3.5.1.1" />
     <PackageReference Include="AWSSDK.Lambda" Version="3.5.0.25" />
     <PackageReference Include="AWSSDK.S3" Version="3.5.3.1" />
+    <PackageReference Include="AWSSDK.SimpleNotificationService" Version="3.5.0.26" />
     <PackageReference Include="Moq" Version="4.7.137" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.0'">
