@@ -124,7 +124,7 @@ namespace Amazon.XRay.Recorder.Handlers.EntityFramework
         /// </summary>
         /// <param name="command">Instance of <see cref="DbCommand"/>.</param>
         /// <returns>Type of database.</returns>
-        internal static string GetDataBaseType(DbCommand command)
+        public static string GetDataBaseType(DbCommand command)
         {
             var typeString = command?.Connection?.GetType()?.FullName?.ToLower();
 
@@ -164,7 +164,7 @@ namespace Amazon.XRay.Recorder.Handlers.EntityFramework
         /// </summary>
         /// <param name="builder">Instance of <see cref="DbConnectionStringBuilder"/>.</param>
         /// <returns></returns>
-        internal static object GetUserId(DbConnectionStringBuilder builder)
+        public static object GetUserId(DbConnectionStringBuilder builder)
         {
             foreach (string key in UserIdFormatOptions)
             {
