@@ -54,9 +54,9 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="3.1.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="3.1.0" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="2.0.0" />
-    <ProjectReference Include="..\..\src\Handlers\EntityFramework\AWSXRayRecorder.Handlers.EntityFramework.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="System.Data.SQLite" Version="1.0.113.7" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0" />
     <PackageReference Include="MSTest.TestAdapter" Version="1.1.18" />
     <PackageReference Include="MSTest.TestFramework" Version="1.1.18" />
@@ -64,6 +64,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Core\AWSXRayRecorder.Core.csproj" />
     <ProjectReference Include="..\..\src\Handlers\AwsSdk\AWSXRayRecorder.Handlers.AwsSdk.csproj" />
+    <ProjectReference Include="..\..\src\Handlers\EntityFramework\AWSXRayRecorder.Handlers.EntityFramework.csproj" />
     <ProjectReference Include="..\..\src\Handlers\SqlServer\AWSXRayRecorder.Handlers.SqlServer.csproj" />
     <ProjectReference Include="..\..\src\Handlers\System.Net\AWSXRayRecorder.Handlers.System.Net.csproj" />
   </ItemGroup>
@@ -74,8 +75,12 @@
     <Compile Remove="TestAppSettings.cs" />
     <Compile Remove="Tools\MockHttpRequest.cs" />
     <Compile Remove="Tools\MockHttpRequestFactory.cs" />
+    <Compile Remove="Tools\TestEF6Context.cs" />
+    <Compile Remove="EF6Tests.cs" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' != 'netcoreapp2.0'">
+    <PackageReference Include="EntityFramework" Version="6.4.4" />
+    <PackageReference Include="System.Data.SQLite.EF6" Version="1.0.113" />
     <Compile Remove="Tools\MockHttpRequestNetcore.cs" />
     <Compile Remove="Tools\MockHttpRequestFactoryNetcore.cs" />
     <Compile Remove="Tools\CustomWebResponse.cs" />
@@ -83,8 +88,8 @@
     <Compile Remove="TestXRayOptions.cs" />
     <Compile Remove="TestLambdaContext.cs" />
     <Compile Remove="FacadeSegmentTest.cs" />
+    <Compile Remove="Tools\TestEFContext.cs" />
     <Compile Remove="EfCoreTests.cs" />
-    <Compile Remove="EFUtilTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System.Web" />

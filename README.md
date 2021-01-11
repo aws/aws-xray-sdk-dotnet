@@ -40,7 +40,7 @@ Following API reference documentation provides guidance for using the SDK and mo
 4. [Trace AWS SDK request](https://github.com/aws/aws-xray-sdk-dotnet/tree/master#trace-aws-sdk-request-net-and-net-core--nuget) 
 5. [Trace out-going HTTP requests](https://github.com/aws/aws-xray-sdk-dotnet/tree/master#trace-out-going-http-requests-net-and-net-core--nuget)
 6. [Trace Query to SQL Server](https://github.com/aws/aws-xray-sdk-dotnet/tree/master#trace-query-to-sql-server-net-and-net-core--nuget)
-7. [Trace SQL Query through Entity Framework Core 3.0 and above](https://github.com/aws/aws-xray-sdk-dotnet/tree/master#trace-sql-query-through-entity-framework-core-30-and-above-net-core--nuget)
+7. [Trace SQL Query through Entity Framework](https://github.com/aws/aws-xray-sdk-dotnet/tree/master#trace-sql-query-through-entity-framework-core-30-and-above-net-core--nuget)
 8. [Multithreaded Execution](https://github.com/aws/aws-xray-sdk-dotnet/tree/master#multithreaded-execution-net-and-net-core--nuget)
 9. [Trace custom methods ](https://github.com/aws/aws-xray-sdk-dotnet/tree/master#trace-custom-methods-net-and-net-core)
 10. [Creating custom Segment/Subsegment](https://github.com/aws/aws-xray-sdk-dotnet/tree/master#creating-custom-segmentsubsegment-net-and-net-core)
@@ -384,7 +384,11 @@ using (var command = new TraceableSqlCommand("SELECT * FROM products", connectio
 2. Parameterized values will appear in their tokenized form and will not be expanded.
 3. The value of `collectSqlQueries` in the `TraceableSqlCommand` instance overrides the value set in the global configuration using the `CollectSqlQueries` property.
 
-### Trace SQL Query through Entity Framework Core 3.0 and above (.NET Core) : [Nuget](https://www.nuget.org/packages/AWSXRayRecorder.Handlers.EntityFramework/)
+### Trace SQL Query through Entity Framework (.NET and .NET Core) : [Nuget](https://www.nuget.org/packages/AWSXRayRecorder.Handlers.EntityFramework/)
+
+#### Setup
+
+* For .NET Core
 
 AWS XRay SDK for .NET Core provides interceptor for tracing SQL query through Entity Framework Core (>=3.0).
 
@@ -396,8 +400,6 @@ For how to start with Entity Framework Core in an ASP.NET Core web app, please t
 * Not all database provider support Entity Framework Core 3.0 and above, please make sure that you are using the [Nuget package](https://docs.microsoft.com/en-us/ef/core/providers/?tabs=dotnet-core-cli) with a compatible version (EF Core >= 3.0).
 
 *Known Limitation (as of 12-03-2020):* If you're using another `DbCommandInterceptor` implementation along with the `AddXRayInterceptor` in the `DbContext`, it may not work as expected and you may see a "EntityNotAvailableException" from the XRay EFCore interceptor. This is due to [`AsyncLocal`](https://docs.microsoft.com/en-us/dotnet/api/system.threading.asynclocal-1?view=netcore-2.0) not being able to maintain context across the `ReaderExecutingAsync` and `ReaderExecutedAsync` methods. Ref [here](https://github.com/dotnet/efcore/issues/22766) for more details on the issue.
-
-#### Setup
 
 In order to trace SQL query, you can register your `DbContext` with `AddXRayInterceptor()` accordingly in the `ConfigureServices` method in `startup.cs` file. 
 
@@ -426,9 +428,42 @@ public class your_DbContext : DbContext
 
 The connection string can be either hard coded or configured from `appsettings.json` file.
 
+* For .NET 
+
+AWS XRay SDK for .NET provides interceptor for tracing SQL query through Entity Framework 6 (>= 6.2.0).
+
+For instrumentation, you will need to install `AWSXRayRecorder.Handlers.EntityFramework` nuget package and call `AWSXRayEntityFramework6.AddXRayInterceptor()` in your code. Make sure to call it **only once** to avoid duplicate tracing.
+
+For instance, you can call `AddXRayInterceptor()` in the `Application_Start` method of **Global.asax** file.
+
+```
+using Amazon.XRay.Recorder.Handlers.EntityFramework;
+
+protected void Application_Start()
+{
+    AWSXRayEntityFramework6.AddXRayInterceptor();
+}
+```
+
+Or you can call it in the `DbConfiguration` class if there is one in your application to configure execution policy.
+
+```
+using Amazon.XRay.Recorder.Handlers.EntityFramework;
+
+public class YourDbConfiguration : DbConfiguration
+{
+    public YourDbConfiguration()
+    {
+        AWSXRayEntityFramework6.AddXRayInterceptor();
+    }
+}
+```
+
 #### Capture SQL Query text in the traced SQL calls to SQL Server
 
 You can also opt in to capture the `DbCommand.CommandText` as part of the subsegment created for your SQL query. The collected `DbCommand.CommandText` will appear as `sanitized_query` in the subsegment JSON. By default, this feature is disabled due to security reasons. 
+
+* For .NET Core
 
 If you want to enable this feature, it can be done in two ways. First, by setting the `CollectSqlQueries` to **true** in the `appsettings.json` file as follows:
 
@@ -440,7 +475,7 @@ If you want to enable this feature, it can be done in two ways. First, by settin
 }
 ```
 
-Secondly, you can set the `collectSqlQueries` parameter in the `AddXRayInterceptor()` as **true** to collect the SQL query text. If you set this parameter as **false**, it will disable the `collectSqlQueries` feature for this `AddXRayInterceptor()`.
+Secondly, you can set the `collectSqlQueries` parameter in the `AddXRayInterceptor()` as **true** to collect the SQL query text. If you set this parameter as **false**, it will disable the `collectSqlQueries` feature for this `AddXRayInterceptor()`. Opting in `AddXRayInterceptor()` has the highest execution priority, which will override the configuration item in `appsettings.json` mentioned above.
 
 ```csharp
 using Microsoft.EntityFrameworkCore;
@@ -462,6 +497,25 @@ public class your_DbContext : DbContext
     => options.UseSqlite(your_connectionString).AddXRayInterceptor(true);
 }
 ```
+
+* For .NET 
+
+You can enable tracing SQL query text for EF 6 interceptor in the `Web.config` file.
+
+```xml
+<configuration>
+  <appSettings>
+    <add key="CollectSqlQueries" value="true"/>
+  </appSettings>
+</configuration>
+```
+
+You can also pass **true** to `AddXRayInterceptor()` to collect SQL query text, otherwise pass **false** to disable. Opting in `AddXRayInterceptor()` has the highest execution priority, which will override the configuration item in `Web.config` mentioned above.
+
+```
+using Amazon.XRay.Recorder.Handlers.EntityFramework;
+
+AWSXRayEntityFramework6.AddXRayInterceptor(true);
 
 ### Multithreaded Execution (.NET and .NET Core) : [Nuget](https://www.nuget.org/packages/AWSXRayRecorder.Core/)
 
