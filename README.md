@@ -388,7 +388,7 @@ using (var command = new TraceableSqlCommand("SELECT * FROM products", connectio
 
 #### Setup
 
-##### For .NET Core
+##### .NET Core
 
 AWS XRay SDK for .NET Core provides interceptor for tracing SQL query through Entity Framework Core (>=3.0).
 
@@ -428,7 +428,7 @@ public class your_DbContext : DbContext
 
 The connection string can be either hard coded or configured from `appsettings.json` file.
 
-##### For .NET 
+##### .NET 
 
 AWS XRay SDK for .NET provides interceptor for tracing SQL query through Entity Framework 6 (>= 6.2.0).
 
@@ -463,7 +463,7 @@ public class YourDbConfiguration : DbConfiguration
 
 You can also opt in to capture the `DbCommand.CommandText` as part of the subsegment created for your SQL query. The collected `DbCommand.CommandText` will appear as `sanitized_query` in the subsegment JSON. By default, this feature is disabled due to security reasons. 
 
-##### For .NET Core
+##### .NET Core
 
 If you want to enable this feature, it can be done in two ways. First, by setting the `CollectSqlQueries` to **true** in the `appsettings.json` file as follows:
 
@@ -498,7 +498,7 @@ public class your_DbContext : DbContext
 }
 ```
 
-##### For .NET 
+##### .NET 
 
 You can enable tracing SQL query text for EF 6 interceptor in the `Web.config` file.
 
@@ -516,6 +516,7 @@ You can also pass **true** to `AddXRayInterceptor()` to collect SQL query text, 
 using Amazon.XRay.Recorder.Handlers.EntityFramework;
 
 AWSXRayEntityFramework6.AddXRayInterceptor(true);
+```
 
 ### Multithreaded Execution (.NET and .NET Core) : [Nuget](https://www.nuget.org/packages/AWSXRayRecorder.Core/)
 
