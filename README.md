@@ -430,7 +430,9 @@ The connection string can be either hard coded or configured from `appsettings.j
 
 ##### .NET 
 
-AWS XRay SDK for .NET provides interceptor for tracing SQL query through Entity Framework 6 (>= 6.2.0). For how to start with Entity Framework 6 in an ASP.NET web app, please take reference to [link](https://docs.microsoft.com/en-us/aspnet/mvc/overview/getting-started/getting-started-with-ef-using-mvc/creating-an-entity-framework-data-model-for-an-asp-net-mvc-application).
+AWS XRay SDK for .NET provides interceptor for tracing SQL query through Entity Framework 6 (>= 6.2.0). 
+
+For how to start with Entity Framework 6 in an ASP.NET web app, please take reference to [link](https://docs.microsoft.com/en-us/aspnet/mvc/overview/getting-started/getting-started-with-ef-using-mvc/creating-an-entity-framework-data-model-for-an-asp-net-mvc-application).
 
 For instrumentation, you will need to install `AWSXRayRecorder.Handlers.EntityFramework` nuget package and call `AWSXRayEntityFramework6.AddXRayInterceptor()` in your code. Make sure to call it **only once** to avoid duplicate tracing.
 
