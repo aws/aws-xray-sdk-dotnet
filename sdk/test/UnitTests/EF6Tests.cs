@@ -19,28 +19,25 @@ using Amazon.XRay.Recorder.Core;
 using Amazon.XRay.Recorder.Core.Internal.Entities;
 using Amazon.XRay.Recorder.Handlers.EntityFramework;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Amazon.XRay.Recorder.UnitTests.Tools;
 using System.Data.Entity.Infrastructure.Interception;
-using System.Data.SqlClient;
+using System.Data.SQLite;
 
 namespace Amazon.XRay.Recorder.UnitTests
 {
     [TestClass]
     public class EF6Tests : TestBase
     {
-        private SqlConnection connection = null;
-        private const string connectionString = "Server=myServerAddress;Database=myDataBase;User Id=myUsername;Password=myPassword";
-        private const string connectionStringWithoutPassword = "server=myServerAddress;database=myDataBase;user id=myUsername";
-        private const string subsegmentName = "myDataBase@myServerAddress";
-        private const string userId = "myUsername";
-        private const string database = "sqlserver";
+        private SQLiteConnection connection = null;
+        private const string connectionString = "data source=:memory:";
+        private const string database = "sqlite";
         private const string nameSpace = "remote";
         private const string commandText = "Test command text";
 
         [TestInitialize]
         public void Initialize()
         {
-            connection = new SqlConnection(connectionString);
+            connection = new SQLiteConnection(connectionString);
+            connection.Open();
         }
 
         [TestCleanup]
@@ -52,37 +49,140 @@ namespace Amazon.XRay.Recorder.UnitTests
         }
 
         [TestMethod]
-        public void TestEFInterceptor()
+        public void TestEFInterceptorNonQuery()
         {
-            AWSXRayRecorder.Instance.BeginSegment("Test EF6");
+            var recorder = new AWSXRayRecorder();
+            recorder.BeginSegment("Test EF6");
 
-            AWSXRayEntityFramework6.AddXRayInterceptor(true);
+            var efInterceptor = new EFInterceptor(true);
+            DbInterception.Add(efInterceptor);
 
             try
             {
-                using (var SqlCommand = new SqlCommand(commandText, connection))
+                using (var command = new SQLiteCommand(commandText, connection))
                 {
-                    DbInterception.Dispatch.Command.NonQuery(SqlCommand, new DbCommandInterceptionContext());
+                    DbInterception.Dispatch.Command.NonQuery(command, new DbCommandInterceptionContext()); // calling API from IDbCommandInterceptor
                 }
             }
             catch
             {
-                // Will throw exception as it's an invalid connection string
-
-                var entity = AWSXRayRecorder.Instance.TraceContext.GetEntity();
-                Assert.IsTrue(entity is Subsegment);
-
-                var subsegment = entity as Subsegment;
-                Assert.AreEqual(subsegmentName, subsegment.Name);
-                Assert.AreEqual(connectionStringWithoutPassword, subsegment.Sql["connection_string"]); // password will be removed
-                Assert.AreEqual(database, subsegment.Sql["database_type"]);
-                Assert.AreEqual(userId, subsegment.Sql["user"]);
-                Assert.AreEqual(commandText, subsegment.Sql["sanitized_query"]);
-                Assert.AreEqual(nameSpace, subsegment.Namespace);
-                AWSXRayRecorder.Instance.EndSubsegment();
+                // Will throw exception as command text is invalid
             }
 
-            AWSXRayRecorder.Instance.EndSegment();
+            var segment = recorder.GetEntity() as Segment;
+            recorder.EndSegment();
+            Assert.IsTrue(segment.Subsegments.Count != 0);
+
+            var subsegment = segment.Subsegments[0];
+            AssertTraceCollected(subsegment);
+            Assert.AreEqual(commandText, subsegment.Sql["sanitized_query"]);
+
+            DbInterception.Remove(efInterceptor); // remove to avoid multiple interceptors registered here
+        }
+
+        [TestMethod]
+        public void TestEFInterceptorReader()
+        {
+            var recorder = new AWSXRayRecorder();
+            recorder.BeginSegment("Test EF6");
+
+            var efInterceptor = new EFInterceptor(true);
+            DbInterception.Add(efInterceptor);
+
+            try
+            {
+                using (var command = new SQLiteCommand(commandText, connection))
+                {
+                    DbInterception.Dispatch.Command.Reader(command, new DbCommandInterceptionContext()); // calling API from IDbCommandInterceptor
+                }
+            }
+            catch
+            {
+                // Will throw exception as command text is invalid
+            }
+
+            var segment = recorder.GetEntity() as Segment;
+            recorder.EndSegment();
+            Assert.IsTrue(segment.Subsegments.Count != 0);
+
+            var subsegment = segment.Subsegments[0];
+            AssertTraceCollected(subsegment);
+            Assert.AreEqual(commandText, subsegment.Sql["sanitized_query"]);
+
+            DbInterception.Remove(efInterceptor); // remove to avoid multiple interceptors registered here
+        }
+
+        [TestMethod]
+        public void TestEFInterceptorScalar()
+        {
+            var recorder = new AWSXRayRecorder();
+            recorder.BeginSegment("Test EF6");
+
+            var efInterceptor = new EFInterceptor(true);
+            DbInterception.Add(efInterceptor);
+
+            try
+            {
+                using (var command = new SQLiteCommand(commandText, connection))
+                {
+                    DbInterception.Dispatch.Command.Scalar(command, new DbCommandInterceptionContext()); // calling API from IDbCommandInterceptor
+                }
+            }
+            catch
+            {
+                // Will throw exception as command text is invalid
+            }
+
+            var segment = recorder.GetEntity() as Segment;
+            recorder.EndSegment();
+            Assert.IsTrue(segment.Subsegments.Count != 0);
+
+            var subsegment = segment.Subsegments[0];
+            AssertTraceCollected(subsegment);
+            Assert.AreEqual(commandText, subsegment.Sql["sanitized_query"]);
+
+            DbInterception.Remove(efInterceptor); // remove to avoid multiple interceptors registered here
+        }
+
+        [TestMethod]
+        public void TestEFInterceptorNonQueryWithoutQueryText()
+        {
+            var recorder = new AWSXRayRecorder();
+            recorder.BeginSegment("Test EF6");
+
+            var efInterceptor = new EFInterceptor(false);
+            DbInterception.Add(efInterceptor);
+
+            try
+            {
+                using (var command = new SQLiteCommand(commandText, connection))
+                {
+                    DbInterception.Dispatch.Command.NonQuery(command, new DbCommandInterceptionContext()); // calling API from IDbCommandInterceptor
+                }
+            }
+            catch
+            {
+                // Will throw exception as command text is invalid
+            }
+
+            var segment = recorder.GetEntity() as Segment;
+            recorder.EndSegment();
+            Assert.IsTrue(segment.Subsegments.Count != 0);
+
+            var subsegment = segment.Subsegments[0];
+            AssertTraceCollected(subsegment);
+            Assert.IsFalse(subsegment.Sql.ContainsKey("sanitized_query"));
+
+            DbInterception.Remove(efInterceptor); // remove to avoid multiple interceptors registered here
+        }
+
+        public void AssertTraceCollected(Subsegment subsegment)
+        {
+            Assert.AreEqual(connection.ConnectionString, subsegment.Sql["connection_string"]);
+            Assert.AreEqual(database, subsegment.Sql["database_type"]);
+            Assert.AreEqual(connection.ServerVersion, subsegment.Sql["database_version"]);
+            Assert.AreEqual(nameSpace, subsegment.Namespace);
+            Assert.IsTrue(subsegment.HasFault);
         }
     }
 }

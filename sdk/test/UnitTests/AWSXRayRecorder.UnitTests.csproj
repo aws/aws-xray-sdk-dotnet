@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   
   <PropertyGroup>
@@ -75,7 +75,6 @@
     <Compile Remove="TestAppSettings.cs" />
     <Compile Remove="Tools\MockHttpRequest.cs" />
     <Compile Remove="Tools\MockHttpRequestFactory.cs" />
-    <Compile Remove="Tools\TestEF6Context.cs" />
     <Compile Remove="EF6Tests.cs" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' != 'netcoreapp2.0'">
