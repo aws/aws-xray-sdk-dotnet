@@ -15,32 +15,18 @@
 // </copyright>
 //-----------------------------------------------------------------------------
 
-using System.Data.Common;
 using System.Data.Entity;
-using System.Data.Entity.Core.Common;
-using System.Data.SQLite;
-using System.Data.SQLite.EF6;
 
 namespace Amazon.XRay.Recorder.UnitTests.Tools
 {
-    [DbConfigurationType(typeof(SQLiteConfiguration))]
     public class TestEF6Context : DbContext
     {
-        public TestEF6Context(DbConnection dbConnection, bool contextOwnsConnection) : base(dbConnection, contextOwnsConnection)
+        public TestEF6Context() : base()
         {
+
         }
 
         public DbSet<User> Users { get; set; }
-    }
-
-    public class SQLiteConfiguration : DbConfiguration
-    {
-        public SQLiteConfiguration()
-        {
-            SetProviderFactory("System.Data.SQLite", SQLiteFactory.Instance);
-            SetProviderFactory("System.Data.SQLite.EF6", SQLiteProviderFactory.Instance);
-            SetProviderServices("System.Data.SQLite", (DbProviderServices)SQLiteProviderFactory.Instance.GetService(typeof(DbProviderServices)));
-        }
     }
 
     public class User

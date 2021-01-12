@@ -94,8 +94,6 @@ namespace Amazon.XRay.Recorder.Handlers.EntityFramework
             string databaseType = GetDataBaseType(command);
             _recorder.AddSqlInformation("database_type", databaseType);
 
-            _recorder.AddSqlInformation("database_version", command.Connection.ServerVersion);
-
             DbConnectionStringBuilder connectionStringBuilder = new DbConnectionStringBuilder
             {
                 ConnectionString = command.Connection.ConnectionString
@@ -117,6 +115,8 @@ namespace Amazon.XRay.Recorder.Handlers.EntityFramework
             {
                 _recorder.AddSqlInformation("sanitized_query", command.CommandText);
             }
+
+            _recorder.AddSqlInformation("database_version", command.Connection.ServerVersion);
         }
 
         /// <summary>

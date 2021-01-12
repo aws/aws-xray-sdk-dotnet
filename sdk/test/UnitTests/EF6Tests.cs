@@ -19,71 +19,70 @@ using Amazon.XRay.Recorder.Core;
 using Amazon.XRay.Recorder.Core.Internal.Entities;
 using Amazon.XRay.Recorder.Handlers.EntityFramework;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Data.SQLite;
 using Amazon.XRay.Recorder.UnitTests.Tools;
-using System.Linq;
+using System.Data.Entity.Infrastructure.Interception;
+using System.Data.SqlClient;
 
 namespace Amazon.XRay.Recorder.UnitTests
 {
     [TestClass]
     public class EF6Tests : TestBase
     {
-        private SQLiteConnection connection = null;
-        private const string connectionString = "data source=:memory:";
-        private const string database = "sqlite";
+        private SqlConnection connection = null;
+        private const string connectionString = "Server=myServerAddress;Database=myDataBase;User Id=myUsername;Password=myPassword";
+        private const string connectionStringWithoutPassword = "server=myServerAddress;database=myDataBase;user id=myUsername";
+        private const string subsegmentName = "myDataBase@myServerAddress";
+        private const string userId = "myUsername";
+        private const string database = "sqlserver";
         private const string nameSpace = "remote";
+        private const string commandText = "Test command text";
 
         [TestInitialize]
-        public void TestInitialize()
+        public void Initialize()
         {
-            var sqliteConnectionStringBuilder = new SQLiteConnectionStringBuilder()
-            {
-                ConnectionString = connectionString,
-            };
-
-            connection = new SQLiteConnection(sqliteConnectionStringBuilder.ToString());
-            connection.Open();
+            connection = new SqlConnection(connectionString);
         }
 
         [TestCleanup]
         public new void TestCleanup()
         {
             connection.Close();
+            connection.Dispose();
             base.TestCleanup();
         }
 
         [TestMethod]
-        public void TestEF6Interceptor()
+        public void TestEFInterceptor()
         {
             AWSXRayRecorder.Instance.BeginSegment("Test EF6");
 
-            AWSXRayEntityFramework6.AddXRayInterceptor(true); // enable tracing SQL query text
+            AWSXRayEntityFramework6.AddXRayInterceptor(true);
 
             try
             {
-                using (var context = new TestEF6Context(connection, false))
+                using (var SqlCommand = new SqlCommand(commandText, connection))
                 {
-                    context.Users.ToList();
-                    context.SaveChanges();
+                    DbInterception.Dispatch.Command.NonQuery(SqlCommand, new DbCommandInterceptionContext());
                 }
             }
             catch
             {
-                // EF6 will throw exception as there is no table Users in SQlite inmemory database, which will be recorded by X-Ray.
+                // Will throw exception as it's an invalid connection string
+
+                var entity = AWSXRayRecorder.Instance.TraceContext.GetEntity();
+                Assert.IsTrue(entity is Subsegment);
+
+                var subsegment = entity as Subsegment;
+                Assert.AreEqual(subsegmentName, subsegment.Name);
+                Assert.AreEqual(connectionStringWithoutPassword, subsegment.Sql["connection_string"]); // password will be removed
+                Assert.AreEqual(database, subsegment.Sql["database_type"]);
+                Assert.AreEqual(userId, subsegment.Sql["user"]);
+                Assert.AreEqual(commandText, subsegment.Sql["sanitized_query"]);
+                Assert.AreEqual(nameSpace, subsegment.Namespace);
+                AWSXRayRecorder.Instance.EndSubsegment();
             }
 
-            var segment = AWSXRayRecorder.Instance.TraceContext.GetEntity() as Segment;
             AWSXRayRecorder.Instance.EndSegment();
-
-            Assert.IsTrue(segment.Subsegments.Count != 0);
-
-            var subsegment = segment.Subsegments[0];
-            Assert.AreEqual(connection.ConnectionString, subsegment.Sql["connection_string"]);
-            Assert.AreEqual(database, subsegment.Sql["database_type"]);
-            Assert.AreEqual(connection.ServerVersion, subsegment.Sql["database_version"]);
-            Assert.IsNotNull(subsegment.Sql["sanitized_query"]);
-            Assert.AreEqual(nameSpace, subsegment.Namespace);
-            Assert.IsTrue(subsegment.HasFault);
         }
     }
 }
