@@ -28,6 +28,7 @@ namespace Amazon.XRay.Recorder.UnitTests
     public class EF6Tests : TestBase
     {
         private SQLiteConnection connection = null;
+        private AWSXRayRecorder recorder = null;
         private const string connectionString = "data source=:memory:";
         private const string database = "sqlite";
         private const string nameSpace = "remote";
@@ -36,6 +37,8 @@ namespace Amazon.XRay.Recorder.UnitTests
         [TestInitialize]
         public void Initialize()
         {
+            recorder = new AWSXRayRecorder();
+            recorder.BeginSegment("Test EF6");
             connection = new SQLiteConnection(connectionString);
             connection.Open();
         }
@@ -45,17 +48,15 @@ namespace Amazon.XRay.Recorder.UnitTests
         {
             connection.Close();
             connection.Dispose();
+            recorder.EndSegment(); 
+            recorder.Dispose();
             base.TestCleanup();
         }
 
         [TestMethod]
         public void TestEFInterceptorNonQuery()
         {
-            var recorder = new AWSXRayRecorder();
-            recorder.BeginSegment("Test EF6");
-
-            var efInterceptor = new EFInterceptor(true);
-            DbInterception.Add(efInterceptor);
+            var efInterceptor = RegisterInterceptor(true);
 
             try
             {
@@ -70,24 +71,19 @@ namespace Amazon.XRay.Recorder.UnitTests
             }
 
             var segment = recorder.GetEntity() as Segment;
-            recorder.EndSegment();
             Assert.IsTrue(segment.Subsegments.Count != 0);
 
             var subsegment = segment.Subsegments[0];
             AssertTraceCollected(subsegment);
             Assert.AreEqual(commandText, subsegment.Sql["sanitized_query"]);
 
-            DbInterception.Remove(efInterceptor); // remove to avoid multiple interceptors registered here
+            RemoveInterceptor(efInterceptor);
         }
 
         [TestMethod]
         public void TestEFInterceptorReader()
         {
-            var recorder = new AWSXRayRecorder();
-            recorder.BeginSegment("Test EF6");
-
-            var efInterceptor = new EFInterceptor(true);
-            DbInterception.Add(efInterceptor);
+            var efInterceptor = RegisterInterceptor(true);
 
             try
             {
@@ -102,24 +98,19 @@ namespace Amazon.XRay.Recorder.UnitTests
             }
 
             var segment = recorder.GetEntity() as Segment;
-            recorder.EndSegment();
             Assert.IsTrue(segment.Subsegments.Count != 0);
 
             var subsegment = segment.Subsegments[0];
             AssertTraceCollected(subsegment);
             Assert.AreEqual(commandText, subsegment.Sql["sanitized_query"]);
 
-            DbInterception.Remove(efInterceptor); // remove to avoid multiple interceptors registered here
+            RemoveInterceptor(efInterceptor);
         }
 
         [TestMethod]
         public void TestEFInterceptorScalar()
         {
-            var recorder = new AWSXRayRecorder();
-            recorder.BeginSegment("Test EF6");
-
-            var efInterceptor = new EFInterceptor(true);
-            DbInterception.Add(efInterceptor);
+            var efInterceptor = RegisterInterceptor(true);
 
             try
             {
@@ -134,24 +125,19 @@ namespace Amazon.XRay.Recorder.UnitTests
             }
 
             var segment = recorder.GetEntity() as Segment;
-            recorder.EndSegment();
             Assert.IsTrue(segment.Subsegments.Count != 0);
 
             var subsegment = segment.Subsegments[0];
             AssertTraceCollected(subsegment);
             Assert.AreEqual(commandText, subsegment.Sql["sanitized_query"]);
 
-            DbInterception.Remove(efInterceptor); // remove to avoid multiple interceptors registered here
+            RemoveInterceptor(efInterceptor);
         }
 
         [TestMethod]
         public void TestEFInterceptorNonQueryWithoutQueryText()
         {
-            var recorder = new AWSXRayRecorder();
-            recorder.BeginSegment("Test EF6");
-
-            var efInterceptor = new EFInterceptor(false);
-            DbInterception.Add(efInterceptor);
+            var efInterceptor = RegisterInterceptor(false);
 
             try
             {
@@ -166,17 +152,29 @@ namespace Amazon.XRay.Recorder.UnitTests
             }
 
             var segment = recorder.GetEntity() as Segment;
-            recorder.EndSegment();
             Assert.IsTrue(segment.Subsegments.Count != 0);
 
             var subsegment = segment.Subsegments[0];
             AssertTraceCollected(subsegment);
             Assert.IsFalse(subsegment.Sql.ContainsKey("sanitized_query"));
 
-            DbInterception.Remove(efInterceptor); // remove to avoid multiple interceptors registered here
+            RemoveInterceptor(efInterceptor);
         }
 
-        public void AssertTraceCollected(Subsegment subsegment)
+        private EFInterceptor RegisterInterceptor(bool collectSqlQueries)
+        {
+            var efInterceptor = new EFInterceptor(collectSqlQueries);
+            DbInterception.Add(efInterceptor);
+            return efInterceptor;
+        }
+
+        // Remove EFInterceptor from DbInterceptor to avoid duplicate tracing
+        private void RemoveInterceptor(EFInterceptor interceptor)
+        {
+            DbInterception.Remove(interceptor);
+        }
+
+        private void AssertTraceCollected(Subsegment subsegment)
         {
             Assert.AreEqual(connection.ConnectionString, subsegment.Sql["connection_string"]);
             Assert.AreEqual(database, subsegment.Sql["database_type"]);

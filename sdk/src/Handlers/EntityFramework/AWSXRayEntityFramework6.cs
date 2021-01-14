@@ -20,14 +20,16 @@ using System.Data.Entity.Infrastructure.Interception;
 namespace Amazon.XRay.Recorder.Handlers.EntityFramework
 {
     /// <summary>
-    /// Class to add EFInterceptor to DbInterception to enable tracing Sql queries through EF 6.
+    /// Class for <see cref="DbInterception"/> to add <see cref="EFInterceptor"/>.
+    /// User can pass collectSqlQueries to AddXRayInterceptor() to decide if sanitized_query should be included in the trace
+    /// context or not.
     /// </summary>
     public static class AWSXRayEntityFramework6
     {
         /// <summary>
-        /// Add <see cref="EFInterceptor"/> to <see cref="DbInterception"/>.
+        /// Enable tracing SQL queries through EntityFramework 6 for .NET framework by calling AWSXRayEntityFramework6.AddXRayInterceptor() to add <see cref="EFInterceptor"/> into <see cref="DbInterception"/> to register X-Ray tracing interceptor.
         /// </summary>
-        /// <param name="collectSqlQueries">Nullable to indicate whether to record sql query text or not. Default value is null.</param>
+        /// <param name="collectSqlQueries">Set this parameter to true to capture sql query text. The value set here overrides the value of CollectSqlQueries in Web.config if present. The default value of this parameter is null.</param>
         public static void AddXRayInterceptor(bool? collectSqlQueries = null)
         {
             DbInterception.Add(new EFInterceptor(collectSqlQueries));

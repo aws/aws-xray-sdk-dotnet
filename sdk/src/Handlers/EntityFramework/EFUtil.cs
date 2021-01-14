@@ -18,6 +18,7 @@
 using System;
 using System.Data.Common;
 using System.Text.RegularExpressions;
+using Amazon.Runtime.Internal.Util;
 using Amazon.XRay.Recorder.Core;
 #if NET45
 using Amazon.XRay.Recorder.Core.Internal.Utils;
@@ -28,9 +29,9 @@ namespace Amazon.XRay.Recorder.Handlers.EntityFramework
     /// <summary>
     /// Utilities for EFInterceptor
     /// </summary>
-    public static class EFUtil
+    internal static class EFUtil
     {
-        private static readonly string EntityFramework = "entityframework";
+        private static readonly string DefaultDbTypeEntityFramework = "entityframework";
         private static readonly string SqlServerCompact35 = "sqlservercompact35";
         private static readonly string SqlServerCompact40 = "sqlservercompact40";
         private static readonly string MicrosoftSqlClient = "microsoft.data.sqlclient";
@@ -46,6 +47,8 @@ namespace Amazon.XRay.Recorder.Handlers.EntityFramework
         private static readonly Regex _portNumberRegex = new Regex(@"[,|:]\d+$");
 
         private static readonly AWSXRayRecorder _recorder = AWSXRayRecorder.Instance;
+
+        private static readonly Logger _logger = Logger.GetLogger(typeof(EFUtil));
 
         /// <summary>
         /// Process command to begin subsegment.
@@ -102,14 +105,14 @@ namespace Amazon.XRay.Recorder.Handlers.EntityFramework
             // Remove sensitive information from connection string
             connectionStringBuilder.Remove("Password");
 
+            _recorder.AddSqlInformation("connection_string", connectionStringBuilder.ToString());
+
             // Do a pre-check for UserID since in the case of TrustedConnection, a UserID may not be available.
             var user_id = GetUserId(connectionStringBuilder);
             if (user_id != null)
             {
                 _recorder.AddSqlInformation("user", user_id.ToString());
             }
-
-            _recorder.AddSqlInformation("connection_string", connectionStringBuilder.ToString());
 
             if (ShouldCollectSqlText(collectSqlQueriesOverride))
             {
@@ -124,13 +127,14 @@ namespace Amazon.XRay.Recorder.Handlers.EntityFramework
         /// </summary>
         /// <param name="command">Instance of <see cref="DbCommand"/>.</param>
         /// <returns>Type of database.</returns>
-        public static string GetDataBaseType(DbCommand command)
+        internal static string GetDataBaseType(DbCommand command)
         {
             var typeString = command?.Connection?.GetType()?.FullName?.ToLower();
 
             if (string.IsNullOrEmpty(typeString))
             {
-                return EntityFramework;
+                _logger.DebugFormat("Can't extract database type from connection, setting it as default: ({0})", DefaultDbTypeEntityFramework);
+                return DefaultDbTypeEntityFramework;
             }
 
             if (typeString.Contains(MicrosoftSqlClient) || typeString.Contains(SystemSqlClient))
@@ -164,13 +168,13 @@ namespace Amazon.XRay.Recorder.Handlers.EntityFramework
         /// </summary>
         /// <param name="builder">Instance of <see cref="DbConnectionStringBuilder"/>.</param>
         /// <returns></returns>
-        public static object GetUserId(DbConnectionStringBuilder builder)
+        internal static string GetUserId(DbConnectionStringBuilder builder)
         {
             foreach (string key in UserIdFormatOptions)
             {
                 if (builder.TryGetValue(key, out object value))
                 {
-                    return value;
+                    return (string)value;
                 }
             }
 
