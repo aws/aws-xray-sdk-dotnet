@@ -388,11 +388,13 @@ using (var command = new TraceableSqlCommand("SELECT * FROM products", connectio
 
 AWS XRay SDK for .NET Core provides interceptor for tracing SQL query through Entity Framework Core (>=3.0).
 
-For how to start with Entity Framework Core in an ASP.NET Core web app, please take reference to [Link](https://docs.microsoft.com/en-us/aspnet/core/data/ef-mvc/?view=aspnetcore-3.1)
+For how to start with Entity Framework Core in an ASP.NET Core web app, please take reference to [Link](https://docs.microsoft.com/en-us/aspnet/core/data/ef-mvc/?view=aspnetcore-5.0)
 
 *NOTE:*
 
 * You need to install `AWSXRayRecorder.Handlers.EntityFramework` nuget package. This package adds extension methods to the `DbContextOptionsBuilder` to make it easy to register AWS X-Ray interceptor.
+* If you are using Entity Framework Core 5.0 and above, use the `AWSXRayRecorder.Handlers.EntityFramework5` nuget package.
+* If you are using Entity Framework Core 3.1, use the `AWSXRayRecorder.Handlers.EntityFramework` nuget package.
 * Not all database provider support Entity Framework Core 3.0 and above, please make sure that you are using the [Nuget package](https://docs.microsoft.com/en-us/ef/core/providers/?tabs=dotnet-core-cli) with a compatible version (EF Core >= 3.0).
 
 *Known Limitation (as of 12-03-2020):* If you're using another `DbCommandInterceptor` implementation along with the `AddXRayInterceptor` in the `DbContext`, it may not work as expected and you may see a "EntityNotAvailableException" from the XRay EFCore interceptor. This is due to [`AsyncLocal`](https://docs.microsoft.com/en-us/dotnet/api/system.threading.asynclocal-1?view=netcore-2.0) not being able to maintain context across the `ReaderExecutingAsync` and `ReaderExecutedAsync` methods. Ref [here](https://github.com/dotnet/efcore/issues/22766) for more details on the issue.
