@@ -2,7 +2,7 @@
 
   
   <PropertyGroup>
-    <TargetFrameworks>net452;netcoreapp2.0</TargetFrameworks>
+    <TargetFrameworks>net452;netcoreapp3.1</TargetFrameworks>
     <Company>Amazon.com, Inc</Company>
     <Product>Amazon Web Service X-Ray Recorder</Product>
     <Copyright>Copyright 2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.</Copyright>
@@ -26,12 +26,12 @@
     <DefineConstants>NET45</DefineConstants>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netcoreapp2.0|AnyCPU'">
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netcoreapp3.1|AnyCPU'">
     <DefineConstants>TRACE;DEBUG</DefineConstants>
     <NoWarn>0618;1701;1702;1705</NoWarn>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netcoreapp2.0|AnyCPU'">
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netcoreapp3.1|AnyCPU'">
     <NoWarn>0618;1701;1702;1705</NoWarn>
   </PropertyGroup>
 
@@ -43,16 +43,16 @@
     <PackageReference Include="AWSSDK.SimpleNotificationService" Version="3.5.0.26" />
     <PackageReference Include="Moq" Version="4.7.137" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.0'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
     <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="3.1.0">
     </PackageReference>
 
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="3.1.0">
     </PackageReference>
 
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="3.1.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="3.1.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="3.1.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="5.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="5.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="5.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="2.0.0" />
     <ProjectReference Include="..\..\src\Handlers\EntityFramework\AWSXRayRecorder.Handlers.EntityFramework.csproj" />
   </ItemGroup>
@@ -75,7 +75,7 @@
     <Compile Remove="Tools\MockHttpRequest.cs" />
     <Compile Remove="Tools\MockHttpRequestFactory.cs" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' != 'netcoreapp2.0'">
+  <ItemGroup Condition="'$(TargetFramework)' != 'netcoreapp3.1'">
     <Compile Remove="Tools\MockHttpRequestNetcore.cs" />
     <Compile Remove="Tools\MockHttpRequestFactoryNetcore.cs" />
     <Compile Remove="Tools\CustomWebResponse.cs" />

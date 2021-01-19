@@ -95,7 +95,7 @@ namespace Amazon.XRay.Recorder.UnitTests
 
             try
             {
-                context.Database.ExecuteSqlCommand("Select * From FakeTable"); // A false sql command which results in 'no such table: FakeTable' exception
+                context.Database.ExecuteSqlRaw("Select * From FakeTable"); // A false sql command which results in 'no such table: FakeTable' exception
             }
             catch
             {
