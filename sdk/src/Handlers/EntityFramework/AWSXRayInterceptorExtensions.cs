@@ -30,7 +30,7 @@ namespace Microsoft.EntityFrameworkCore
         /// Add <see cref="EFInterceptor"/> to <see cref="DbContextOptionsBuilder"/>.
         /// </summary>
         /// <param name="dbContextOptionsBuilder">Instance of <see cref="DbContextOptionsBuilder"/>.</param>
-        /// <param name="collectSqlQueries"></param>
+        /// <param name="collectSqlQueries">Set this parameter to true to capture sql query text. The value set here overrides the value of CollectSqlQueries in appsettings.json if present. The default value of this parameter is null.</param>
         /// <returns>Instance of <see cref="DbContextOptionsBuilder"/>.</returns>
         public static DbContextOptionsBuilder AddXRayInterceptor(this DbContextOptionsBuilder dbContextOptionsBuilder, bool? collectSqlQueries = null)
         {

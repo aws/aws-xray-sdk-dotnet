@@ -17,9 +17,6 @@
 
 using System.Data.Common;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Amazon.XRay.Recorder.Core;
-using Amazon.XRay.Recorder.Core.Internal.Entities;
-using Amazon.XRay.Recorder.Core.Exceptions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -27,22 +24,10 @@ namespace Amazon.XRay.Recorder.Handlers.EntityFramework
 {
     public class EFInterceptor : DbCommandInterceptor
     {
-        private readonly AWSXRayRecorder _recorder;
         private readonly bool? _collectSqlQueriesOverride;
 
-        public EFInterceptor() : this(AWSXRayRecorder.Instance)
+        public EFInterceptor(bool? collectSqlQueries = null) : base()
         {
-
-        }
-
-        public EFInterceptor(bool? collectSqlQueries = null) : this(AWSXRayRecorder.Instance, collectSqlQueries)
-        {
-
-        }
-
-        public EFInterceptor(AWSXRayRecorder recorder, bool? collectSqlQueries = null) : base()
-        {
-            _recorder = recorder;
             _collectSqlQueriesOverride = collectSqlQueries;
         }
 
@@ -55,7 +40,7 @@ namespace Amazon.XRay.Recorder.Handlers.EntityFramework
         /// <returns>Result from <see cref="IInterceptor"/>.</returns>
         public override InterceptionResult<DbDataReader> ReaderExecuting(DbCommand command, CommandEventData eventData, InterceptionResult<DbDataReader> result)
         {
-            ProcessBeginCommand(eventData);
+            EFUtil.ProcessBeginCommand(command, _collectSqlQueriesOverride);
             return base.ReaderExecuting(command, eventData, result);
         }
 
@@ -68,7 +53,7 @@ namespace Amazon.XRay.Recorder.Handlers.EntityFramework
         /// <returns>Instance of <see cref="DbDataReader"/>.</returns>
         public override DbDataReader ReaderExecuted(DbCommand command, CommandExecutedEventData eventData, DbDataReader result)
         {
-            ProcessEndCommand();
+            EFUtil.ProcessEndCommand();
             return base.ReaderExecuted(command, eventData, result);
         }
 
@@ -82,7 +67,7 @@ namespace Amazon.XRay.Recorder.Handlers.EntityFramework
         /// <returns>Task representing the async operation.</returns>
         public override Task<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand command, CommandEventData eventData, InterceptionResult<DbDataReader> result, CancellationToken cancellationToken = default)
         {
-            ProcessBeginCommand(eventData);
+            EFUtil.ProcessBeginCommand(command, _collectSqlQueriesOverride);
             return base.ReaderExecutingAsync(command, eventData, result, cancellationToken);
         }
 
@@ -96,7 +81,7 @@ namespace Amazon.XRay.Recorder.Handlers.EntityFramework
         /// <returns>Task representing the async operation.</returns>
         public override Task<DbDataReader> ReaderExecutedAsync(DbCommand command, CommandExecutedEventData eventData, DbDataReader result, CancellationToken cancellationToken = default)
         {
-            ProcessEndCommand();
+            EFUtil.ProcessEndCommand();
             return base.ReaderExecutedAsync(command, eventData, result, cancellationToken);
         }
 
@@ -107,7 +92,7 @@ namespace Amazon.XRay.Recorder.Handlers.EntityFramework
         /// <param name="eventData">Instance of <see cref="CommandErrorEventData"/>.</param>
         public override void CommandFailed(DbCommand command, CommandErrorEventData eventData)
         {
-            ProcessCommandError(eventData);
+            EFUtil.ProcessCommandError(eventData.Exception);
             base.CommandFailed(command, eventData);
         }
 
@@ -120,7 +105,7 @@ namespace Amazon.XRay.Recorder.Handlers.EntityFramework
         /// <returns>Task representing the async operation.</returns>
         public override Task CommandFailedAsync(DbCommand command, CommandErrorEventData eventData, CancellationToken cancellationToken = default)
         {
-            ProcessCommandError(eventData);
+            EFUtil.ProcessCommandError(eventData.Exception);
             return base.CommandFailedAsync(command, eventData, cancellationToken);
         }
 
@@ -133,7 +118,7 @@ namespace Amazon.XRay.Recorder.Handlers.EntityFramework
         /// <returns>Task representing the operation.</returns>
         public override InterceptionResult<int> NonQueryExecuting(DbCommand command, CommandEventData eventData, InterceptionResult<int> result)
         {
-            ProcessBeginCommand(eventData);
+            EFUtil.ProcessBeginCommand(command, _collectSqlQueriesOverride);
             return base.NonQueryExecuting(command, eventData, result);
         }
 
@@ -147,7 +132,7 @@ namespace Amazon.XRay.Recorder.Handlers.EntityFramework
         /// <returns>Task representing the async operation.</returns>
         public override Task<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand command, CommandEventData eventData, InterceptionResult<int> result, CancellationToken cancellationToken = default)
         {
-            ProcessBeginCommand(eventData);
+            EFUtil.ProcessBeginCommand(command, _collectSqlQueriesOverride);
             return base.NonQueryExecutingAsync(command, eventData, result, cancellationToken);
         }
 
@@ -160,7 +145,7 @@ namespace Amazon.XRay.Recorder.Handlers.EntityFramework
         /// <returns>Result as integer.</returns>
         public override int NonQueryExecuted(DbCommand command, CommandExecutedEventData eventData, int result)
         {
-            ProcessEndCommand();
+            EFUtil.ProcessEndCommand();
             return base.NonQueryExecuted(command, eventData, result);
         }
 
@@ -174,7 +159,7 @@ namespace Amazon.XRay.Recorder.Handlers.EntityFramework
         /// <returns>Task representing the async operation.</returns>
         public override Task<int> NonQueryExecutedAsync(DbCommand command, CommandExecutedEventData eventData, int result, CancellationToken cancellationToken = default)
         {
-            ProcessEndCommand();
+            EFUtil.ProcessEndCommand();
             return base.NonQueryExecutedAsync(command, eventData, result, cancellationToken);
         }
 
@@ -187,7 +172,7 @@ namespace Amazon.XRay.Recorder.Handlers.EntityFramework
         /// <returns>Result from <see cref="IInterceptor"/>.</returns>
         public override InterceptionResult<object> ScalarExecuting(DbCommand command, CommandEventData eventData, InterceptionResult<object> result)
         {
-            ProcessBeginCommand(eventData);
+            EFUtil.ProcessBeginCommand(command, _collectSqlQueriesOverride);
             return base.ScalarExecuting(command, eventData, result);
         }
 
@@ -201,7 +186,7 @@ namespace Amazon.XRay.Recorder.Handlers.EntityFramework
         /// <returns>Task representing the async operation.</returns>
         public override Task<InterceptionResult<object>> ScalarExecutingAsync(DbCommand command, CommandEventData eventData, InterceptionResult<object> result, CancellationToken cancellationToken = default)
         {
-            ProcessBeginCommand(eventData);
+            EFUtil.ProcessBeginCommand(command, _collectSqlQueriesOverride);
             return base.ScalarExecutingAsync(command, eventData, result, cancellationToken);
         }
 
@@ -214,7 +199,7 @@ namespace Amazon.XRay.Recorder.Handlers.EntityFramework
         /// <returns>Result object.</returns>
         public override object ScalarExecuted(DbCommand command, CommandExecutedEventData eventData, object result)
         {
-            ProcessEndCommand();
+            EFUtil.ProcessEndCommand();
             return base.ScalarExecuted(command, eventData, result);
         }
 
@@ -228,104 +213,8 @@ namespace Amazon.XRay.Recorder.Handlers.EntityFramework
         /// <returns>Task representing the async operation.</returns>
         public override Task<object> ScalarExecutedAsync(DbCommand command, CommandExecutedEventData eventData, object result, CancellationToken cancellationToken = default)
         {
-            ProcessEndCommand();
+            EFUtil.ProcessEndCommand();
             return base.ScalarExecutedAsync(command, eventData, result, cancellationToken);
         }
-
-        private void ProcessBeginCommand(CommandEventData eventData)
-        {
-            Entity entity = null;
-            try
-            {
-                entity = _recorder.GetEntity();
-            }
-            catch (EntityNotAvailableException e)
-            {
-                _recorder.TraceContext.HandleEntityMissing(_recorder, e, "Cannot get entity while processing start of Entity Framework command.");
-            }
-
-            _recorder.BeginSubsegment(BuildSubsegmentName(eventData.Command));
-            _recorder.SetNamespace("remote");
-            CollectSqlInformation(eventData);
-        }
-
-        private void ProcessEndCommand()
-        {
-            Entity entity = null;
-            try
-            {
-                entity = _recorder.GetEntity();
-            }
-            catch (EntityNotAvailableException e)
-            {
-                _recorder.TraceContext.HandleEntityMissing(_recorder, e, "Cannot get entity while processing end of Entity Framework command.");
-                return;
-            }
-
-            _recorder.EndSubsegment();
-        }
-
-        private void ProcessCommandError(CommandErrorEventData eventData)
-        {
-            Entity subsegment;
-            try
-            {
-                subsegment = _recorder.GetEntity();
-            }
-            catch (EntityNotAvailableException e)
-            {
-                _recorder.TraceContext.HandleEntityMissing(_recorder, e, "Cannot get entity while processing failure of Entity Framework command.");
-                return;
-            }
-
-            subsegment.AddException(eventData.Exception);
-
-            _recorder.EndSubsegment();
-        }
-
-        /// <summary>
-        /// Records the SQL information on the current subsegment,
-        /// </summary>
-        protected virtual void CollectSqlInformation(CommandEventData eventData)
-        {
-            // Get database type from DbContext
-            string databaseType = EFUtil.GetDataBaseType(eventData.Context);
-            _recorder.AddSqlInformation("database_type", databaseType);
-
-            _recorder.AddSqlInformation("database_version", eventData.Command.Connection.ServerVersion);
-
-            DbConnectionStringBuilder connectionStringBuilder = new DbConnectionStringBuilder
-            {
-                ConnectionString = eventData.Command.Connection.ConnectionString
-            };
-
-            // Remove sensitive information from connection string
-            connectionStringBuilder.Remove("Password");
-
-            // Do a pre-check for UserID since in the case of TrustedConnection, a UserID may not be available.
-            var user_id = EFUtil.GetUserId(connectionStringBuilder);
-            if (user_id != null)
-            {
-                _recorder.AddSqlInformation("user", user_id.ToString());
-            }
-
-            _recorder.AddSqlInformation("connection_string", connectionStringBuilder.ToString());
-
-            if (ShouldCollectSqlText())
-            {
-                _recorder.AddSqlInformation("sanitized_query", eventData.Command.CommandText);
-            }
-        }
-
-        /// <summary>
-        /// Builds the name of the subsegment in the format database@datasource
-        /// </summary>
-        /// <param name="command">Instance of <see cref="DbCommand"/>.</param>
-        /// <returns>Returns the formed subsegment name as a string.</returns>
-        private string BuildSubsegmentName(DbCommand command)
-            => command.Connection.Database + "@" + EFUtil.RemovePortNumberFromDataSource(command.Connection.DataSource);
-
-        private bool ShouldCollectSqlText()
-            => _collectSqlQueriesOverride ?? _recorder.XRayOptions.CollectSqlQueries;
     }
 }
