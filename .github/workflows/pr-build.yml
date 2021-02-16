@@ -1,0 +1,30 @@
+name: PR build workflow 
+
+on:
+    pull_request:
+        branches:
+            - master
+            
+jobs:
+    build:
+        name: build
+        runs-on: ${{ matrix.os }}
+        
+        strategy:
+            fail-fast: false
+            matrix:
+                os: [windows-latest]
+                version: [net452,netcoreapp2.0]
+                
+        steps:
+        - name: Checkout repository
+        - uses: actions/checkout@v2
+          
+        - name: Install dependencies
+          run: dotnet restore sdk/AWSXRayRecorder.sln --locked-mode
+          
+        - name: Build solution
+          run: dotnet build sdk/AWSXRayRecorder.sln --no-restore
+          
+        - name: Run tests
+          run: dotnet test sdk/test/UnitTests/bin/**/${{matrix.version}}/AWSXRayRecorder.UnitTests.dll
