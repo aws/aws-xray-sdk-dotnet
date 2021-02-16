@@ -1,5 +1,8 @@
 version: '1.0.{build}'
 image: Visual Studio 2017
+environment:
+  APPVEYOR_CACHE_SKIP_RESTORE: true
+  APPVEYOR_CACHE_SKIP_SAVE: true
 init:
   # Good practise, because Windows line endings are different from Unix/Linux ones
   - cmd: git config --global core.autocrlf true
@@ -8,7 +11,7 @@ before_build:
   - cmd: dotnet --version
 build_script:
   # output will be in ./src/bin/debug/netcoreapp1.1/publish
-  - cmd: dotnet restore sdk/AWSXRayRecorder.sln --locked-mode --verbosity detailed
+  - cmd: dotnet restore sdk/AWSXRayRecorder.sln --locked-mode
   - cmd: dotnet build sdk/AWSXRayRecorder.sln
 clone_depth: 1
 test_script:
