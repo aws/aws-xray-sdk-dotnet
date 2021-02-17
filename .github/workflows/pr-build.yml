@@ -13,8 +13,11 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                os: [windows-latest]
+                os: [windows-latest,ubuntu-latest]
                 version: [net452,netcoreapp2.0]
+                exclude:
+                  - os: ubuntu-latest
+                    version: net452
                 
         steps:
         - name: Checkout repository
@@ -24,7 +27,7 @@ jobs:
           run: dotnet restore sdk/AWSXRayRecorder.sln --locked-mode
           
         - name: Build solution
-          run: dotnet build sdk/AWSXRayRecorder.sln --no-restore
+          run: dotnet build sdk/AWSXRayRecorder.sln --configuration Release --no-restore
           
         - name: Run tests
-          run: dotnet test sdk/test/UnitTests/bin/**/${{matrix.version}}/AWSXRayRecorder.UnitTests.dll
+          run: dotnet test sdk/test/UnitTests/bin/Release/${{matrix.version}}/AWSXRayRecorder.UnitTests.dll
