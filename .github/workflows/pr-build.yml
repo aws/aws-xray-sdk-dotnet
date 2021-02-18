@@ -23,6 +23,9 @@ jobs:
         - name: Checkout repository
           uses: actions/checkout@v2
           
+        - name: Clean solution
+          run: dotnet clean sdk/AWSXRayRecorder.sln --configuration Release && dotnet nuget locals all --clear
+        
         - name: Install dependencies
           run: dotnet restore sdk/AWSXRayRecorder.sln --locked-mode
           
