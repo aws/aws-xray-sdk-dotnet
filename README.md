@@ -751,3 +751,5 @@ log4net.config example:
 ## License
 
 The AWS X-Ray SDK for .NET and .NET Core is licensed under the Apache 2.0 License. See LICENSE and NOTICE.txt for more information.
+
+
