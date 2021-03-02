@@ -1,6 +1,36 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 2.10.0 (2021-03-02)
+### AWSXRayRecorder.Core (2.10.0)
+#### Fixed
+- Fixed race condition where the rule poller may start immediately before initializing the timer [PR#154](https://github.com/aws/aws-xray-sdk-dotnet/pull/154)
+- Updated xraycontext to use a concurrent dictionary [PR#157](https://github.com/aws/aws-xray-sdk-dotnet/pull/157)
+ 
+#### Improved
+- Added timeout for EC2 metadata requests [PR#138](https://github.com/aws/aws-xray-sdk-dotnet/pull/138)
+- Applied HttpClient to get sampling info [PR#159](https://github.com/aws/aws-xray-sdk-dotnet/pull/159)
+ 
+### AWSXRayRecorder.Handlers.AwsSdk (2.8.2)
+#### Fixed
+- Fixed tracing S3 id pairs and SNS naming issue [#168](https://github.com/aws/aws-xray-sdk-dotnet/pull/168)
+ 
+### AWSXRayRecorder.Handlers.EntityFramework (1.1.0)
+#### New Feature
+- Added tracing support for EntityFramework 6 (.NET Framework) [PR#171](https://github.com/aws/aws-xray-sdk-dotnet/pull/171)
+ 
+### AWSXRayRecorder.Handlers.AspNet (2.7.2)
+- Bumped version to address AWSXRayRecorder.Core package change
+ 
+### AWSXRayRecorder.Handlers.AspNetCore (2.7.2)
+- Bumped version to address AWSXRayRecorder.Core package change
+ 
+### AWSXRayRecorder.Handlers.SqlServer (2.7.2)
+- Bumped version to address AWSXRayRecorder.Core package change
+ 
+### AWSXRayRecorder.Handlers.System.Net (2.7.2)
+- Bumped version to address AWSXRayRecorder.Core package change
+
 ## 2.9.0 (2020-06-09)
 ### AWSXRayRecorder.Core (2.9.0)
 #### Fixed
