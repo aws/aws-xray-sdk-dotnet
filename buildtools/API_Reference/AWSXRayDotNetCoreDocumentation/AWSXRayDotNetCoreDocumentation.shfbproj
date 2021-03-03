@@ -35,6 +35,8 @@
       <DocumentationSource sourceFile="..\..\..\sdk\src\Handlers\AspNetCore\bin\Debug\netstandard2.0\AWSXRayRecorder.Handlers.AspNetCore.dll" />
       <DocumentationSource sourceFile="..\..\..\sdk\src\Handlers\AwsSdk\bin\Debug\netstandard2.0\AWSXRayRecorder.Handlers.AwsSdk.xml" />
       <DocumentationSource sourceFile="..\..\..\sdk\src\Handlers\AwsSdk\bin\Debug\netstandard2.0\AWSXRayRecorder.Handlers.AwsSdk.dll" />
+      <DocumentationSource sourceFile="..\..\..\sdk\src\Handlers\EntityFramework\bin\Debug\netstandard2.0\AWSXRayRecorder.Handlers.EntityFramework.xml" />
+      <DocumentationSource sourceFile="..\..\..\sdk\src\Handlers\EntityFramework\bin\Debug\netstandard2.0\AWSXRayRecorder.Handlers.EntityFramework.dll" />
       <DocumentationSource sourceFile="..\..\..\sdk\src\Handlers\SqlServer\bin\Debug\netstandard2.0\AWSXRayRecorder.Handlers.SqlServer.xml" />
       <DocumentationSource sourceFile="..\..\..\sdk\src\Handlers\SqlServer\bin\Debug\netstandard2.0\AWSXRayRecorder.Handlers.SqlServer.dll" />
       <DocumentationSource sourceFile="..\..\..\sdk\src\Handlers\System.Net\bin\Debug\netstandard2.0\AWSXRayRecorder.Handlers.System.Net.xml" />
