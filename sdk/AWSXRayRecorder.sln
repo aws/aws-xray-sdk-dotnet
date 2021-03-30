@@ -25,7 +25,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AWSXRayRecorder.UnitTests",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AWSXRayRecorder.Handlers.AspNet", "src\Handlers\AspNet\AWSXRayRecorder.Handlers.AspNet.csproj", "{C647F311-4023-4E0B-9147-074EAF243D54}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AWSXRayRecorder.Handlers.EntityFramework", "src\Handlers\EntityFramework\AWSXRayRecorder.Handlers.EntityFramework.csproj", "{B5C2F674-6539-4A04-9B7D-14E300962BFE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AWSXRayRecorder.Handlers.EntityFramework", "src\Handlers\EntityFramework\AWSXRayRecorder.Handlers.EntityFramework.csproj", "{B5C2F674-6539-4A04-9B7D-14E300962BFE}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AWSXRayRecorder.SmokeTests", "test\SmokeTests\AWSXRayRecorder.SmokeTests.csproj", "{157BF1A6-324B-4F56-B5A5-619F22F5F314}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -88,6 +90,12 @@ Global
 		{B5C2F674-6539-4A04-9B7D-14E300962BFE}.Nuget|Any CPU.Build.0 = Release|Any CPU
 		{B5C2F674-6539-4A04-9B7D-14E300962BFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B5C2F674-6539-4A04-9B7D-14E300962BFE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{157BF1A6-324B-4F56-B5A5-619F22F5F314}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{157BF1A6-324B-4F56-B5A5-619F22F5F314}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{157BF1A6-324B-4F56-B5A5-619F22F5F314}.Nuget|Any CPU.ActiveCfg = Debug|Any CPU
+		{157BF1A6-324B-4F56-B5A5-619F22F5F314}.Nuget|Any CPU.Build.0 = Debug|Any CPU
+		{157BF1A6-324B-4F56-B5A5-619F22F5F314}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{157BF1A6-324B-4F56-B5A5-619F22F5F314}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
