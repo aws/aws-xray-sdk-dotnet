@@ -13,11 +13,8 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                os: [windows-latest,ubuntu-latest]
-                version: [net452,netcoreapp2.0]
-                exclude:
-                  - os: ubuntu-latest
-                    version: net452
+                os: [ubuntu-latest]
+                version: [netcoreapp2.0]
 
         steps:
           - name: Checkout repository
