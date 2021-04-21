@@ -1,6 +1,29 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 2.10.1 (2021-04-21)
+### AWSXRayRecorder.Core (2.10.1)
+#### Fixed
+- Bump System.Net.Http from 4.3.3 to 4.3.4 in /sdk/src/Core [PR#193](https://github.com/aws/aws-xray-sdk-dotnet/pull/193)
+ 
+### AWSXRayRecorder.Handlers.AwsSdk (2.8.3)
+- Bumped version to address AWSXRayRecorder.Core package change
+ 
+### AWSXRayRecorder.Handlers.EntityFramework (1.1.1)
+- Bumped version to address AWSXRayRecorder.Core package change
+ 
+### AWSXRayRecorder.Handlers.AspNet (2.7.3)
+- Bumped version to address AWSXRayRecorder.Core package change
+ 
+### AWSXRayRecorder.Handlers.AspNetCore (2.7.3)
+- Bumped version to address AWSXRayRecorder.Core package change
+ 
+### AWSXRayRecorder.Handlers.SqlServer (2.7.3)
+- Bumped version to address AWSXRayRecorder.Core package change
+ 
+### AWSXRayRecorder.Handlers.System.Net (2.7.3)
+- Bumped version to address AWSXRayRecorder.Core package change
+
 ## 2.10.0 (2021-03-02)
 ### AWSXRayRecorder.Core (2.10.0)
 #### Fixed
