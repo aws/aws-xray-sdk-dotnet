@@ -56,7 +56,7 @@ namespace Amazon.XRay.Recorder.Core
             }
         }
 
-#if NET45
+#if NET452
         /// <summary>
         /// Initializes <see cref="AWSXRayRecorderBuilder"/> instance with default settings.
         /// </summary>
@@ -67,7 +67,7 @@ namespace Amazon.XRay.Recorder.Core
         }
 #endif
 
-#if NET45
+#if NET452
         /// <summary>
         /// Reads plugin settings from app settings, and adds new instance of each plugin into the builder.
         /// If the plugin settings doesn't exist or the value of the settings is invalid, nothing will be added.
