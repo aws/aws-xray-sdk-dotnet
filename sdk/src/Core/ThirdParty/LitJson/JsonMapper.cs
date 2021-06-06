@@ -732,6 +732,12 @@ namespace ThirdParty.LitJson
                 return;
             }
 
+            if (obj is Guid)
+            {
+                writer.Write(obj.ToString());
+                return;
+            }
+
             if (obj is Array) {
                 writer.WriteArrayStart ();
 
