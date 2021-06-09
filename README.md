@@ -712,8 +712,11 @@ Other ways to configure logging is to edit the <appsetting> element in the `App.
 
 ### Logging (.NET Core)
 
-Currently we support `log4net` logging and options provided in [LoggingOptions](https://docs.aws.amazon.com/sdkfornet/v3/apidocs/items/Amazon/TLoggingOptions.html). You should configure logging before initialization of `AWSXRayRecorder` instance or using any X-Ray methods.  
-Following is the way to configure logging with X-Ray SDK:
+Currently X-Ray SDK for .NET Core supports logging options provided in [LoggingOptions](https://docs.aws.amazon.com/sdkfornet/v3/apidocs/items/Amazon/TLoggingOptions.html). You should configure logging before initialization of `AWSXRayRecorder` instance or using any X-Ray methods.
+	
+*Note*: `LoggingOptions.Console` will emit all detailed logs regardless of the logging level, which may result in excessive charges in some use case (e.g., export logs to AWS CloudWatch).
+	
+Following is the way to configure `log4net` with X-Ray SDK:
 
 ```csharp
 using Amazon;
