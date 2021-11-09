@@ -114,7 +114,7 @@ namespace Amazon.XRay.Recorder.UnitTests
 
         public object SyncFunction(object obj) => obj;
         public void SyncAction(object obj) { return; }
-        public async Task<object> AsyncFunction(object obj) => obj;
+        public Task<object> AsyncFunction(object obj) => Task.FromResult(obj);
 
         [TestMethod]
         public void TestMarshallSimpleSegment()
@@ -190,7 +190,12 @@ namespace Amazon.XRay.Recorder.UnitTests
                 var filePath = trace.GetFrame(0).GetFileName().Replace("\\", "\\\\");
                 var line = new StackTrace(e, true).GetFrame(0).GetFileLineNumber();
                 var workingDirectory = Directory.GetCurrentDirectory().Replace("\\", "\\\\");
+
+#if NETCOREAPP3_1_OR_GREATER
+                var expected = "{\"format\":\"json\",\"version\":1}\n{\"id\":\"1111111111111111\",\"start_time\":0,\"end_time\":0,\"name\":\"test\",\"fault\":true,\"cause\":{\"working_directory\":\"" + workingDirectory + "\",\"exceptions\":[{\"id\":\"" + subsegment.Cause.ExceptionDescriptors[0].Id + "\",\"message\":\"Value cannot be null. (Parameter 'value')\",\"type\":\"ArgumentNullException\",\"remote\":false,\"stack\":[{\"path\":\"" + filePath + "\",\"line\":" + line + ",\"label\":\"Amazon.XRay.Recorder.UnitTests.JsonSegmentMarshallerTest.TestMarshallAddException\"}]}]}}";
+#else
                 var expected = "{\"format\":\"json\",\"version\":1}\n{\"id\":\"1111111111111111\",\"start_time\":0,\"end_time\":0,\"name\":\"test\",\"fault\":true,\"cause\":{\"working_directory\":\"" + workingDirectory + "\",\"exceptions\":[{\"id\":\"" + subsegment.Cause.ExceptionDescriptors[0].Id + "\",\"message\":\"Value cannot be null." + Environment.NewLine.Replace("\r", @"\r").Replace("\n", @"\n") + "Parameter name: value\",\"type\":\"ArgumentNullException\",\"remote\":false,\"stack\":[{\"path\":\"" + filePath + "\",\"line\":" + line + ",\"label\":\"Amazon.XRay.Recorder.UnitTests.JsonSegmentMarshallerTest.TestMarshallAddException\"}]}]}}";
+#endif
 
                 Assert.AreEqual(expected, actual);
             }
