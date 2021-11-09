@@ -30,6 +30,19 @@
         <dependency id="AWSXRayRecorder.Handlers.SqlServer" version="2.7.3" />
         <dependency id="AWSXRayRecorder.Handlers.System.Net" version="2.7.3" />
       </group>
+      <group targetFramework=".NETCoreApp3.1">
+        <dependency id="AWSXRayRecorder.Core" version="2.10.1" />
+        <dependency id="AWSXRayRecorder.Handlers.AspNetCore" version="2.7.3" />
+        <dependency id="AWSXRayRecorder.Handlers.AwsSdk" version="2.8.3" />
+        <dependency id="AWSXRayRecorder.Handlers.EntityFramework" version="1.1.1" />
+        <dependency id="AWSXRayRecorder.Handlers.SqlServer" version="2.7.3" />
+        <dependency id="AWSXRayRecorder.Handlers.System.Net" version="2.7.3" />
+      </group>
     </dependencies>
+    <frameworkReferences>
+      <group targetFramework=".NETCoreApp3.1">
+        <frameworkReference name="Microsoft.AspNetCore.App" />
+      </group>
+    </frameworkReferences>
   </metadata>
 </package>
