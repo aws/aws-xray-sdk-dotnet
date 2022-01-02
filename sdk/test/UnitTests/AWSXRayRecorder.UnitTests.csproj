@@ -12,12 +12,7 @@
     <AssemblyOriginatorKeyFile>../../../buildtools/local-development.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)'=='Debug'">
-    <DefineConstants>TRACE;DEBUG</DefineConstants>
-    <NoWarn>0618;1705</NoWarn>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+  <PropertyGroup>
     <NoWarn>0618;1705</NoWarn>
   </PropertyGroup>
 

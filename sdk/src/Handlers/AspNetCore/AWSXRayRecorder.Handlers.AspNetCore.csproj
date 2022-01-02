@@ -20,11 +20,7 @@
     <RepositoryUrl>https://github.com/aws/aws-xray-sdk-dotnet</RepositoryUrl>
   </PropertyGroup>
   
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <NoWarn>1591;1573;1587</NoWarn>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+  <PropertyGroup>
     <NoWarn>1591;1587;1573;1572</NoWarn>
   </PropertyGroup>
   
