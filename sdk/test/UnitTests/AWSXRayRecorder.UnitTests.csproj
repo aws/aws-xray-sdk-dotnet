@@ -22,10 +22,6 @@
     <NoWarn>0618;1701;1702;1705</NoWarn>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)'=='net452'">
-    <DefineConstants>NET45</DefineConstants>
-  </PropertyGroup>
-
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netcoreapp2.0|AnyCPU'">
     <DefineConstants>TRACE;DEBUG</DefineConstants>
     <NoWarn>0618;1701;1702;1705</NoWarn>

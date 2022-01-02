@@ -11,10 +11,6 @@
     <DelaySign>true</DelaySign>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)'=='net452'">
-    <DefineConstants>NET45</DefineConstants>
-  </PropertyGroup>
-
   <ItemGroup>
     <PackageReference Include="AWSXRayRecorder.Core" Version="*" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0" />
