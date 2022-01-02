@@ -21,11 +21,11 @@
   </PropertyGroup>
   
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <NoWarn>1705;1591;1573;1587</NoWarn>
+    <NoWarn>1591;1573;1587</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <NoWarn>1705;1591;1587;1573;1572</NoWarn>
+    <NoWarn>1591;1587;1573;1572</NoWarn>
   </PropertyGroup>
   
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
