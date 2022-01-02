@@ -52,9 +52,9 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' != 'net45'">
-    <Compile Remove="Internal\Context\CallContextContainer.net45.cs" />
-    <Compile Remove="Internal\Context\HybridContextContainer.net45.cs" />
-    <Compile Remove="Internal\Utils\AppSettings.net45.cs" />
+    <Compile Remove="Internal\Context\CallContextContainer.netframework.cs" />
+    <Compile Remove="Internal\Context\HybridContextContainer.netframework.cs" />
+    <Compile Remove="Internal\Utils\AppSettings.netframework.cs" />
     <Compile Remove="AWSXRayRecorder.cs" />
   </ItemGroup>
 

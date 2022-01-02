@@ -33,7 +33,7 @@
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="3.1.0" />
     <Compile Remove="AWSXRayEntityFramework6.cs" />
-    <Compile Remove="EFInterceptor.net45.cs" />
+    <Compile Remove="EFInterceptor.netframework.cs" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
