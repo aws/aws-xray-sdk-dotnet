@@ -2,7 +2,7 @@
 
   
   <PropertyGroup>
-    <TargetFrameworks>net462;net472;net48;netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks>net462;net472;net48;netcoreapp3.1;net6.0</TargetFrameworks>
     <Company>Amazon.com, Inc</Company>
     <Product>Amazon Web Service X-Ray Recorder</Product>
     <Copyright>Copyright 2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.</Copyright>
@@ -35,6 +35,14 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="3.1.0" />
   </ItemGroup>
 
+  <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
+	<PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
+	<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0" />
+	<PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="6.0" />
+	<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="6.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0" />
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="System.Data.SQLite" Version="1.0.113.7" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0" />
@@ -51,8 +59,6 @@
   </ItemGroup>
 
   <ItemGroup Condition="!('$(TargetFramework)' == 'net462' or '$(TargetFramework)' == 'net472' or '$(TargetFramework)' == 'net48')">
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="3.1.0" />
-
     <Compile Remove="TestAppSettings.cs" />
     <Compile Remove="Tools\MockHttpRequest.cs" />
     <Compile Remove="Tools\MockHttpRequestFactory.cs" />

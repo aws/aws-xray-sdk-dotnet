@@ -95,7 +95,11 @@ namespace Amazon.XRay.Recorder.UnitTests
 
             try
             {
+#if NET6_0
+                context.Database.ExecuteSqlInterpolated($"Select * From FakeTable"); // A false sql command which results in 'no such table: FakeTable' exception
+#else
                 context.Database.ExecuteSqlCommand("Select * From FakeTable"); // A false sql command which results in 'no such table: FakeTable' exception
+#endif
             }
             catch
             {

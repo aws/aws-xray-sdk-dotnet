@@ -57,6 +57,21 @@ namespace Amazon.XRay.Recorder.Handlers.EntityFramework
             return base.ReaderExecuted(command, eventData, result);
         }
 
+#if NET6_0
+        /// <summary>
+        /// Trace after executing reader asynchronously.
+        /// </summary>
+        /// <param name="command">Instance of <see cref="DbCommand"/>.</param>
+        /// <param name="eventData">Instance of <see cref="CommandExecutedEventData"/>.</param>
+        /// <param name="result">Result from <see cref="DbDataReader"/>.</param>
+        /// <param name="cancellationToken">Instance of <see cref="CancellationToken"/>.</param>
+        /// <returns>Task representing the async operation.</returns>
+        public override ValueTask<InterceptionResult<DbDataReader>> ReaderExecutingAsync(DbCommand command, CommandEventData eventData, InterceptionResult<DbDataReader> result, CancellationToken cancellationToken = default)
+        {
+            EFUtil.ProcessBeginCommand(command, _collectSqlQueriesOverride);
+            return base.ReaderExecutingAsync(command, eventData, result, cancellationToken);
+        }
+#else
         /// <summary>
         /// Trace before executing reader asynchronously.
         /// </summary>
@@ -70,7 +85,23 @@ namespace Amazon.XRay.Recorder.Handlers.EntityFramework
             EFUtil.ProcessBeginCommand(command, _collectSqlQueriesOverride);
             return base.ReaderExecutingAsync(command, eventData, result, cancellationToken);
         }
+#endif
 
+#if NET6_0
+        /// <summary>
+        /// Trace after executing reader asynchronously.
+        /// </summary>
+        /// <param name="command">Instance of <see cref="DbCommand"/>.</param>
+        /// <param name="eventData">Instance of <see cref="CommandExecutedEventData"/>.</param>
+        /// <param name="result">Result from <see cref="DbDataReader"/>.</param>
+        /// <param name="cancellationToken">Instance of <see cref="CancellationToken"/>.</param>
+        /// <returns>Task representing the async operation.</returns>
+        public override ValueTask<DbDataReader> ReaderExecutedAsync(DbCommand command, CommandExecutedEventData eventData, DbDataReader result, CancellationToken cancellationToken = default)
+        {
+            EFUtil.ProcessEndCommand();
+            return base.ReaderExecutedAsync(command, eventData, result, cancellationToken);
+        }
+#else
         /// <summary>
         /// Trace after executing reader asynchronously.
         /// </summary>
@@ -84,6 +115,7 @@ namespace Amazon.XRay.Recorder.Handlers.EntityFramework
             EFUtil.ProcessEndCommand();
             return base.ReaderExecutedAsync(command, eventData, result, cancellationToken);
         }
+#endif
 
         /// <summary>
         /// Trace after command fails.
@@ -122,6 +154,21 @@ namespace Amazon.XRay.Recorder.Handlers.EntityFramework
             return base.NonQueryExecuting(command, eventData, result);
         }
 
+#if NET6_0
+        /// <summary>
+        /// Trace before executing asynchronously.
+        /// </summary>
+        /// <param name="command">Instance of <see cref="DbCommand"/>.</param>
+        /// <param name="eventData">Instance of <see cref="CommandEventData"/>.</param>
+        /// <param name="result">Result from <see cref="IInterceptor"/>.</param>
+        /// <param name="cancellationToken">Instance of <see cref="CancellationToken"/>.</param>
+        /// <returns>Task representing the async operation.</returns>
+        public override ValueTask<InterceptionResult<int>> NonQueryExecutingAsync(DbCommand command, CommandEventData eventData, InterceptionResult<int> result, CancellationToken cancellationToken = default)
+        {
+            EFUtil.ProcessBeginCommand(command, _collectSqlQueriesOverride);
+            return base.NonQueryExecutingAsync(command, eventData, result, cancellationToken);
+        }
+#else
         /// <summary>
         /// Trace before executing asynchronously.
         /// </summary>
@@ -135,6 +182,7 @@ namespace Amazon.XRay.Recorder.Handlers.EntityFramework
             EFUtil.ProcessBeginCommand(command, _collectSqlQueriesOverride);
             return base.NonQueryExecutingAsync(command, eventData, result, cancellationToken);
         }
+#endif
 
         /// <summary>
         /// Trace after executing.
@@ -149,6 +197,21 @@ namespace Amazon.XRay.Recorder.Handlers.EntityFramework
             return base.NonQueryExecuted(command, eventData, result);
         }
 
+#if NET6_0
+        /// <summary>
+        /// Trace after executing asynchronously.
+        /// </summary>
+        /// <param name="command">Instance of <see cref="DbCommand"/>.</param>
+        /// <param name="eventData">Instance of <see cref="CommandExecutedEventData"/>.</param>
+        /// <param name="result">Result as integer.</param>
+        /// <param name="cancellationToken">Instance of <see cref="CancellationToken"/>.</param>
+        /// <returns>Task representing the async operation.</returns>
+        public override ValueTask<int> NonQueryExecutedAsync(DbCommand command, CommandExecutedEventData eventData, int result, CancellationToken cancellationToken = default)
+        {
+            EFUtil.ProcessEndCommand();
+            return base.NonQueryExecutedAsync(command, eventData, result, cancellationToken);
+        }
+#else
         /// <summary>
         /// Trace after executing asynchronously.
         /// </summary>
@@ -162,6 +225,7 @@ namespace Amazon.XRay.Recorder.Handlers.EntityFramework
             EFUtil.ProcessEndCommand();
             return base.NonQueryExecutedAsync(command, eventData, result, cancellationToken);
         }
+#endif
 
         /// <summary>
         /// Trace before executing scalar.
@@ -176,6 +240,21 @@ namespace Amazon.XRay.Recorder.Handlers.EntityFramework
             return base.ScalarExecuting(command, eventData, result);
         }
 
+#if NET6_0
+        /// <summary>
+        /// Trace before executing scalar asynchronously.
+        /// </summary>
+        /// <param name="command">Instance of <see cref="DbCommand"/>.</param>
+        /// <param name="eventData">Instance of <see cref="CommandEventData"/>.</param>
+        /// <param name="result">Result from <see cref="IInterceptor"/>.</param>
+        /// <param name="cancellationToken">Instance of <see cref="CancellationToken"/>.</param>
+        /// <returns>Task representing the async operation.</returns>
+        public override ValueTask<InterceptionResult<object>> ScalarExecutingAsync(DbCommand command, CommandEventData eventData, InterceptionResult<object> result, CancellationToken cancellationToken = default)
+        {
+            EFUtil.ProcessBeginCommand(command, _collectSqlQueriesOverride);
+            return base.ScalarExecutingAsync(command, eventData, result, cancellationToken);
+        }
+#else
         /// <summary>
         /// Trace before executing scalar asynchronously.
         /// </summary>
@@ -189,6 +268,7 @@ namespace Amazon.XRay.Recorder.Handlers.EntityFramework
             EFUtil.ProcessBeginCommand(command, _collectSqlQueriesOverride);
             return base.ScalarExecutingAsync(command, eventData, result, cancellationToken);
         }
+#endif
 
         /// <summary>
         /// Trace after executing scalar.
@@ -203,6 +283,21 @@ namespace Amazon.XRay.Recorder.Handlers.EntityFramework
             return base.ScalarExecuted(command, eventData, result);
         }
 
+#if NET6_0
+        /// <summary>
+        /// Trace after executing scalar asynchronously.
+        /// </summary>
+        /// <param name="command">Instance of <see cref="DbCommand"/>.</param>
+        /// <param name="eventData">Instance of <see cref="CommandExecutedEventData"/>.</param>
+        /// <param name="result">Result object.</param>
+        /// <param name="cancellationToken">Instance of <see cref="CancellationToken"/>.</param>
+        /// <returns>Task representing the async operation.</returns>
+        public override ValueTask<object> ScalarExecutedAsync(DbCommand command, CommandExecutedEventData eventData, object result, CancellationToken cancellationToken = default)
+        {
+            EFUtil.ProcessEndCommand();
+            return base.ScalarExecutedAsync(command, eventData, result, cancellationToken);
+        }
+#else
         /// <summary>
         /// Trace after executing scalar asynchronously.
         /// </summary>
@@ -216,5 +311,6 @@ namespace Amazon.XRay.Recorder.Handlers.EntityFramework
             EFUtil.ProcessEndCommand();
             return base.ScalarExecutedAsync(command, eventData, result, cancellationToken);
         }
+#endif
     }
 }

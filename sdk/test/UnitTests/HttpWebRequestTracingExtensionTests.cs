@@ -59,7 +59,13 @@ namespace Amazon.XRay.Recorder.UnitTests
         [TestMethod]
         public void TestGetResponseTraced()
         {
+#if NET6_0
+#pragma warning disable SYSLIB0014 // Type or member is obsolete
             var request = (HttpWebRequest)WebRequest.Create(URL);
+#pragma warning restore SYSLIB0014 // Type or member is obsolete
+#else
+            var request = (HttpWebRequest)WebRequest.Create(URL);
+#endif
 
             AWSXRayRecorder.Instance.BeginSegment("parent", TraceId);
             using (request.GetResponseTraced())
@@ -94,8 +100,14 @@ namespace Amazon.XRay.Recorder.UnitTests
 # endif
             Assert.IsTrue(AWSXRayRecorder.Instance.IsTracingDisabled());
 
+#if NET6_0
+#pragma warning disable SYSLIB0014 // Type or member is obsolete
             var request = (HttpWebRequest)WebRequest.Create(URL);
-            
+#pragma warning restore SYSLIB0014 // Type or member is obsolete
+#else
+            var request = (HttpWebRequest)WebRequest.Create(URL);
+#endif
+
             using (var response = request.GetResponseTraced() as HttpWebResponse)
             {
                 Assert.IsNotNull(response);
@@ -106,7 +118,13 @@ namespace Amazon.XRay.Recorder.UnitTests
         [TestMethod]
         public async Task TestGetAsyncResponseTraced()
         {
+#if NET6_0
+#pragma warning disable SYSLIB0014 // Type or member is obsolete
             var request = (HttpWebRequest)WebRequest.Create(URL);
+#pragma warning restore SYSLIB0014 // Type or member is obsolete
+#else
+            var request = (HttpWebRequest)WebRequest.Create(URL);
+#endif
 
             AWSXRayRecorder.Instance.BeginSegment("parent", TraceId);
             using (await request.GetAsyncResponseTraced())
@@ -141,8 +159,14 @@ namespace Amazon.XRay.Recorder.UnitTests
 # endif
             Assert.IsTrue(AWSXRayRecorder.Instance.IsTracingDisabled());
 
+#if NET6_0
+#pragma warning disable SYSLIB0014 // Type or member is obsolete
             var request = (HttpWebRequest)WebRequest.Create(URL);
-            
+#pragma warning restore SYSLIB0014 // Type or member is obsolete
+#else
+            var request = (HttpWebRequest)WebRequest.Create(URL);
+#endif
+
             using (var response = await request.GetAsyncResponseTraced() as HttpWebResponse)
             {
                 Assert.IsNotNull(response);
@@ -154,7 +178,13 @@ namespace Amazon.XRay.Recorder.UnitTests
         [TestMethod]
         public void TestExceptionGetResponseTraced()
         {
-            var request = (HttpWebRequest)WebRequest.Create(URL404);
+#if NET6_0
+#pragma warning disable SYSLIB0014 // Type or member is obsolete
+            var request = (HttpWebRequest)WebRequest.Create(URL);
+#pragma warning restore SYSLIB0014 // Type or member is obsolete
+#else
+            var request = (HttpWebRequest)WebRequest.Create(URL);
+#endif
 
             AWSXRayRecorder.Instance.BeginSegment("parent", TraceId);
             try
@@ -187,7 +217,13 @@ namespace Amazon.XRay.Recorder.UnitTests
         [TestMethod]
         public async Task TestExceptionGetAsyncResponseTraced()
         {
-            var request = (HttpWebRequest)WebRequest.Create(URL404);
+#if NET6_0
+#pragma warning disable SYSLIB0014 // Type or member is obsolete
+            var request = (HttpWebRequest)WebRequest.Create(URL);
+#pragma warning restore SYSLIB0014 // Type or member is obsolete
+#else
+            var request = (HttpWebRequest)WebRequest.Create(URL);
+#endif
 
             AWSXRayRecorder.Instance.BeginSegment("parent", TraceId);
             try
@@ -236,7 +272,13 @@ namespace Amazon.XRay.Recorder.UnitTests
             // The test should not break. No segment is available in the context, however, since the context missing strategy is log error,
             // no exception should be thrown by below code.
 
+#if NET6_0
+#pragma warning disable SYSLIB0014 // Type or member is obsolete
             var request = (HttpWebRequest)WebRequest.Create(URL);
+#pragma warning restore SYSLIB0014 // Type or member is obsolete
+#else
+            var request = (HttpWebRequest)WebRequest.Create(URL);
+#endif
 
             using (var response = await request.GetAsyncResponseTraced() as HttpWebResponse)
             {
