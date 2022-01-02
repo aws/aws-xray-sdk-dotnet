@@ -2,7 +2,7 @@
 
   
   <PropertyGroup>
-    <TargetFrameworks>net462;netcoreapp2.0;netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks>net462;net472;net48;netcoreapp2.0;netcoreapp3.1</TargetFrameworks>
     <Company>Amazon.com, Inc</Company>
     <Product>Amazon Web Service X-Ray Recorder</Product>
     <Copyright>Copyright 2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.</Copyright>
@@ -60,7 +60,7 @@
     <ProjectReference Include="..\..\src\Handlers\System.Net\AWSXRayRecorder.Handlers.System.Net.csproj" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' != 'net462'">
+  <ItemGroup Condition="!('$(TargetFramework)' == 'net462' or '$(TargetFramework)' == 'net472' or '$(TargetFramework)' == 'net48')">
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="3.1.0" />
 
     <Compile Remove="TestAppSettings.cs" />
@@ -68,9 +68,14 @@
     <Compile Remove="Tools\MockHttpRequestFactory.cs" />
     <Compile Remove="EF6Tests.cs" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net462'">
+	
+  <ItemGroup Condition="'$(TargetFramework)' == 'net462' or '$(TargetFramework)' == 'net472' or '$(TargetFramework)' == 'net48'">
     <PackageReference Include="EntityFramework" Version="6.4.4" />
     <PackageReference Include="System.Data.SQLite.EF6" Version="1.0.113" />
+
+	<Reference Include="System.Web" />
+    <Reference Include="System.Net.Http" />
+
     <Compile Remove="Tools\MockHttpRequestNetcore.cs" />
     <Compile Remove="Tools\MockHttpRequestFactoryNetcore.cs" />
     <Compile Remove="Tools\CustomWebResponse.cs" />
@@ -80,10 +85,6 @@
     <Compile Remove="FacadeSegmentTest.cs" />
     <Compile Remove="Tools\TestEFContext.cs" />
     <Compile Remove="EfCoreTests.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="System.Web" />
-    <Reference Include="System.Net.Http" />
   </ItemGroup>
 
   <ItemGroup>
