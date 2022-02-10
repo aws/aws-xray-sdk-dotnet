@@ -1,6 +1,29 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 2.11.0 (2022-02-11)
+### AWSXRayRecorder.Core (2.11.0)
+#### Improved
+- Add netcoreapp3.1 target framework [PR#215](https://github.com/aws/aws-xray-sdk-dotnet/pull/215)
+ 
+### AWSXRayRecorder.Handlers.AwsSdk (2.8.4)
+- Bumped version to address AWSXRayRecorder.Core package change
+ 
+### AWSXRayRecorder.Handlers.EntityFramework (1.1.2)
+- Bumped version to address AWSXRayRecorder.Core package change
+ 
+### AWSXRayRecorder.Handlers.AspNet (2.7.4)
+- Bumped version to address AWSXRayRecorder.Core package change
+ 
+### AWSXRayRecorder.Handlers.AspNetCore (2.8.0)
+- Add netcoreapp3.1 target framework [PR#215](https://github.com/aws/aws-xray-sdk-dotnet/pull/215)
+ 
+### AWSXRayRecorder.Handlers.SqlServer (2.7.4)
+- Bumped version to address AWSXRayRecorder.Core package change
+ 
+### AWSXRayRecorder.Handlers.System.Net (2.7.4)
+- Bumped version to address AWSXRayRecorder.Core package change
+
 ## 2.10.1 (2021-04-21)
 ### AWSXRayRecorder.Core (2.10.1)
 #### Fixed
