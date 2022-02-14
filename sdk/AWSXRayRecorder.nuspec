@@ -39,10 +39,5 @@
         <dependency id="AWSXRayRecorder.Handlers.System.Net" version="2.7.3" />
       </group>
     </dependencies>
-    <frameworkReferences>
-      <group targetFramework=".NETCoreApp3.1">
-        <frameworkReference name="Microsoft.AspNetCore.App" />
-      </group>
-    </frameworkReferences>
   </metadata>
 </package>
