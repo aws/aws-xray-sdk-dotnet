@@ -3,10 +3,10 @@ name: Continuous Build
 on:
     push:
         branches:
-            - fix_ci
+            - master
     pull_request:
         branches:
-            - fix_ci
+            - master
 
 jobs:
     build-test:
