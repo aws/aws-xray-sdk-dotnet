@@ -39,4 +39,8 @@ jobs:
           run: dotnet build sdk/AWSXRayRecorder.sln --configuration Release --no-restore
 
         - name: Run tests
-          run: dotnet test sdk/test/UnitTests/bin/Release/${{matrix.version}}/AWSXRayRecorder.UnitTests.dll --configuration Release --no-build --logger:"console;verbosity=detailed"
+          run: >-
+            dotnet test sdk/test/UnitTests/bin/Release/${{matrix.version}}/AWSXRayRecorder.UnitTests.dll
+            --configuration Release
+            --no-build
+            --logger "console;verbosity=detailed"
