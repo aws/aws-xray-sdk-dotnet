@@ -2,8 +2,6 @@ name: Continuous monitoring of distribution channels
 
 on:
     workflow_dispatch:
-    schedule:
-      - cron: '*/10 * * * *'
 
 jobs:
     smoke-tests:
