@@ -200,6 +200,15 @@ namespace Amazon.XRay.Recorder.Handlers.AspNet
         private static void ProcessHTTPResponse(Object sender, EventArgs e)
         {
             var context = ((HttpApplication)sender).Context;
+
+            //The Rewrite module for example can result in HttpApplication.EndRequest being called multiple times - once for the original ('parent') request and once for the 'child' request which has the rewritten URL.
+            //The 'parent' request will skip BeginRequest and will not be populated with an X-Ray Entity.
+            //It is the 'child' request which is the important one and the 'parent' request will only fail below when AddHttpInformation is called anyway. So bail out here in the parent request.
+            //Assume that if context.Items.Contains(XRayEntity) returns false, then it is a parent request.
+            //https://github.com/microsoft/ApplicationInsights-dotnet/issues/1744
+            //https://docs.microsoft.com/en-us/troubleshoot/developer/webapps/iis/development/duplicate-aspnet-events
+            if (!context.Items.Contains(XRayEntity)) return;
+
             var response = context.Response;
 
             if (!AWSXRayRecorder.Instance.IsTracingDisabled() && response != null)
