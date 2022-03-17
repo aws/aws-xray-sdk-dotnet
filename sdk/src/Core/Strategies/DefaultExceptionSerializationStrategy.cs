@@ -154,6 +154,7 @@ namespace Amazon.XRay.Recorder.Core.Strategies
             if (existingDescriptor != null)
             {
                 ex.Cause = existingDescriptor.Id != null ? existingDescriptor.Id : existingDescriptor.Cause;
+                ex.Exception = existingDescriptor.Exception; // pass the exception of the cause so that this reference can be found if the same exception is thrown again
                 ex.Id = null;  // setting this to null since, cause is already populated with reference to downstream exception
                 result.Add(ex);
                 return result;
