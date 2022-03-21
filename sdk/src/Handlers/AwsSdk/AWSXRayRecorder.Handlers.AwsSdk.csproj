@@ -5,9 +5,9 @@
     <Company>Amazon.com, Inc</Company>
     <Product>Amazon Web Service X-Ray Recorder</Product>
     <Copyright>Copyright 2017-2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.</Copyright>
-    <AssemblyVersion>2.8.0.0</AssemblyVersion>
-    <FileVersion>2.8.0.0</FileVersion>
-    <Version>2.8.0</Version>
+    <AssemblyVersion>2.8.3.0</AssemblyVersion>
+    <FileVersion>2.8.3.0</FileVersion>
+    <Version>2.8.3</Version>
     <RootNamespace>Amazon.XRay.Recorder.Handlers.AwsSdk</RootNamespace>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>../../../../buildtools/local-development.snk</AssemblyOriginatorKeyFile>
@@ -39,10 +39,6 @@
 
   <ItemGroup Condition="'$(TargetFramework)' != 'net45'">
     <Compile Remove="AWSSdkTracingHandler.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="AWSSDK.Core" Version="3.3.25.1" />
   </ItemGroup>
   
   <ItemGroup>

@@ -1,13 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net45;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net45;netstandard2.0;netcoreapp3.1</TargetFrameworks>
     <Company>Amazon.com, Inc</Company>
     <Product>Amazon Web Service X-Ray Recorder</Product>
     <Copyright>Copyright 2017-2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.</Copyright>
-    <AssemblyVersion>2.8.0.0</AssemblyVersion>
-    <FileVersion>2.8.0.0</FileVersion>
-    <Version>2.8.0</Version>
+    <AssemblyVersion>2.10.1.0</AssemblyVersion>
+    <FileVersion>2.10.1.0</FileVersion>
+    <Version>2.10.1</Version>
     <RootNamespace>Amazon.XRay.Recorder.Core</RootNamespace>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>../../../buildtools/local-development.snk</AssemblyOriginatorKeyFile>
@@ -39,15 +39,18 @@
 
   <ItemGroup>
     <PackageReference Include="AWSSDK.Core" Version="3.3.25.1" />
-    <PackageReference Include="AWSSDK.XRay" Version="3.3.3" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-    <PackageReference Include="System.Net.Http" Version="4.3.3" />
+    <PackageReference Include="System.Net.Http" Version="4.3.4" />
     <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="2.0.0" />
   </ItemGroup>
-  
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
   <ItemGroup Condition="'$(TargetFramework)' != 'net45'">
     <Compile Remove="Internal\Context\CallContextContainer.net45.cs" />
     <Compile Remove="Internal\Context\HybridContextContainer.net45.cs" />
@@ -55,7 +58,7 @@
     <Compile Remove="AWSXRayRecorder.cs" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' != 'netstandard2.0'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
     <Compile Remove="Internal\Context\AsyncLocalContextContainer.netstandard.cs" />
     <Compile Remove="Internal\Context\LambdaContextContainer.netstandard.cs" />
     <Compile Remove="Internal\Utils\AppSettings.netcore.cs" />

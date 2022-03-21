@@ -1,12 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;netcoreapp3.1</TargetFrameworks>
     <Company>Amazon.com, Inc</Company>
     <Product>Amazon Web Service X-Ray Recorder</Product>
     <Copyright>Copyright 2017-2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.</Copyright>
-    <AssemblyVersion>2.7.0.0</AssemblyVersion>
-    <FileVersion>2.7.0.0</FileVersion>
-    <Version>2.7.0</Version>
+    <AssemblyVersion>2.7.3.0</AssemblyVersion>
+    <FileVersion>2.7.3.0</FileVersion>
+    <Version>2.7.3</Version>
     <SignAssembly>true</SignAssembly>
     <RootNamespace>Amazon.XRay.Recorder.Handlers.AspNetCore</RootNamespace>
     <AssemblyOriginatorKeyFile>../../../../buildtools/local-development.snk</AssemblyOriginatorKeyFile>
@@ -28,9 +28,13 @@
     <NoWarn>1701;1702;1705;1591;1587;1573;1572</NoWarn>
   </PropertyGroup>
   
-  <ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
     <PackageReference Include="Microsoft.AspNetCore.Http.Extensions" Version="2.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="2.0.0" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 
   <ItemGroup>

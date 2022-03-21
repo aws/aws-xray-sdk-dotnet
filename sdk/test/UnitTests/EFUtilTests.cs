@@ -18,6 +18,8 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Data.Common;
 using Amazon.XRay.Recorder.Handlers.EntityFramework;
+using System.Data.SQLite;
+using System.Data.SqlClient;
 
 namespace Amazon.XRay.Recorder.UnitTests
 {
@@ -89,6 +91,32 @@ namespace Amazon.XRay.Recorder.UnitTests
             };
             object result = EFUtil.GetUserId(builder);
             Assert.AreEqual("SYSDBA", result.ToString());
+        }
+
+        [TestMethod]
+        public void Test_Get_Database_Type_Sqlite()
+        {
+            var connection = new SQLiteConnection();
+            var command = new SQLiteCommand(null, connection);
+            var databaseType = EFUtil.GetDataBaseType(command);
+            Assert.AreEqual("sqlite", databaseType);
+        }
+
+        [TestMethod]
+        public void Test_Get_Database_Type_SqlServer()
+        {
+            var connection = new SqlConnection();
+            var command = new SqlCommand(null, connection);
+            var databaseType = EFUtil.GetDataBaseType(command);
+            Assert.AreEqual("sqlserver", databaseType);
+        }
+
+        [TestMethod]
+        public void Test_Get_Database_Type_EmptyConnection()
+        {
+            var command = new SqlCommand();
+            var databaseType = EFUtil.GetDataBaseType(command);
+            Assert.AreEqual("entityframework", databaseType); // Empty connection will return entityframework by default.
         }
     }
 }

@@ -119,7 +119,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             _failV2 = failV2;
         }
 
-        protected override Task<string> DoRequest(string url, HttpMethod method, Dictionary<string, string> headers = null)
+        protected override string DoRequest(string url, HttpMethod method, Dictionary<string, string> headers = null)
         {
             if (_failV2 && url == "http://169.254.169.254/latest/api/token")
             {
@@ -127,7 +127,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             }
             else if (!_failV2 && url == "http://169.254.169.254/latest/api/token")
             {
-                return Task.FromResult("dummyTokenfromferg");
+                return "dummyTokenfromferg";
             }
             else if (_failV1)
             {
@@ -138,12 +138,12 @@ namespace Amazon.XRay.Recorder.UnitTests
             if (headers == null) // for v1 endpoint request
             {
                 meta_string = "{\"availabilityZone\" : \"us-west-2a\", \"imageId\" : \"ami-03cca83dd001d4d11\", \"instanceId\" : \"i-07a181803de94c477\", \"instanceType\" : \"t2.xlarge\"}";
-                return Task.FromResult(meta_string);
+                return meta_string;
             }
             else
             { // for v2 endpoint
                 meta_string = "{\"availabilityZone\" : \"us-east-2a\", \"imageId\" : \"ami-03cca83dd001d4666\", \"instanceId\" : \"i-07a181803de94c666\", \"instanceType\" : \"t3.xlarge\"}";
-                return Task.FromResult(meta_string);
+                return meta_string;
             }
         }
 

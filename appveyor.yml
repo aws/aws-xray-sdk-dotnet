@@ -1,5 +1,5 @@
 version: '1.0.{build}'
-image: Visual Studio 2017
+image: Visual Studio 2019
 init:
   # Good practise, because Windows line endings are different from Unix/Linux ones
   - cmd: git config --global core.autocrlf true
@@ -9,7 +9,7 @@ before_build:
 build_script:
   # output will be in ./src/bin/debug/netcoreapp1.1/publish
   - cmd: dotnet restore sdk/AWSXRayRecorder.sln
-  - cmd: dotnet build sdk/AWSXRayRecorder.sln /p:SignAssembly=false
+  - cmd: dotnet build sdk/AWSXRayRecorder.sln
 clone_depth: 1
 test_script:
   - cmd : dotnet test sdk/test/UnitTests

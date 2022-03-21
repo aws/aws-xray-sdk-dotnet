@@ -1,0 +1,48 @@
+name: Continuous Build
+
+on:
+    push:
+        branches:
+            - master
+            - 3.x
+    pull_request:
+        branches:
+            - master
+            - 3.x
+
+jobs:
+    build-test:
+        runs-on: windows-latest
+
+        env:
+            DOTNET_MULTILEVEL_LOOKUP: 1
+
+        strategy:
+            fail-fast: false
+            matrix:
+                version: [net452, netcoreapp2.0, netcoreapp3.1]
+
+        steps:
+        - name: Checkout repository
+          uses: actions/checkout@v2
+
+        - uses: actions/setup-dotnet@v1
+          with:
+            dotnet-version: '2.0.x'
+
+        - uses: actions/setup-dotnet@v1
+          with:
+            dotnet-version: '3.1.x'
+
+        - name: Install dependencies
+          run: dotnet restore sdk/AWSXRayRecorder.sln
+
+        - name: Build solution
+          run: dotnet build sdk/AWSXRayRecorder.sln --configuration Release --no-restore
+
+        - name: Run tests
+          run: >-
+            dotnet test sdk/test/UnitTests/bin/Release/${{matrix.version}}/AWSXRayRecorder.UnitTests.dll
+            --configuration Release
+            --no-build
+            --logger "console;verbosity=detailed"

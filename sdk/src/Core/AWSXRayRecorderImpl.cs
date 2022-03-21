@@ -15,6 +15,7 @@
 // </copyright>
 //-----------------------------------------------------------------------------
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
@@ -379,13 +380,12 @@ namespace Amazon.XRay.Recorder.Core
             IDictionary<string, string> xrayContext;
             if (newSegment.Aws.TryGetValue("xray", out object value))
             {
-                IDictionary<string, string> tempXrayContext = (Dictionary<string, string>) value;
-                xrayContext = new Dictionary<string, string>(tempXrayContext); // deep copy for thread safety
+                xrayContext = (ConcurrentDictionary<string, string>)value;
                 xrayContext[ruleNameKey] = ruleName;
             }
             else
             {
-                xrayContext = new Dictionary<string, string>();
+                xrayContext = new ConcurrentDictionary<string, string>();
                 xrayContext[ruleNameKey] = ruleName;
             }
 
@@ -725,7 +725,7 @@ namespace Amazon.XRay.Recorder.Core
             RuntimeContext = new Dictionary<string, object>();
 
             // Prepare XRay section for runtime context
-            var xrayContext = new Dictionary<string, string>();
+            var xrayContext = new ConcurrentDictionary<string, string>();
 
 #if NET45
             xrayContext["sdk"] = "X-Ray for .NET";

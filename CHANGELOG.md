@@ -1,6 +1,92 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 2.10.1 (2021-04-21)
+### AWSXRayRecorder.Core (2.10.1)
+#### Fixed
+- Bump System.Net.Http from 4.3.3 to 4.3.4 in /sdk/src/Core [PR#193](https://github.com/aws/aws-xray-sdk-dotnet/pull/193)
+ 
+### AWSXRayRecorder.Handlers.AwsSdk (2.8.3)
+- Bumped version to address AWSXRayRecorder.Core package change
+ 
+### AWSXRayRecorder.Handlers.EntityFramework (1.1.1)
+- Bumped version to address AWSXRayRecorder.Core package change
+ 
+### AWSXRayRecorder.Handlers.AspNet (2.7.3)
+- Bumped version to address AWSXRayRecorder.Core package change
+ 
+### AWSXRayRecorder.Handlers.AspNetCore (2.7.3)
+- Bumped version to address AWSXRayRecorder.Core package change
+ 
+### AWSXRayRecorder.Handlers.SqlServer (2.7.3)
+- Bumped version to address AWSXRayRecorder.Core package change
+ 
+### AWSXRayRecorder.Handlers.System.Net (2.7.3)
+- Bumped version to address AWSXRayRecorder.Core package change
+
+## 2.10.0 (2021-03-02)
+### AWSXRayRecorder.Core (2.10.0)
+#### Fixed
+- Fixed race condition where the rule poller may start immediately before initializing the timer [PR#154](https://github.com/aws/aws-xray-sdk-dotnet/pull/154)
+- Updated xraycontext to use a concurrent dictionary [PR#157](https://github.com/aws/aws-xray-sdk-dotnet/pull/157)
+ 
+#### Improved
+- Added timeout for EC2 metadata requests [PR#138](https://github.com/aws/aws-xray-sdk-dotnet/pull/138)
+- Applied HttpClient to get sampling info [PR#159](https://github.com/aws/aws-xray-sdk-dotnet/pull/159)
+ 
+### AWSXRayRecorder.Handlers.AwsSdk (2.8.2)
+#### Fixed
+- Fixed tracing S3 id pairs and SNS naming issue [#168](https://github.com/aws/aws-xray-sdk-dotnet/pull/168)
+ 
+### AWSXRayRecorder.Handlers.EntityFramework (1.1.0)
+#### New Feature
+- Added tracing support for EntityFramework 6 (.NET Framework) [PR#171](https://github.com/aws/aws-xray-sdk-dotnet/pull/171)
+ 
+### AWSXRayRecorder.Handlers.AspNet (2.7.2)
+- Bumped version to address AWSXRayRecorder.Core package change
+ 
+### AWSXRayRecorder.Handlers.AspNetCore (2.7.2)
+- Bumped version to address AWSXRayRecorder.Core package change
+ 
+### AWSXRayRecorder.Handlers.SqlServer (2.7.2)
+- Bumped version to address AWSXRayRecorder.Core package change
+ 
+### AWSXRayRecorder.Handlers.System.Net (2.7.2)
+- Bumped version to address AWSXRayRecorder.Core package change
+
+## 2.9.0 (2020-06-09)
+### AWSXRayRecorder.Core (2.9.0)
+#### Fixed
+- Added .gitattributes file and normalized line endings [PR#132](https://github.com/aws/aws-xray-sdk-dotnet/pull/132)
+
+#### Improved
+- Added IMDSv2 support [PR#134](https://github.com/aws/aws-xray-sdk-dotnet/pull/134)
+
+### AWSXRayRecorder.Handlers.AwsSdk (2.8.1)
+#### Fixed
+- Added .gitattributes file and normalized line endings [PR#132](https://github.com/aws/aws-xray-sdk-dotnet/pull/132)
+
+### AWSXRayRecorder.Handlers.EntityFramework (1.0.1)
+#### Fixed
+- Added .gitattributes file and normalized line endings [PR#132](https://github.com/aws/aws-xray-sdk-dotnet/pull/132)
+
+### AWSXRayRecorder.Handlers.AspNet (2.7.1)
+#### Fixed
+- Added .gitattributes file and normalized line endings [PR#132](https://github.com/aws/aws-xray-sdk-dotnet/pull/132)
+
+### AWSXRayRecorder.Handlers.AspNetCore (2.7.1)
+#### Fixed
+- Fixed typo in AWSXRayMiddlewareExtensions.cs. From Applicaion to Application [PR#131](https://github.com/aws/aws-xray-sdk-dotnet/pull/131)
+- Added .gitattributes file and normalized line endings [PR#132](https://github.com/aws/aws-xray-sdk-dotnet/pull/132)
+
+### AWSXRayRecorder.Handlers.SqlServer (2.7.1)
+#### Fixed
+- Added .gitattributes file and normalized line endings [PR#132](https://github.com/aws/aws-xray-sdk-dotnet/pull/132)
+
+### AWSXRayRecorder.Handlers.System.Net (2.7.1)
+#### Fixed
+- Added .gitattributes file and normalized line endings [PR#132](https://github.com/aws/aws-xray-sdk-dotnet/pull/132)
+
 ## 2.8.0 (2020-04-17)
 ### AWSXRayRecorder.Core (2.8.0)
 #### Fixed

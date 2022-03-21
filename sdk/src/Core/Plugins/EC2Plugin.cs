@@ -17,9 +17,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.IO;
+using System.Net;
 using System.Net.Http;
-using System.Threading.Tasks;
+using System.Text;
 using Amazon.Runtime.Internal.Util;
 using ThirdParty.LitJson;
 
@@ -31,7 +32,6 @@ namespace Amazon.XRay.Recorder.Core.Plugins
     public class EC2Plugin : IPlugin
     {
         private static readonly Logger _logger = Logger.GetLogger(typeof(EC2Plugin));
-        private readonly HttpClient _client = new HttpClient();
         const string metadata_base_url = "http://169.254.169.254/latest/";
 
         /// <summary>
@@ -87,7 +87,7 @@ namespace Amazon.XRay.Recorder.Core.Plugins
             {
                 Dictionary<string, string> header = new Dictionary<string, string>(1);
                 header.Add("X-aws-ec2-metadata-token-ttl-seconds", "60");
-                token = DoRequest(metadata_base_url + "api/token", HttpMethod.Put, header).Result;
+                token = DoRequest(metadata_base_url + "api/token", HttpMethod.Put, header);
             }
             catch (Exception)
             {
@@ -109,7 +109,7 @@ namespace Amazon.XRay.Recorder.Core.Plugins
                     headers.Add("X-aws-ec2-metadata-token", token);
                 }
                 string identity_doc_url = metadata_base_url + "dynamic/instance-identity/document";
-                string doc_string = DoRequest(identity_doc_url, HttpMethod.Get, headers).Result;
+                string doc_string = DoRequest(identity_doc_url, HttpMethod.Get, headers);
                 return ParseMetadata(doc_string);
             }
             catch (Exception)
@@ -120,25 +120,34 @@ namespace Amazon.XRay.Recorder.Core.Plugins
         }
 
 
-        protected virtual async Task<string> DoRequest(string url, HttpMethod method, Dictionary<string, string> headers = null)
+        protected virtual string DoRequest(string url, HttpMethod method, Dictionary<string, string> headers = null)
         {
-            HttpRequestMessage request = new HttpRequestMessage(method, url);
+            var httpWebRequest = WebRequest.CreateHttp(url);
+
+            httpWebRequest.Timeout = 2000; // 2 seconds timeout
+            httpWebRequest.Method = method.Method;
+
             if (headers != null)
             {
                 foreach (var item in headers)
                 {
-                    request.Headers.Add(item.Key, item.Value);
+                    httpWebRequest.Headers.Add(item.Key, item.Value);
                 }
             }
 
-            HttpResponseMessage response = await _client.SendAsync(request);
-            if (response.IsSuccessStatusCode)
+            using(var response = (HttpWebResponse)httpWebRequest.GetResponse())
             {
-                return await response.Content.ReadAsStringAsync();
-            }
-            else
-            {
-                throw new Exception("Unable to complete the request successfully");
+                if (response.StatusCode < HttpStatusCode.OK || (int)response.StatusCode > 299)
+                {
+                    throw new Exception("Unable to complete the request successfully");
+                }
+
+                var encoding = Encoding.GetEncoding(response.ContentEncoding);
+
+                using (var streamReader = new StreamReader(response.GetResponseStream(), encoding))
+                {
+                    return streamReader.ReadToEnd();
+                }
             }
         }
 

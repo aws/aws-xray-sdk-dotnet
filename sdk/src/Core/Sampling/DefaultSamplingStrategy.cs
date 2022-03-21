@@ -43,9 +43,9 @@ namespace Amazon.XRay.Recorder.Core.Sampling
         public DaemonConfig DaemonCfg { get; private set; }
 
         /// <summary>
-        /// Instance of <see cref="AmazonXRayClient"/>.
+        /// Instance of <see cref="XRayConfig"/>.
         /// </summary>
-        public AmazonXRayClient XRayClient = null;
+        public XRayConfig XRayConfig = null;
 
         /// <summary>
         /// Instance of <see cref="DefaultSamplingStrategy"/>.
@@ -81,7 +81,7 @@ namespace Amazon.XRay.Recorder.Core.Sampling
             {
                 if (!_isPollerStarted)
                 {
-                    _connector = new ServiceConnector(DaemonCfg, XRayClient);
+                    _connector = new ServiceConnector(DaemonCfg, XRayConfig);
                     _rulePoller.Poll(_connector);
                     _targetPoller.Poll(_connector);
                     _isPollerStarted = true;

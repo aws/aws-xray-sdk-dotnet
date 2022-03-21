@@ -67,8 +67,8 @@ namespace Amazon.XRay.Recorder.UnitTests
             _recorder.Dispose();
             AWSXRayRecorder.Instance.Dispose();
             _recorder = null;
-            
-            
+
+
         }
 
         [TestMethod]
@@ -292,7 +292,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             AWSXRayRecorder.Instance.BeginSegment("parent", TraceId);
 
             var segment = AWSXRayRecorder.Instance.TraceContext.GetEntity();
-          
+
             try
             {
                 recorder.BeginSubsegment("child1");
@@ -389,6 +389,60 @@ namespace Amazon.XRay.Recorder.UnitTests
         }
 
         [TestMethod]
+        public void TestExceptionStrategy7() // Test adding the same exception in different subsegments
+        {
+            List<Type> l = new List<Type>();
+            l.Add(typeof(ArgumentNullException));
+            var recorder = new AWSXRayRecorderBuilder().WithExceptionSerializationStrategy(new DefaultExceptionSerializationStrategy(10, l)).Build(); // set custom stackframe size
+            AWSXRayRecorder.InitializeInstance(recorder: recorder);
+            AWSXRayRecorder.Instance.BeginSegment("parent", TraceId);
+
+            var segment = AWSXRayRecorder.Instance.TraceContext.GetEntity();
+
+            try
+            {
+                recorder.BeginSubsegment("child1");
+                try
+                {
+                    try
+                    {
+                        recorder.BeginSubsegment("child2");
+                        throw new AmazonServiceException();
+                    }
+                    catch (AmazonServiceException e)
+                    {
+                        recorder.AddException(e);
+                        recorder.EndSubsegment();
+                        throw;
+                    }
+                }
+                catch (AmazonServiceException e)
+                {
+                    recorder.AddException(e);
+                    recorder.EndSubsegment();
+                    throw new EntityNotAvailableException("Dummy message", e);
+                }
+            }
+            catch (EntityNotAvailableException e)
+            {
+                recorder.AddException(e);
+                recorder.EndSegment();
+            }
+
+            Assert.AreEqual("Dummy message", segment.Cause.ExceptionDescriptors[0].Message);
+            Assert.AreEqual("EntityNotAvailableException", segment.Cause.ExceptionDescriptors[0].Type);
+            Assert.IsFalse(segment.Cause.ExceptionDescriptors[0].Remote); // default false
+            Assert.AreEqual(segment.Cause.ExceptionDescriptors[0].Cause, segment.Subsegments[0].Cause.ExceptionDescriptors[0].Id);
+            Assert.AreEqual(1, segment.Cause.ExceptionDescriptors.Count);
+
+            Assert.IsNull(segment.Subsegments[0].Cause.ExceptionDescriptors[0].Type);
+            Assert.IsFalse(segment.Subsegments[0].Cause.ExceptionDescriptors[0].Remote); // default false
+
+            Assert.AreEqual("AmazonServiceException", segment.Subsegments[0].Subsegments[0].Cause.ExceptionDescriptors[0].Type);
+            Assert.IsTrue(segment.Subsegments[0].Subsegments[0].Cause.ExceptionDescriptors[0].Remote); // set to true
+        }
+
+        [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestSetNullExceptionSerializationStrategy()
         {
@@ -457,7 +511,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             }
         }
 
-       public class DummyTraceContext : ITraceContext
+        public class DummyTraceContext : ITraceContext
         {
             public void ClearEntity()
             {

@@ -14,13 +14,16 @@
 //      permissions and limitations under the License.
 // </copyright>
 //-----------------------------------------------------------------------------
+
 using System.Collections.Generic;
-using Amazon.XRay.Model;
 using System.Threading.Tasks;
 using System;
-using Amazon.Runtime;
 using Amazon.XRay.Recorder.Core.Internal.Utils;
 using Amazon.Runtime.Internal.Util;
+using Amazon.XRay.Recorder.Core.Sampling.Model;
+using ThirdParty.LitJson;
+using System.Text;
+using System.Net.Http;
 
 namespace Amazon.XRay.Recorder.Core.Sampling
 {
@@ -32,19 +35,19 @@ namespace Amazon.XRay.Recorder.Core.Sampling
     class ServiceConnector : IConnector
     {
         private static readonly Logger _logger = Logger.GetLogger(typeof(ServiceConnector));
-        private AmazonXRayClient _xrayClient;
+        private XRayConfig _xrayConfig;
         private readonly object _xrayClientLock = new object();
         private const int Version = 1;
-        private readonly AmazonXRayConfig _config = new AmazonXRayConfig();
-        private readonly AWSCredentials _credentials = new AnonymousAWSCredentials(); // sends unsigned requests to daemon endpoint
         private readonly DaemonConfig _daemonConfig;
+        private readonly DateTime EpochStart = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        private static readonly HttpClient _httpClient = new HttpClient();
 
         /// <summary>
         /// Client id for the instance. Its 24 digit hex number.
         /// </summary>
         public string ClientID;
 
-        public ServiceConnector(DaemonConfig daemonConfig, AmazonXRayClient xrayClient) 
+        public ServiceConnector(DaemonConfig daemonConfig, XRayConfig xrayConfig) 
         {
             ClientID = ThreadSafeRandom.GenerateHexNumber(24);
             if (daemonConfig == null)
@@ -53,61 +56,96 @@ namespace Amazon.XRay.Recorder.Core.Sampling
             }
             _daemonConfig = daemonConfig;
            
-            if (xrayClient == null)
+            if (xrayConfig == null)
             {
-                xrayClient = CreateXRayClient();
+                xrayConfig = CreateXRayConfig();
             }
 
-            _xrayClient = xrayClient;
+            _xrayConfig = xrayConfig;
         }
 
-        private AmazonXRayClient CreateXRayClient()
+        private XRayConfig CreateXRayConfig()
         {
-            _config.ServiceURL = $"http://{_daemonConfig.TCPEndpoint.Address}:{_daemonConfig.TCPEndpoint.Port}";
-            return new AmazonXRayClient(_credentials,_config);
+            var config = new XRayConfig();
+            config.ServiceURL = $"http://{_daemonConfig.TCPEndpoint.Address}:{_daemonConfig.TCPEndpoint.Port}";
+            return config;
         }
 
         private void RefreshEndPoint()
         {
             var serviceUrlCandidate = $"http://{_daemonConfig.TCPEndpoint.Address}:{_daemonConfig.TCPEndpoint.Port}";
-         
-            if (serviceUrlCandidate.Equals(_xrayClient.Config.ServiceURL)) return; // endpoint do not need refreshing
 
-            _config.ServiceURL = serviceUrlCandidate;
-            _xrayClient = new AmazonXRayClient(_credentials, _config);
-            _logger.DebugFormat($"ServiceConnector Endpoint refreshed to: {_xrayClient.Config.ServiceURL}");
+            if (serviceUrlCandidate.Equals(_xrayConfig.ServiceURL)) return; // endpoint do not need refreshing
+
+            _xrayConfig.ServiceURL = serviceUrlCandidate;
+            _logger.DebugFormat($"ServiceConnector Endpoint refreshed to: {_xrayConfig.ServiceURL}");
         }
 
         /// <summary>
-        /// Use X-Ray client to get the sampling rules
-        /// from X-Ray service.The call is proxied and signed by X-Ray Daemon.
+        /// Get the sampling rules from X-Ray service.The call is proxied and signed by X-Ray Daemon.
         /// </summary>
         /// <returns></returns>
-        public async Task<GetSamplingRulesResponse>  GetSamplingRules()
+        public async Task<GetSamplingRulesResponse> GetSamplingRules()
         {
-            List<SamplingRule> newRules = new List<SamplingRule>();
-            GetSamplingRulesRequest request = new GetSamplingRulesRequest();
-
-            Task<Model.GetSamplingRulesResponse> responseTask;
+            Task<string> responseTask;
             lock (_xrayClientLock)
             {
                 RefreshEndPoint();
-                responseTask = _xrayClient.GetSamplingRulesAsync(request);
+                responseTask = GetSamplingInfoAsync(_xrayConfig.ServiceURL + "/GetSamplingRules", string.Empty);
             }
-            var response = await responseTask;
+            var responseContent = await responseTask;
 
-            foreach(var record in response.SamplingRuleRecords)
+            List<SamplingRule> samplingRules = UnmarshallSamplingRuleResponse(responseContent);
+
+            GetSamplingRulesResponse result = new GetSamplingRulesResponse(samplingRules);
+            return result;
+        }
+
+        private async Task<string> GetSamplingInfoAsync(string url, string content)
+        {
+            using (var stringContent = new StringContent(content, Encoding.UTF8, "application/json"))
             {
-                var rule = record.SamplingRule;
-                if (rule.Version == Version && SamplingRule.IsValid(rule)) // We currently only handle v1 sampling rules.
+                // Need to set header "ExpectContinue" as false for Daemon to sign properly.
+                // https://github.com/aws/aws-sdk-net/blob/master/sdk/src/Core/Amazon.Runtime/Internal/AmazonWebServiceRequest.cs#L41
+                _httpClient.DefaultRequestHeaders.ExpectContinue = false; 
+                using (var response = await _httpClient.PostAsync(url, stringContent))
                 {
-                    var sampleRule = new SamplingRule(rule.RuleName, rule.Priority, rule.FixedRate, rule.ReservoirSize, rule.Host, rule.ServiceName, rule.HTTPMethod, rule.URLPath, rule.ServiceType, rule.ResourceARN, rule.Attributes);
-                    newRules.Add(sampleRule);
+                    response.EnsureSuccessStatusCode();
+                    return await response.Content.ReadAsStringAsync();
+                }
+            }
+        }
+
+        private List<SamplingRule> UnmarshallSamplingRuleResponse(string responseContent)
+        {
+            List<SamplingRule> samplingRules = new List<SamplingRule>();
+
+            var samplingRuleResponse = JsonMapper.ToObject<SamplingRuleResponseModel>(responseContent);
+
+            foreach (var samplingRuleRecord in samplingRuleResponse.SamplingRuleRecords)
+            {
+                var samplingRuleModel = samplingRuleRecord.SamplingRule;
+                if (samplingRuleModel.Version.GetValueOrDefault() == Version && SamplingRule.IsValid(samplingRuleModel))
+                {
+                    var samplingRule = new SamplingRule
+                    (
+                        samplingRuleModel.RuleName,
+                        samplingRuleModel.Priority.GetValueOrDefault(),
+                        samplingRuleModel.FixedRate.GetValueOrDefault(),
+                        samplingRuleModel.ReservoirSize.GetValueOrDefault(),
+                        samplingRuleModel.Host,
+                        samplingRuleModel.ServiceName,
+                        samplingRuleModel.HTTPMethod,
+                        samplingRuleModel.URLPath,
+                        samplingRuleModel.ServiceType,
+                        samplingRuleModel.ResourceARN,
+                        samplingRuleModel.Attributes
+                    );
+                    samplingRules.Add(samplingRule);
                 }
             }
 
-            GetSamplingRulesResponse result = new GetSamplingRulesResponse(newRules);
-            return result;
+            return samplingRules;
         }
 
         /// <summary>
@@ -119,47 +157,83 @@ namespace Amazon.XRay.Recorder.Core.Sampling
         /// <returns>Instance of <see cref="GetSamplingRulesResponse"/>.</returns>
         public async Task<GetSamplingTargetsResponse> GetSamplingTargets(List<SamplingRule> rules)
         {
-            GetSamplingTargetsRequest request = new GetSamplingTargetsRequest();
-            IList<Target> newTargets = new List<Target>();
             DateTime currentTime = TimeStamp.CurrentDateTime();
-            List<SamplingStatisticsDocument> samplingStatisticsDocuments = GetSamplingStatisticsDocuments(rules, currentTime);
-            request.SamplingStatisticsDocuments = samplingStatisticsDocuments;
-            Task<Model.GetSamplingTargetsResponse> responseTask;
+            List<SamplingStatisticsDocumentModel> samplingStatisticsDocumentModels = GetSamplingStatisticsDocuments(rules, currentTime);
+            var samplingStatisticsModel = new SamplingStatisticsModel();
+            samplingStatisticsModel.SamplingStatisticsDocuments = samplingStatisticsDocumentModels;
+
+            string requestContent = JsonMapper.ToJson(samplingStatisticsModel); // Marshall SamplingStatisticsDocument to json
+
+            Task<string> responseTask;
             lock (_xrayClientLock)
             {
                 RefreshEndPoint();
-                responseTask = _xrayClient.GetSamplingTargetsAsync(request);
+                responseTask = GetSamplingInfoAsync(_xrayConfig.ServiceURL + "/SamplingTargets", requestContent);
             }
-            var response = await responseTask;
-            foreach (var record in response.SamplingTargetDocuments)
-            {
-                Target t = new Target(record.RuleName, record.FixedRate, record.ReservoirQuota, record.ReservoirQuotaTTL, record.Interval);
-                newTargets.Add(t);
-            }
+            var responseContent = await responseTask;
 
-            GetSamplingTargetsResponse result = new GetSamplingTargetsResponse(newTargets);
-            result.RuleFreshness = new TimeStamp(response.LastRuleModification);
+            var samplingTargetResponse = UnmarshallSamplingTargetResponse(responseContent);
+
+            var targetList = ConvertTargetList(samplingTargetResponse.SamplingTargetDocuments);
+
+            GetSamplingTargetsResponse result = new GetSamplingTargetsResponse(targetList);
+            result.RuleFreshness = new TimeStamp(ConvertDoubleToDateTime(samplingTargetResponse.LastRuleModification));
             return result;
         }
 
-        private List<SamplingStatisticsDocument> GetSamplingStatisticsDocuments(List<SamplingRule> rules, DateTime currentTime)
+        private List<Target> ConvertTargetList(List<SamplingTargetModel> targetModels)
         {
-            List<SamplingStatisticsDocument> samplingStatisticsDocuments = new List<SamplingStatisticsDocument>();
+            List<Target> result = new List<Target>();
+            foreach (var targetModel in targetModels)
+            {
+                Target t = new Target
+                (
+                    targetModel.RuleName,
+                    targetModel.FixedRate.GetValueOrDefault(),
+                    targetModel.ReservoirQuota.GetValueOrDefault(),
+                    ConvertDoubleToDateTime(targetModel.ReservoirQuotaTTL),
+                    targetModel.Interval.GetValueOrDefault()
+                );
+                result.Add(t);
+            }
+            return result;
+        }
+
+        private SamplingTargetResponseModel UnmarshallSamplingTargetResponse(string responseContent)
+        {
+            var samplingTargetResponse = JsonMapper.ToObject<SamplingTargetResponseModel>(responseContent);
+
+            return samplingTargetResponse;
+        }
+
+        private List<SamplingStatisticsDocumentModel> GetSamplingStatisticsDocuments(List<SamplingRule> rules, DateTime currentTime)
+        {
+            List<SamplingStatisticsDocumentModel> samplingStatisticsDocumentModels = new List<SamplingStatisticsDocumentModel>();
             foreach (var rule in rules)
             {
                 Statistics statistics = rule.SnapShotStatistics();
-                SamplingStatisticsDocument doc = new SamplingStatisticsDocument();
-                doc.ClientID = ClientID;
-                doc.RuleName = rule.RuleName;
-                doc.RequestCount = statistics.RequestCount;
-                doc.SampledCount = statistics.SampledCount;
-                doc.BorrowCount = statistics.BorrowCount;
-                doc.Timestamp = currentTime;
-                samplingStatisticsDocuments.Add(doc);
+                SamplingStatisticsDocumentModel item = new SamplingStatisticsDocumentModel();
+                item.ClientID = ClientID;
+                item.RuleName = rule.RuleName;
+                item.RequestCount = statistics.RequestCount;
+                item.SampledCount = statistics.SampledCount;
+                item.BorrowCount = statistics.BorrowCount;
+                item.Timestamp = ConvertDateTimeToDouble(currentTime);
+                samplingStatisticsDocumentModels.Add(item);
             }
 
-            return samplingStatisticsDocuments;
+            return samplingStatisticsDocumentModels;
+        }
+
+        private double ConvertDateTimeToDouble(DateTime currentTime)
+        {
+            var current = new TimeSpan(currentTime.ToUniversalTime().Ticks - EpochStart.Ticks);
+            return Math.Round(current.TotalMilliseconds, 0) / 1000.0;
+        }
+
+        private DateTime ConvertDoubleToDateTime(double? seconds)
+        {
+            return seconds == null ? default(DateTime) : EpochStart.AddSeconds(seconds.GetValueOrDefault());
         }
     }
 }
-
