@@ -693,7 +693,7 @@ We support instrumenting ASP.NET Core web app on Lambda. Please follow the steps
 
 ### Logging (.NET)
 
-The AWS X-Ray .NET SDK share the same logging mechanism as AWS .NET SDK. If the application had already configured logging for AWS .NET SDK, it should just work for AWS X-Ray .NET SDK.
+The AWS X-Ray .NET SDK share the same logging mechanism as [AWS .NET SDK](https://docs.aws.amazon.com/sdk-for-net/v3/developer-guide/net-dg-config-other.html#config-setting-awslogging). If the application had already configured logging for AWS .NET SDK, it should just work for AWS X-Ray .NET SDK.
 The recommended way to configure an application is to use the <aws> element in the project’s `App.config` or `Web.config` file.
 
 ```xml
@@ -712,8 +712,9 @@ Other ways to configure logging is to edit the <appsetting> element in the `App.
 
 ### Logging (.NET Core)
 
-Currently we support `log4net` logging and options provided in [LoggingOptions](https://docs.aws.amazon.com/sdkfornet/v3/apidocs/items/Amazon/TLoggingOptions.html). You should configure logging before initialization of `AWSXRayRecorder` instance or using any X-Ray methods.  
-Following is the way to configure logging with X-Ray SDK:
+The AWS X-Ray .NET SDK share the same logging mechanism as [AWS .NET SDK](https://docs.aws.amazon.com/sdk-for-net/v3/developer-guide/net-dg-config-other.html#config-setting-awslogging). To configure logging for .NET Core application, pass one of these options to the `AWSXRayRecorder.RegisterLogger` method.
+	
+Following is the way to configure `log4net` with X-Ray SDK:
 
 ```csharp
 using Amazon;
