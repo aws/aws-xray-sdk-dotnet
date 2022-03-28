@@ -17,6 +17,7 @@
 
 using Amazon.XRay.Recorder.Core.Sampling.Model;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using ThirdParty.LitJson;
 
 namespace Amazon.XRay.Recorder.UnitTests
@@ -270,6 +271,32 @@ namespace Amazon.XRay.Recorder.UnitTests
             var samplingTargetResponseModel = JsonMapper.ToObject<SamplingTargetResponseModel>(samplingTargetResponseJson);
 
             Assert.IsNull(samplingTargetResponseModel);
+        }
+
+        [TestMethod]
+        public void SerializeObjectContainingEmptyGuid()
+        {
+            var obj = new AnythingWithGuid();
+            var actual = JsonMapper.ToJson(obj);
+            var expected = "{\"Id\":\"00000000-0000-0000-0000-000000000000\"}";
+
+            Assert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
+        public void SerializeObjectContainingNonEmptyGuid()
+        {
+            var guid = Guid.Parse("b2aee583-770c-42c5-b5d8-d25e0df4d161");
+            var obj = new AnythingWithGuid { Id = guid };
+            var actual = JsonMapper.ToJson(obj);
+            var expected = "{\"Id\":\"b2aee583-770c-42c5-b5d8-d25e0df4d161\"}";
+
+            Assert.AreEqual(expected, actual);
+        }
+
+        public class AnythingWithGuid
+        {
+            public Guid Id { get; set; }
         }
     }
 }
