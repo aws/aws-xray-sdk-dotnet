@@ -32,6 +32,7 @@ namespace Amazon.XRay.Recorder.Core.Strategies
     /// Try to match the Host field from HTTP header first, if not match then use the fallback name as segment name.
     /// </summary>
     /// <see cref="Amazon.XRay.Recorder.Core.Strategies.SegmentNamingStrategy" />
+    [CLSCompliant(false)]
     public class DynamicSegmentNamingStrategy : SegmentNamingStrategy
     {
         private static readonly Logger _logger = Logger.GetLogger(typeof(DynamicSegmentNamingStrategy));
@@ -132,6 +133,7 @@ namespace Amazon.XRay.Recorder.Core.Strategies
         /// <returns>
         /// The segment name.
         /// </returns>
+        [CLSCompliant(false)]
         public override string GetSegmentName(HttpRequest httpRequest)
         {
             string hostField = httpRequest.Host.Host;

@@ -30,6 +30,7 @@ namespace Amazon.XRay.Recorder.Core.Strategies
     /// Use a fixed name as segment name.
     /// </summary>
     /// <seealso cref="Amazon.XRay.Recorder.Core.Strategies.SegmentNamingStrategy" />
+    [CLSCompliant(false)]
     public class FixedSegmentNamingStrategy : SegmentNamingStrategy
     {
         private static readonly Logger _logger = Logger.GetLogger(typeof(FixedSegmentNamingStrategy));
@@ -92,6 +93,7 @@ namespace Amazon.XRay.Recorder.Core.Strategies
         /// <returns>
         /// The segment name.
         /// </returns>
+        [CLSCompliant(false)]
         public override string GetSegmentName(HttpRequest httpRequest)
         {
             return FixedName;

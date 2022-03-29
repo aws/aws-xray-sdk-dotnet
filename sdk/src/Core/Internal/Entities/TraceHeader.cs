@@ -153,9 +153,8 @@ namespace Amazon.XRay.Recorder.Core.Internal.Entities
         /// Converts the string representation of a trace header to an instance of <see cref="TraceHeader"/>.
         /// </summary>
         /// <param name="rawHeader">A string from HTTP request containing a trace header.</param>
-        /// <param name="header">When the method returns, contains the <see cref="TraceHeader"/> object converted from <paramref name="rawHeader"/>,
-        /// It only extracts non-null and valid values.</param>
-        /// <returns>true if <paramref name="rawHeader"/> converted successfully; otherwise, false.</returns>
+        /// <returns>Contains the <see cref="TraceHeader"/> object converted from <paramref name="rawHeader"/>,
+        /// It only extracts non-null and valid values.</returns>
         public static TraceHeader FromString(string rawHeader)
         {
             TraceHeader result = new TraceHeader();

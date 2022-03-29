@@ -182,10 +182,10 @@ namespace Amazon.XRay.Recorder.Core
         }
 
         /// <summary>
-        /// Adds the given plugin to builder
+        /// Sets the address for the xray daemon.
         /// </summary>
-        /// <param name="plugin">A specific plugin to add.</param>
-        /// <returns>The builder with plugin added.</returns>
+        /// <param name="address">The xray daemon address.</param>
+        /// <returns>The builder with the specified xray daemon address.</returns>
         public AWSXRayRecorderBuilder WithDaemonAddress(String address)
         {
             if (String.IsNullOrEmpty(address))
@@ -246,8 +246,8 @@ namespace Amazon.XRay.Recorder.Core
         /// <summary>
         /// Configures recorder with <see cref="ITraceContext"/> instance.
         /// </summary>
-        /// <param name="segmentEmitter">The provided <see cref="ISegmentEmitter"/> instance.</param>
-        /// <returns>The builder with ISegmentEmitter added.</returns>
+        /// <param name="traceContext">The provided <see cref="ITraceContext"/> instance.</param>
+        /// <returns>The builder with ITraceContext added.</returns>
         public AWSXRayRecorderBuilder WithTraceContext(ITraceContext traceContext)
         {
             _traceContext = traceContext ?? throw new ArgumentNullException("TraceContext");
@@ -258,8 +258,8 @@ namespace Amazon.XRay.Recorder.Core
         /// Configures recorder with provided <see cref="ExceptionSerializationStrategy"/>. While setting number consider max trace size
         /// limit : https://aws.amazon.com/xray/pricing/
         /// </summary>
-        /// <param name="size">stack frame size</param>
-        /// <returns>The builder with stack frame size added.</returns>
+        /// <param name="exceptionSerializationStartegy">An instance of <see cref="ExceptionSerializationStrategy"/></param>
+        /// <returns>The builder with exception serialization strategy added.</returns>
         public AWSXRayRecorderBuilder WithExceptionSerializationStrategy(ExceptionSerializationStrategy exceptionSerializationStartegy)
         {
             _exceptionSerializationStrategy = exceptionSerializationStartegy ?? throw new ArgumentNullException("ExceptionSerializationStartegy"); ;

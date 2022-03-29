@@ -29,6 +29,7 @@ namespace Amazon.XRay.Recorder.Core.Strategies
     /// <summary>
     /// Strategy to name a segment
     /// </summary>
+    [CLSCompliant(false)]
     public abstract class SegmentNamingStrategy
     {
         /// <summary>

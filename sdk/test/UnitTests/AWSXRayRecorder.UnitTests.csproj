@@ -11,15 +11,9 @@
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>../../../buildtools/local-development.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
-
   
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net452|AnyCPU'">
     <DefineConstants>TRACE;DEBUG</DefineConstants>
-    <NoWarn>0618;1701;1702;1705</NoWarn>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net452|AnyCPU'">
-    <NoWarn>0618;1701;1702;1705</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)'=='net452'">
@@ -28,20 +22,10 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netcoreapp2.0|AnyCPU'">
     <DefineConstants>TRACE;DEBUG</DefineConstants>
-    <NoWarn>0618;1701;1702;1705</NoWarn>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netcoreapp2.0|AnyCPU'">
-    <NoWarn>0618;1701;1702;1705</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netcoreapp3.1|AnyCPU'">
     <DefineConstants>TRACE;DEBUG</DefineConstants>
-    <NoWarn>0618;1701;1702;1705</NoWarn>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netcoreapp3.1|AnyCPU'">
-    <NoWarn>0618;1701;1702;1705</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -92,6 +76,8 @@
     <Compile Remove="EF6Tests.cs" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net452'">
+    <Reference Include="System.Web" />
+    <Reference Include="System.Net.Http" />
     <PackageReference Include="EntityFramework" Version="6.4.4" />
     <PackageReference Include="System.Data.SQLite.EF6" Version="1.0.113" />
     <Compile Remove="Tools\MockHttpRequestNetcore.cs" />
@@ -104,11 +90,7 @@
     <Compile Remove="Tools\TestEFContext.cs" />
     <Compile Remove="EfCoreTests.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Reference Include="System.Web" />
-    <Reference Include="System.Net.Http" />
-  </ItemGroup>
-
+  
   <ItemGroup>
     <None Update="JSONs\Appsetting\CollectSqlQueriesFalse.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

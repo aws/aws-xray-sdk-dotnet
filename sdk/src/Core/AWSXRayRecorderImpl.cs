@@ -343,6 +343,7 @@ namespace Amazon.XRay.Recorder.Core
         /// Populates runtime and service contexts for the segment.
         /// </summary>
         /// <param name="newSegment">Instance of <see cref="Segment"/>.</param>
+        /// <param name="sampleResponse">Instance of <see cref="SamplingResponse"/>.</param>
         protected void PopulateNewSegmentAttributes(Segment newSegment, SamplingResponse sampleResponse)
         {
             if (RuntimeContext != null)
@@ -998,7 +999,7 @@ namespace Amazon.XRay.Recorder.Core
         /// Configures recorder with <see cref="Strategies.ExceptionSerializationStrategy"/>.  While setting number consider max trace size
         /// limit : https://aws.amazon.com/xray/pricing/
         /// </summary>
-        /// <param name="stackFrameSize">stack frame size.</param>
+        /// <param name="exceptionSerializationStartegy">An instance of <see cref="ExceptionSerializationStrategy"/></param>
         public void SetExceptionSerializationStrategy(ExceptionSerializationStrategy exceptionSerializationStartegy)
         {
             this.ExceptionSerializationStrategy = exceptionSerializationStartegy;

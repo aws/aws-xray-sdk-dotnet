@@ -38,6 +38,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
         /// </summary>
         /// <param name="config">Instance of <see cref="IConfiguration"/>.</param>
         /// <returns>Instance of <see cref="XRayOptions"/>.</returns>
+        [CLSCompliant(false)]
         public static XRayOptions GetXRayOptions(this IConfiguration config)
         {
             return GetXRayOptions(config, DEFAULT_CONFIG_SECTION);
