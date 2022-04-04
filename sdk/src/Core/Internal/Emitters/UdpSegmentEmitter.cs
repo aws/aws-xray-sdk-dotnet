@@ -136,7 +136,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Emitters
             {
                 if (_udpClient != null)
                 {
-#if NET45
+#if NETFRAMEWORK
                     _udpClient.Close();
 #else
                     _udpClient.Dispose();

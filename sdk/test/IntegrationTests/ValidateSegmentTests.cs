@@ -50,7 +50,7 @@ namespace Amazon.XRay.Recorder.IntegrationTests
             var segment = AWSXRayRecorder.Instance.TraceContext.GetEntity();
             Thread.Sleep(100);
             Recorder.EndSegment();
-#if NET45
+#if NETFRAMEWORK
             var response = BatchGetTraces(traceId);
 #else
             var response = BatchGetTracesAsync(traceId).Result;
@@ -80,7 +80,7 @@ namespace Amazon.XRay.Recorder.IntegrationTests
             AWSXRayRecorder.Instance.TraceContext.GetEntity().Subsegments.ForEach(x => subsegmentNames[x.Id] = x.Name);
 
             Recorder.EndSegment();
-#if NET45
+#if NETFRAMEWORK
             var response = BatchGetTraces(traceId);
 #else
             var response = BatchGetTracesAsync(traceId).Result;
@@ -120,7 +120,7 @@ namespace Amazon.XRay.Recorder.IntegrationTests
             Thread.Sleep(100);
             recorder.EndSegment();
 
-#if NET45
+#if NETFRAMEWORK
             var response = BatchGetTraces(traceId);
 #else
             var response = BatchGetTracesAsync(traceId).Result;
@@ -151,7 +151,7 @@ namespace Amazon.XRay.Recorder.IntegrationTests
             recorder.BeginSegment(GetType().Name, traceId);
             Thread.Sleep(100);
             recorder.EndSegment();
-#if NET45
+#if NETFRAMEWORK
             var response = BatchGetTraces(traceId);
 #else
             var response = BatchGetTracesAsync(traceId).Result;
@@ -182,7 +182,7 @@ namespace Amazon.XRay.Recorder.IntegrationTests
             recorder.BeginSegment(GetType().Name, traceId);
             Thread.Sleep(100);
             recorder.EndSegment();
-#if NET45
+#if NETFRAMEWORK
             var response = BatchGetTraces(traceId);
 #else
             var response = BatchGetTracesAsync(traceId).Result;
