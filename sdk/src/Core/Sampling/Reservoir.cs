@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------------
-// <copyright file="Reservior.cs" company="Amazon.com">
+// <copyright file="Reservoir.cs" company="Amazon.com">
 //      Copyright 2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 //
 //      Licensed under the Apache License, Version 2.0 (the "License").
@@ -20,9 +20,9 @@ using System.Threading;
 namespace Amazon.XRay.Recorder.Core.Sampling
 {
     /// <summary>
-    /// Thread safe reservior which holds fixed sampling quota, borrowed count and TTL.
+    /// Thread safe reservoir which holds fixed sampling quota, borrowed count and TTL.
     /// </summary>
-    public class Reservior
+    public class Reservoir
     {
         private TimeStamp _thisSec = new TimeStamp();
         private TimeStamp _refereshedAt = new TimeStamp();
@@ -30,13 +30,13 @@ namespace Amazon.XRay.Recorder.Core.Sampling
         private int _borrowedThisSec;
         private readonly int _defaultInterval = 10; // 10 seconds
         private readonly ReaderWriterLockSlim _lock = new ReaderWriterLockSlim();
-        private static readonly Logger _logger = Logger.GetLogger(typeof(Reservior));
+        private static readonly Logger _logger = Logger.GetLogger(typeof(Reservoir));
 
         public TimeStamp TTL { get; set; }
         public int? Quota { get; set; }
         public int? Interval { get; set; }
 
-        internal Reservior()
+        internal Reservoir()
         {
             Quota = null;
             TTL = null;
@@ -45,12 +45,12 @@ namespace Amazon.XRay.Recorder.Core.Sampling
         }
 
         /// <summary>
-        /// If quota is valid, <see cref="ReserviorDecision"/> is either take or no else 1 request/sec is borrowed.
+        /// If quota is valid, <see cref="ReservoirDecision"/> is either take or no else 1 request/sec is borrowed.
         /// </summary>
         /// <param name="current"> Current timestamp.</param>
         /// <param name="canBorrow">If true, and quota not valid, single request is borrowed in the current sec for the given <see cref="SamplingRule"/>.</param>
-        /// <returns>The reservior decision.</returns>
-        internal ReserviorDecision BorrowOrTake(TimeStamp current, bool canBorrow)
+        /// <returns>The reservoir decision.</returns>
+        internal ReservoirDecision BorrowOrTake(TimeStamp current, bool canBorrow)
         {
             _lock.EnterWriteLock();
             try
@@ -61,23 +61,23 @@ namespace Amazon.XRay.Recorder.Core.Sampling
                 {
                     if(_takenThisSec >= Quota)
                     {
-                        return ReserviorDecision.No;
+                        return ReservoirDecision.No;
                     }
                     _takenThisSec += 1;
-                    return ReserviorDecision.Take;
+                    return ReservoirDecision.Take;
                 }
 
                 if (canBorrow) // Otherwise try to borrow if the quota is not present or expired.
                 {
                     if(_borrowedThisSec >= 1)
                     {
-                        return ReserviorDecision.No;
+                        return ReservoirDecision.No;
                     }
                     _borrowedThisSec += 1;
-                    return ReserviorDecision.Borrow;
+                    return ReservoirDecision.Borrow;
                 }
 
-                return ReserviorDecision.No;
+                return ReservoirDecision.No;
             }
             finally
             {
@@ -96,7 +96,7 @@ namespace Amazon.XRay.Recorder.Core.Sampling
         }
 
         /// <summary>
-        /// Load quota, ttl and interval into current reservior.
+        /// Load quota, ttl and interval into current reservoir.
         /// </summary>
         /// <param name="t">Instance of <see cref="Target"/>.</param>
         /// <param name="now">Current timestamp.</param>
@@ -105,9 +105,9 @@ namespace Amazon.XRay.Recorder.Core.Sampling
             _lock.EnterWriteLock();
             try
             {
-                if (t.ReserviorQuota != null)
+                if (t.ReservoirQuota != null)
                 {
-                    Quota = t.ReserviorQuota;
+                    Quota = t.ReservoirQuota;
                 }
 
                 if (t.TTL != null)
@@ -140,7 +140,7 @@ namespace Amazon.XRay.Recorder.Core.Sampling
             }
         }
 
-        internal void CopyFrom(Reservior r)
+        internal void CopyFrom(Reservoir r)
         {
             _lock.EnterWriteLock();
             try

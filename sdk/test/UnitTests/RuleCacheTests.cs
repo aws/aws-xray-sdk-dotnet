@@ -94,15 +94,15 @@ namespace Amazon.XRay.Recorder.UnitTests
 
             rulesInCache = ruleCache.GetRules(); // check targets value is copied
 
-            Reservior actualReservior2 = rulesInCache[0].Reservior;
-            Assert.AreEqual(currentTime.Time, actualReservior2.TTL.Time);
-            Assert.AreEqual(t2.Interval, actualReservior2.Interval);
-            Assert.AreEqual(t2.ReserviorQuota, actualReservior2.Quota);
+            Reservoir actualReservoir2 = rulesInCache[0].Reservoir;
+            Assert.AreEqual(currentTime.Time, actualReservoir2.TTL.Time);
+            Assert.AreEqual(t2.Interval, actualReservoir2.Interval);
+            Assert.AreEqual(t2.ReservoirQuota, actualReservoir2.Quota);
 
-            Reservior actualReservior1 = rulesInCache[1].Reservior;
-            Assert.AreEqual(currentTime.Time, actualReservior1.TTL.Time);
-            Assert.AreEqual(t1.Interval, actualReservior1.Interval);
-            Assert.AreEqual(t1.ReserviorQuota, actualReservior1.Quota);
+            Reservoir actualReservoir1 = rulesInCache[1].Reservoir;
+            Assert.AreEqual(currentTime.Time, actualReservoir1.TTL.Time);
+            Assert.AreEqual(t1.Interval, actualReservoir1.Interval);
+            Assert.AreEqual(t1.ReservoirQuota, actualReservoir1.Quota);
 
         }
 
@@ -150,10 +150,10 @@ namespace Amazon.XRay.Recorder.UnitTests
             Assert.AreEqual(1, rulesInCache.Count); // only one rule should be present and statefule info should be carried from old rule
             Assert.AreEqual(1, rulesInCache[0].Priority); // implies new rule is added to cache
 
-            Reservior actualReservior1 = rulesInCache[0].Reservior;
-            Assert.AreEqual(currentTime.Time, actualReservior1.TTL.Time);
-            Assert.AreEqual(t1.Interval, actualReservior1.Interval);
-            Assert.AreEqual(t1.ReserviorQuota, actualReservior1.Quota);
+            Reservoir actualReservoir1 = rulesInCache[0].Reservoir;
+            Assert.AreEqual(currentTime.Time, actualReservoir1.TTL.Time);
+            Assert.AreEqual(t1.Interval, actualReservoir1.Interval);
+            Assert.AreEqual(t1.ReservoirQuota, actualReservoir1.Quota);
 
             Statistics statistics = rulesInCache[0].Statistics;
             Assert.AreEqual(expectedStatistic.RequestCount, statistics.RequestCount);
