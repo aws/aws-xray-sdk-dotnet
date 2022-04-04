@@ -20,7 +20,7 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                version: [net452, netcoreapp2.0, netcoreapp3.1]
+                version: [net452, netcoreapp3.1]
 
         steps:
         - name: Checkout repository
@@ -43,6 +43,4 @@ jobs:
         - name: Run tests
           run: >-
             dotnet test sdk/test/UnitTests/bin/Release/${{matrix.version}}/AWSXRayRecorder.UnitTests.dll
-            --configuration Release
-            --no-build
             --logger "console;verbosity=detailed"
