@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  
+
   <PropertyGroup>
-    <TargetFrameworks>net452;netcoreapp2.0;netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks>net452;netcoreapp3.1</TargetFrameworks>
     <Company>Amazon.com, Inc</Company>
     <Product>Amazon Web Service X-Ray Recorder</Product>
     <Copyright>Copyright 2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.</Copyright>
@@ -12,7 +12,7 @@
     <AssemblyOriginatorKeyFile>../../../buildtools/local-development.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
-  
+
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net452|AnyCPU'">
     <DefineConstants>TRACE;DEBUG</DefineConstants>
     <NoWarn>0618;1701;1702;1705</NoWarn>
@@ -26,15 +26,6 @@
     <DefineConstants>NET45</DefineConstants>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netcoreapp2.0|AnyCPU'">
-    <DefineConstants>TRACE;DEBUG</DefineConstants>
-    <NoWarn>0618;1701;1702;1705</NoWarn>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|netcoreapp2.0|AnyCPU'">
-    <NoWarn>0618;1701;1702;1705</NoWarn>
-  </PropertyGroup>
-
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netcoreapp3.1|AnyCPU'">
     <DefineConstants>TRACE;DEBUG</DefineConstants>
     <NoWarn>0618;1701;1702;1705</NoWarn>
@@ -45,24 +36,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AWSSDK.Core" Version="3.5.1.23" />
-    <PackageReference Include="AWSSDK.DynamoDBv2" Version="3.5.1.1" />
-    <PackageReference Include="AWSSDK.Lambda" Version="3.5.0.25" />
-    <PackageReference Include="AWSSDK.S3" Version="3.5.3.1" />
-    <PackageReference Include="AWSSDK.SimpleNotificationService" Version="3.5.0.26" />
-    <PackageReference Include="Moq" Version="4.7.137" />
-  </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.0'">
-    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="3.1.0">
-    </PackageReference>
-
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="3.1.0">
-    </PackageReference>
-
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="3.1.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="3.1.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="3.1.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="2.0.0" />
+    <PackageReference Include="AWSSDK.DynamoDBv2" Version="3.7.3.7" />
+    <PackageReference Include="AWSSDK.Lambda" Version="3.7.9.4" />
+    <PackageReference Include="AWSSDK.S3" Version="3.7.8.4" />
+    <PackageReference Include="AWSSDK.SimpleNotificationService" Version="3.7.3.32" />
+    <PackageReference Include="Moq" Version="4.17.2" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="3.1.0" />
@@ -70,10 +48,10 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="3.1.0" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="System.Data.SQLite" Version="1.0.113.7" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0" />
-    <PackageReference Include="MSTest.TestAdapter" Version="1.1.18" />
-    <PackageReference Include="MSTest.TestFramework" Version="1.1.18" />
+    <PackageReference Include="System.Data.SQLite" Version="1.0.115.5" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.1.0" />
+    <PackageReference Include="MSTest.TestAdapter" Version="2.2.8" />
+    <PackageReference Include="MSTest.TestFramework" Version="2.2.8" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Core\AWSXRayRecorder.Core.csproj" />
@@ -93,7 +71,7 @@
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net452'">
     <PackageReference Include="EntityFramework" Version="6.4.4" />
-    <PackageReference Include="System.Data.SQLite.EF6" Version="1.0.113" />
+    <PackageReference Include="System.Data.SQLite.EF6" Version="1.0.115.5" />
     <Compile Remove="Tools\MockHttpRequestNetcore.cs" />
     <Compile Remove="Tools\MockHttpRequestFactoryNetcore.cs" />
     <Compile Remove="Tools\CustomWebResponse.cs" />
