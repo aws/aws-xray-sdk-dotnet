@@ -20,7 +20,7 @@ using System.Data.Common;
 using System.Text.RegularExpressions;
 using Amazon.Runtime.Internal.Util;
 using Amazon.XRay.Recorder.Core;
-#if NET45
+#if NETFRAMEWORK
 using Amazon.XRay.Recorder.Core.Internal.Utils;
 #endif
 
@@ -191,7 +191,7 @@ namespace Amazon.XRay.Recorder.Handlers.EntityFramework
             return _portNumberRegex.Replace(dataSource, string.Empty);
         }
 
-#if !NET45
+#if !NETFRAMEWORK
         private static bool ShouldCollectSqlText(bool? collectSqlQueriesOverride)
             => collectSqlQueriesOverride ?? _recorder.XRayOptions.CollectSqlQueries;
 #else

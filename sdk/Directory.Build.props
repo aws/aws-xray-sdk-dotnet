@@ -4,7 +4,7 @@
   </ItemGroup>
 
   <!-- NetFramework does not support embedded pdb -->
-  <PropertyGroup Condition="'$(TargetFramework)' == 'net45' or '$(TargetFramework)' == 'net452'">
+  <PropertyGroup Condition="'$(TargetFramework)' == 'net462'">
     <DebugType>portable</DebugType>
   </PropertyGroup>
 </Project>

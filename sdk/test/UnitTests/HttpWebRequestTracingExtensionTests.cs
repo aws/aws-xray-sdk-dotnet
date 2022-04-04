@@ -41,7 +41,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         public void TestInitialize()
         {
             _recorder = new AWSXRayRecorder();
-#if NET45
+#if NETFRAMEWORK
             AWSXRayRecorder.InitializeInstance(_recorder);
 #else
             AWSXRayRecorder.InitializeInstance(recorder: _recorder);
@@ -87,7 +87,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         public void TestXrayDisabledGetResponseTraced()
         {
             _recorder = new MockAWSXRayRecorder() { IsTracingDisabledValue = true };
-#if NET45
+#if NETFRAMEWORK
             AWSXRayRecorder.InitializeInstance(_recorder);
 #else
             AWSXRayRecorder.InitializeInstance(recorder: _recorder);
@@ -134,7 +134,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         public async Task TestXrayDisabledGetAsyncResponseTraced()
         {
             _recorder = new MockAWSXRayRecorder() { IsTracingDisabledValue = true };
-#if NET45
+#if NETFRAMEWORK
             AWSXRayRecorder.InitializeInstance(_recorder);
 #else
             AWSXRayRecorder.InitializeInstance(recorder: _recorder);
@@ -150,7 +150,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             }
         }
 
-#if !NET45
+#if !NETFRAMEWORK
         [TestMethod]
         public void TestExceptionGetResponseTraced()
         {
@@ -222,7 +222,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         public async Task TestContextMissingStrategyGetAsyncResponseTraced()
         {
             _recorder = new AWSXRayRecorder();
-#if NET45
+#if NETFRAMEWORK
             AWSXRayRecorder.InitializeInstance(_recorder);
 #else
             AWSXRayRecorder.InitializeInstance(recorder: _recorder);

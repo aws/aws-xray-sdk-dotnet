@@ -44,7 +44,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         private AWSXRayRecorder _recorder;
 
         private static String _path = $"JSONs{Path.DirectorySeparatorChar}AWSRequestInfo.json";
-#if !NET45
+#if !NETFRAMEWORK
         private XRayOptions _xRayOptions = new XRayOptions();
 #endif
 
@@ -52,7 +52,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         public void TestInitialize()
         {
             _recorder = new AWSXRayRecorder();
-#if NET45
+#if NETFRAMEWORK
             AWSXRayRecorder.InitializeInstance(recorder:_recorder);
 #else
             AWSXRayRecorder.InitializeInstance(recorder: _recorder);
@@ -63,7 +63,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         public new void TestCleanup()
         {
             base.TestCleanup();
-#if NET45
+#if NETFRAMEWORK
             ConfigurationManager.AppSettings[ManifestKey] = null;
             AppSettings.Reset();
 #else
@@ -89,7 +89,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             AWSXRayRecorder.Instance.EndSegment();
             // The test should not break. No segment is available in the context, however, since the context missing strategy is log error,
             // no exception should be thrown by below code.
-#if NET45
+#if NETFRAMEWORK
             dynamo.ListTables();
 #else
             dynamo.ListTablesAsync().Wait();
@@ -105,7 +105,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             CustomResponses.SetResponse(s3, null, "TestAmazonId");
 
             _recorder.BeginSegment("test s3", TraceId);
-#if NET45
+#if NETFRAMEWORK
             s3.GetObject("testBucket", "testKey");
 #else
             s3.GetObjectAsync("testBucket", "testKey").Wait();
@@ -131,7 +131,7 @@ namespace Amazon.XRay.Recorder.UnitTests
                 CustomResponses.SetResponse(client, requestId);
 
                 _recorder.BeginSegment("test", TraceId);
-#if NET45
+#if NETFRAMEWORK
                 client.ListTables();
 #else
                 client.ListTablesAsync().Wait();
@@ -194,7 +194,7 @@ namespace Amazon.XRay.Recorder.UnitTests
                 var key2 = new Dictionary<string, AttributeValue>() { { "id", new AttributeValue("2") } };
                 var keys = new KeysAndAttributes() { Keys = new List<Dictionary<string, AttributeValue>>() { key1, key2 } };
 
-#if NET45
+#if NETFRAMEWORK
                 client.BatchGetItem(new Dictionary<string, KeysAndAttributes>() { { "test", keys } });
 #else
                 client.BatchGetItemAsync(new Dictionary<string, KeysAndAttributes>() { { "test", keys } }).Wait();
@@ -259,7 +259,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             var dynamo = new AmazonDynamoDBClient(new AnonymousAWSCredentials(), RegionEndpoint.USEast1);
             CustomResponses.SetResponse(dynamo);
             _recorder.BeginSegment("test dynamo", TraceId);
-#if NET45
+#if NETFRAMEWORK
             dynamo.ListTables();
 #else
             dynamo.ListTablesAsync().Wait();
@@ -276,7 +276,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             var lambda = new AmazonLambdaClient(new AnonymousAWSCredentials(), RegionEndpoint.USEast1);
             CustomResponses.SetResponse(lambda);
             _recorder.BeginSegment("lambda", TraceId);
-#if NET45
+#if NETFRAMEWORK
             lambda.Invoke(new InvokeRequest
             {
                 FunctionName = "testFunction"
@@ -300,7 +300,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             var lambda = new AmazonLambdaClient(new AnonymousAWSCredentials(), RegionEndpoint.USEast1);
             CustomResponses.SetResponse(lambda);
             _recorder.BeginSegment("lambda", TraceId);
-#if NET45
+#if NETFRAMEWORK
             lambda.Invoke(new InvokeRequest
             {
                 FunctionName = "testFunction"
@@ -329,7 +329,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             var lambda = new AmazonLambdaClient(new AnonymousAWSCredentials(), RegionEndpoint.USEast1);
             CustomResponses.SetResponse(lambda);
             _recorder.BeginSegment("lambda", TraceId);
-#if NET45
+#if NETFRAMEWORK
             lambda.Invoke(new InvokeRequest
             {
                 FunctionName = "testFunction"

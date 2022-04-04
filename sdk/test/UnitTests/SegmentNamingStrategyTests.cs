@@ -19,7 +19,7 @@ using System;
 using System.Net.Http;
 using Amazon.XRay.Recorder.Core.Strategies;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-#if !NET45
+#if !NETFRAMEWORK
 using Microsoft.AspNetCore.Http;
 #endif
 
@@ -28,7 +28,7 @@ namespace Amazon.XRay.Recorder.UnitTests
     [TestClass]
     public class SegmentNamingStrategyTests
     {
-#if NET45
+#if NETFRAMEWORK
         private HttpRequestMessage _request;
 #else
         private HttpRequest _request;
@@ -36,7 +36,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         [TestInitialize]
         public void TestInitialize()
         {
-#if NET45
+#if NETFRAMEWORK
             _request = new HttpRequestMessage();
 #else
             _request = new DefaultHttpContext().Request;

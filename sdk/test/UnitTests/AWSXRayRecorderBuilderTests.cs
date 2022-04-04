@@ -32,7 +32,7 @@ using Amazon.XRay.Recorder.Core.Exceptions;
 using Amazon.Runtime;
 
 
-#if !NET45
+#if !NETFRAMEWORK
 using Microsoft.Extensions.Configuration;
 #endif
 
@@ -44,7 +44,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         private const string PluginKey = "AWSXRayPlugins";
         private const string UseRuntimeErrors = "UseRuntimeErrors";
         private AWSXRayRecorder _recorder;
-#if !NET45
+#if !NETFRAMEWORK
         private XRayOptions _xRayOptions = new XRayOptions();
 #endif
         [TestInitialize]
@@ -57,7 +57,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         public new void TestCleanup()
         {
             base.TestCleanup();
-#if NET45
+#if NETFRAMEWORK
             ConfigurationManager.AppSettings[PluginKey] = null;
             ConfigurationManager.AppSettings[UseRuntimeErrors] = null;
             AppSettings.Reset();
@@ -91,7 +91,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         public void TestWithDefaultPlugins()
         {
 
-#if NET45
+#if NETFRAMEWORK
             ConfigurationManager.AppSettings[PluginKey] = "EC2Plugin";
             AppSettings.Reset();
             AWSXRayRecorderBuilder builder = new AWSXRayRecorderBuilder().WithPluginsFromAppSettings();
@@ -109,7 +109,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         [TestMethod]
         public void TestPluginSettingMissing()
         {
-#if NET45
+#if NETFRAMEWORK
             var builder = new AWSXRayRecorderBuilder().WithPluginsFromAppSettings();
 #else
             var builder = new AWSXRayRecorderBuilder().WithPluginsFromConfig(_xRayOptions);
@@ -120,7 +120,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         [TestMethod]
         public void TestInvalidPluginSetting()
         {
-#if NET45
+#if NETFRAMEWORK
             ConfigurationManager.AppSettings[PluginKey] = "UnknownPlugin, IPlugin";
             AppSettings.Reset();
             AWSXRayRecorderBuilder builder = new AWSXRayRecorderBuilder().WithPluginsFromAppSettings();
@@ -162,7 +162,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         [TestMethod]
         public void TestSetContextMissingUsingConfiguration1() // Contextmissing startegy set to log error from configuration
         {
-#if NET45
+#if NETFRAMEWORK
             ConfigurationManager.AppSettings[UseRuntimeErrors] = "false";
             AppSettings.Reset();
             AWSXRayRecorderBuilder builder = new AWSXRayRecorderBuilder().WithContextMissingStrategyFromAppSettings();
@@ -177,7 +177,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         [TestMethod]
         public void TestSetContextMissingUsingConfiguration2() // Contextmissing startegy not set
         {
-#if NET45
+#if NETFRAMEWORK
             AppSettings.Reset();
             AWSXRayRecorderBuilder builder = new AWSXRayRecorderBuilder().WithContextMissingStrategyFromAppSettings();
 #else
@@ -191,7 +191,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         public void TestSetContextMissingUsingConfiguration3() // Contextmissing startegy is set through environment and configurations
         {
             Environment.SetEnvironmentVariable(AWSXRayRecorder.EnvironmentVariableContextMissingStrategy, "LOG_ERROR");
-#if NET45
+#if NETFRAMEWORK
             ConfigurationManager.AppSettings[UseRuntimeErrors] = "true";
             AppSettings.Reset();
             AWSXRayRecorderBuilder builder = new AWSXRayRecorderBuilder().WithContextMissingStrategyFromAppSettings();

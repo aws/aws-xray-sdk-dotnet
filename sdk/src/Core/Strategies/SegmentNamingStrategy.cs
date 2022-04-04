@@ -18,7 +18,7 @@
 
 using System;
 
-#if NET45
+#if NETFRAMEWORK
 using System.Net.Http;
 #else
 using Microsoft.AspNetCore.Http;
@@ -45,7 +45,7 @@ namespace Amazon.XRay.Recorder.Core.Strategies
             return Environment.GetEnvironmentVariable(SegmentNamingStrategy.EnvironmentVariableSegmentName);
         }
 
-#if NET45
+#if NETFRAMEWORK
         /// <summary>
         /// Gets the name of the segment.
         /// </summary>
