@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net45;netstandard2.0;netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks>net462;net472;net48;netstandard2.0;netcoreapp3.1;net6.0</TargetFrameworks>
     <Company>Amazon.com, Inc</Company>
     <Product>Amazon Web Service X-Ray Recorder</Product>
     <Copyright>Copyright 2017-2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.</Copyright>
@@ -21,12 +21,8 @@
     <RepositoryUrl>https://github.com/aws/aws-xray-sdk-dotnet</RepositoryUrl>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <NoWarn>1701;1702;1705;1591;1587;1572;1573;3001</NoWarn>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <NoWarn>1701;1702;1705;1591;1587;1572;1573;3001</NoWarn>
+  <PropertyGroup>
+    <NoWarn>1591;1587;1572;1573</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -38,27 +34,31 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="AWSSDK.Core" Version="3.3.25.1" />
+    <PackageReference Include="AWSSDK.Core" Version="3.7.5.8" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-    <PackageReference Include="System.Net.Http" Version="4.3.4" />
-    <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="2.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="2.0.0" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' != 'net45'">
-    <Compile Remove="Internal\Context\CallContextContainer.net45.cs" />
-    <Compile Remove="Internal\Context\HybridContextContainer.net45.cs" />
-    <Compile Remove="Internal\Utils\AppSettings.net45.cs" />
+  <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
+	<PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="6.0"/>
+  </ItemGroup>
+
+  <ItemGroup Condition="!('$(TargetFramework)' == 'net462' or '$(TargetFramework)' == 'net472' or '$(TargetFramework)' == 'net48')">
+    <Compile Remove="Internal\Context\CallContextContainer.netframework.cs" />
+    <Compile Remove="Internal\Context\HybridContextContainer.netframework.cs" />
+    <Compile Remove="Internal\Utils\AppSettings.netframework.cs" />
     <Compile Remove="AWSXRayRecorder.cs" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'net462' or '$(TargetFramework)' == 'net472' or '$(TargetFramework)' == 'net48'">
     <Compile Remove="Internal\Context\AsyncLocalContextContainer.netstandard.cs" />
     <Compile Remove="Internal\Context\LambdaContextContainer.netstandard.cs" />
     <Compile Remove="Internal\Utils\AppSettings.netcore.cs" />
@@ -67,7 +67,7 @@
     <Compile Remove="FacadeSegment.cs" />
   </ItemGroup>
   
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net45'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'net462' or '$(TargetFramework)' == 'net472' or '$(TargetFramework)' == 'net48'">
     <Reference Include="System.Configuration" />
     <Reference Include="System.Web" />
     <Reference Include="System.Net.Http" />

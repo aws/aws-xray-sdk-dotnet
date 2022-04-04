@@ -18,7 +18,7 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                version: [net452, netcoreapp2.0, netcoreapp3.1]
+                version: [net462, net472, net48, netcoreapp3.1, net6.0]
 
         steps:
         - name: Checkout repository
@@ -26,11 +26,11 @@ jobs:
 
         - uses: actions/setup-dotnet@v1
           with:
-            dotnet-version: '2.0.x'
+            dotnet-version: '3.1.x'
 
         - uses: actions/setup-dotnet@v1
           with:
-            dotnet-version: '3.1.x'
+            dotnet-version: '6.0.x'
 
         - name: Install dependencies
           run: dotnet restore sdk/AWSXRayRecorder.sln

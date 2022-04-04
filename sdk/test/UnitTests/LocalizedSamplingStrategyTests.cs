@@ -34,14 +34,14 @@ namespace Amazon.XRay.Recorder.UnitTests
     public class LocalizedSamplingStrategyTests
     {
         private const string ManifestKey = "SamplingRuleManifest";
-#if !NET45
+#if !NETFRAMEWORK
         private XRayOptions _xRayOtions = new XRayOptions();
 #endif
 
         [TestCleanup]
         public void TestCleanup()
         {
-#if NET45
+#if NETFRAMEWORK
             ConfigurationManager.AppSettings[ManifestKey] = null;
             AppSettings.Reset();
 #else
@@ -115,7 +115,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         [TestMethod]
         public void TestLoadJsonConfiguration() // version 1
         {
-#if NET45
+#if NETFRAMEWORK
             ConfigurationManager.AppSettings[ManifestKey] = @"JSONs\DefaultSamplingRules.json";
             AppSettings.Reset();
             var strategy = new LocalizedSamplingStrategy(AppSettings.SamplingRuleManifest);
@@ -143,7 +143,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         [TestMethod]
         public void TestLoadJsonConfiguration1() // Version 2
         {
-#if NET45
+#if NETFRAMEWORK
             ConfigurationManager.AppSettings[ManifestKey] = @"JSONs\DefaultSamplingRules1.json";
             AppSettings.Reset();
             var strategy = new LocalizedSamplingStrategy(AppSettings.SamplingRuleManifest);
@@ -173,7 +173,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         [ExpectedException(typeof(InvalidSamplingConfigurationException))]
         public void TestLoadSamplingRulesWithoutDefaultRule()
         {
-#if NET45
+#if NETFRAMEWORK
             ConfigurationManager.AppSettings[ManifestKey] = @"JSONs\SamplingRulesWithoutDefault.json";
             AppSettings.Reset();
             var strategy = new LocalizedSamplingStrategy(AppSettings.SamplingRuleManifest);
@@ -187,7 +187,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         [ExpectedException(typeof(InvalidSamplingConfigurationException))]
         public void TestLoadSamplingRulesWithInvalidVersion1()
         {
-#if NET45
+#if NETFRAMEWORK
             ConfigurationManager.AppSettings[ManifestKey] = @"JSONs\SamplingRulesInvalidV1.json";
             AppSettings.Reset();
             var strategy = new LocalizedSamplingStrategy(AppSettings.SamplingRuleManifest);
@@ -201,7 +201,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         [ExpectedException(typeof(InvalidSamplingConfigurationException))]
         public void TestLoadSamplingRulesWithInvalidVersion2()
         {
-#if NET45
+#if NETFRAMEWORK
             ConfigurationManager.AppSettings[ManifestKey] = @"JSONs\SamplingRulesInvalidV2.json";
             AppSettings.Reset();
             var strategy = new LocalizedSamplingStrategy(AppSettings.SamplingRuleManifest);

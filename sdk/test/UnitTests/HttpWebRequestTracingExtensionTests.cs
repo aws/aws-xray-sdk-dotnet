@@ -41,7 +41,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         public void TestInitialize()
         {
             _recorder = new AWSXRayRecorder();
-#if NET45
+#if NETFRAMEWORK
             AWSXRayRecorder.InitializeInstance(_recorder);
 #else
             AWSXRayRecorder.InitializeInstance(recorder: _recorder);
@@ -59,7 +59,13 @@ namespace Amazon.XRay.Recorder.UnitTests
         [TestMethod]
         public void TestGetResponseTraced()
         {
+#if NET6_0
+#pragma warning disable SYSLIB0014 // Type or member is obsolete
             var request = (HttpWebRequest)WebRequest.Create(URL);
+#pragma warning restore SYSLIB0014 // Type or member is obsolete
+#else
+            var request = (HttpWebRequest)WebRequest.Create(URL);
+#endif
 
             AWSXRayRecorder.Instance.BeginSegment("parent", TraceId);
             using (request.GetResponseTraced())
@@ -87,15 +93,21 @@ namespace Amazon.XRay.Recorder.UnitTests
         public void TestXrayDisabledGetResponseTraced()
         {
             _recorder = new MockAWSXRayRecorder() { IsTracingDisabledValue = true };
-#if NET45
+#if NETFRAMEWORK
             AWSXRayRecorder.InitializeInstance(_recorder);
 #else
             AWSXRayRecorder.InitializeInstance(recorder: _recorder);
 # endif
             Assert.IsTrue(AWSXRayRecorder.Instance.IsTracingDisabled());
 
+#if NET6_0
+#pragma warning disable SYSLIB0014 // Type or member is obsolete
             var request = (HttpWebRequest)WebRequest.Create(URL);
-            
+#pragma warning restore SYSLIB0014 // Type or member is obsolete
+#else
+            var request = (HttpWebRequest)WebRequest.Create(URL);
+#endif
+
             using (var response = request.GetResponseTraced() as HttpWebResponse)
             {
                 Assert.IsNotNull(response);
@@ -106,7 +118,13 @@ namespace Amazon.XRay.Recorder.UnitTests
         [TestMethod]
         public async Task TestGetAsyncResponseTraced()
         {
+#if NET6_0
+#pragma warning disable SYSLIB0014 // Type or member is obsolete
             var request = (HttpWebRequest)WebRequest.Create(URL);
+#pragma warning restore SYSLIB0014 // Type or member is obsolete
+#else
+            var request = (HttpWebRequest)WebRequest.Create(URL);
+#endif
 
             AWSXRayRecorder.Instance.BeginSegment("parent", TraceId);
             using (await request.GetAsyncResponseTraced())
@@ -134,15 +152,21 @@ namespace Amazon.XRay.Recorder.UnitTests
         public async Task TestXrayDisabledGetAsyncResponseTraced()
         {
             _recorder = new MockAWSXRayRecorder() { IsTracingDisabledValue = true };
-#if NET45
+#if NETFRAMEWORK
             AWSXRayRecorder.InitializeInstance(_recorder);
 #else
             AWSXRayRecorder.InitializeInstance(recorder: _recorder);
 # endif
             Assert.IsTrue(AWSXRayRecorder.Instance.IsTracingDisabled());
 
+#if NET6_0
+#pragma warning disable SYSLIB0014 // Type or member is obsolete
             var request = (HttpWebRequest)WebRequest.Create(URL);
-            
+#pragma warning restore SYSLIB0014 // Type or member is obsolete
+#else
+            var request = (HttpWebRequest)WebRequest.Create(URL);
+#endif
+
             using (var response = await request.GetAsyncResponseTraced() as HttpWebResponse)
             {
                 Assert.IsNotNull(response);
@@ -150,11 +174,17 @@ namespace Amazon.XRay.Recorder.UnitTests
             }
         }
 
-#if !NET45
+#if !NETFRAMEWORK
         [TestMethod]
         public void TestExceptionGetResponseTraced()
         {
-            var request = (HttpWebRequest)WebRequest.Create(URL404);
+#if NET6_0
+#pragma warning disable SYSLIB0014 // Type or member is obsolete
+            var request = (HttpWebRequest)WebRequest.Create(URL);
+#pragma warning restore SYSLIB0014 // Type or member is obsolete
+#else
+            var request = (HttpWebRequest)WebRequest.Create(URL);
+#endif
 
             AWSXRayRecorder.Instance.BeginSegment("parent", TraceId);
             try
@@ -187,7 +217,13 @@ namespace Amazon.XRay.Recorder.UnitTests
         [TestMethod]
         public async Task TestExceptionGetAsyncResponseTraced()
         {
-            var request = (HttpWebRequest)WebRequest.Create(URL404);
+#if NET6_0
+#pragma warning disable SYSLIB0014 // Type or member is obsolete
+            var request = (HttpWebRequest)WebRequest.Create(URL);
+#pragma warning restore SYSLIB0014 // Type or member is obsolete
+#else
+            var request = (HttpWebRequest)WebRequest.Create(URL);
+#endif
 
             AWSXRayRecorder.Instance.BeginSegment("parent", TraceId);
             try
@@ -222,7 +258,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         public async Task TestContextMissingStrategyGetAsyncResponseTraced()
         {
             _recorder = new AWSXRayRecorder();
-#if NET45
+#if NETFRAMEWORK
             AWSXRayRecorder.InitializeInstance(_recorder);
 #else
             AWSXRayRecorder.InitializeInstance(recorder: _recorder);
@@ -236,7 +272,13 @@ namespace Amazon.XRay.Recorder.UnitTests
             // The test should not break. No segment is available in the context, however, since the context missing strategy is log error,
             // no exception should be thrown by below code.
 
+#if NET6_0
+#pragma warning disable SYSLIB0014 // Type or member is obsolete
             var request = (HttpWebRequest)WebRequest.Create(URL);
+#pragma warning restore SYSLIB0014 // Type or member is obsolete
+#else
+            var request = (HttpWebRequest)WebRequest.Create(URL);
+#endif
 
             using (var response = await request.GetAsyncResponseTraced() as HttpWebResponse)
             {

@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 using System.Runtime.CompilerServices;
 
 [assembly: ComVisible(false)]
-[assembly: CLSCompliant(true)]
+[assembly: CLSCompliant(false)]
 [assembly: InternalsVisibleTo("AWSXRayRecorder.UnitTests,PublicKey="+
 "0024000004800000940000000602000000240000525341310004000001000100712913451f6deb"
 + "158da1d2129b21119cca7d4eebeef5b310e8acd7f2d9506346071207652f1210a3bfa1545d6897"
