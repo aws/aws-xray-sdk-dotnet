@@ -56,7 +56,7 @@ namespace Amazon.XRay.Recorder.Handlers.AwsSdk.Internal
         public XRayPipelineHandler()
         {
             _recorder = AWSXRayRecorder.Instance;
-            AWSServiceHandlerManifest  = GetDefaultAWSWhitelist();
+            AWSServiceHandlerManifest = GetDefaultAWSWhitelist();
         }
 
         /// <summary>
@@ -342,9 +342,9 @@ namespace Amazon.XRay.Recorder.Handlers.AwsSdk.Internal
             {
                 subsegment = _recorder.GetEntity();
             }
-            catch(EntityNotAvailableException e)
+            catch (EntityNotAvailableException e)
             {
-                _recorder.TraceContext.HandleEntityMissing(_recorder,e,"Cannot get entity from the trace context while processing response of AWS SDK request.");
+                _recorder.TraceContext.HandleEntityMissing(_recorder, e, "Cannot get entity from the trace context while processing response of AWS SDK request.");
                 return;
             }
 
@@ -665,7 +665,7 @@ namespace Amazon.XRay.Recorder.Handlers.AwsSdk.Internal
             var serviceName = RemoveAmazonPrefixFromServiceName(requestContext.Request.ServiceName);
             var operation = RemoveSuffix(requestContext.OriginalRequest.GetType().Name, "Request");
 
-            return AWSXRaySDKUtils.IsBlacklistedOperation(serviceName,operation);
+            return AWSXRaySDKUtils.IsBlacklistedOperation(serviceName, operation);
         }
 
         private bool IsTracingDisabled()
@@ -719,13 +719,13 @@ namespace Amazon.XRay.Recorder.Handlers.AwsSdk.Internal
     /// Pipeline Customizer for registering <see cref="AmazonServiceClient"/> instances with AWS X-Ray.
     /// Note: This class should not be instantiated or used in anyway. It is used internally within SDK.
     /// </summary>
-    public class XRayPipelineCustomizer : IRuntimePipelineCustomizer
+    internal class XRayPipelineCustomizer : IRuntimePipelineCustomizer
     {
         public string UniqueName { get { return "X-Ray Registration Customization"; } }
         private Boolean registerAll;
         private List<Type> types = new List<Type>();
         private ReaderWriterLockSlim rwLock = new ReaderWriterLockSlim();
-   
+
         public bool RegisterAll { get => registerAll; set => registerAll = value; }
         public string Path { get; set; } // TODO :: This is not used anymore, remove in next breaking change
         public XRayPipelineHandler XRayPipelineHandler { get; set; } = null; // TODO :: This is not used anymore, remove in next breaking change
@@ -779,14 +779,14 @@ namespace Amazon.XRay.Recorder.Handlers.AwsSdk.Internal
         /// <summary>
         /// Adds type to the list of <see cref="Type" />.
         /// </summary>
-        /// <param name="type"> Type of <see cref="Runtime.AmazonServiceClient"/> to be registered with X-Ray.</param>
-        public void AddType(Type type)
+        /// <typeparam name="T">Type of <see cref="IAmazonService"/> to be registered with X-Ray.</typeparam>
+        public void AddType<T>() where T : IAmazonService
         {
             rwLock.EnterWriteLock();
 
             try
             {
-                types.Add(type);
+                types.Add(typeof(T));
             }
             finally
             {

@@ -14,6 +14,7 @@
 //      permissions and limitations under the License.
 // </copyright>
 //-----------------------------------------------------------------------------
+using Amazon.Runtime;
 using Amazon.Runtime.Internal;
 using Amazon.XRay.Recorder.Handlers.AwsSdk.Internal;
 using System;
@@ -51,10 +52,10 @@ namespace Amazon.XRay.Recorder.Handlers.AwsSdk
         /// <summary>
         /// Registers X-Ray for the given type of <see cref="Runtime.AmazonServiceClient"/>.
         /// </summary>
-        public static void RegisterXRay<T>()
+        public static void RegisterXRay<T>() where T : IAmazonService
         {
             _customizer = GetCustomizer();
-            _customizer.AddType(typeof(T));
+            _customizer.AddType<T>();
         }
 
         /// <summary>
