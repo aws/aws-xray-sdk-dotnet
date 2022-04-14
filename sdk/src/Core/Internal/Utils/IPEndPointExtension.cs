@@ -143,7 +143,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
         /// Tries to parse a string to <see cref="EndPoint"/>
         /// </summary>
         /// <param name="input">The input string.</param>
-        /// <param name="hostEndpoint">The parsed EndPoint</param>
+        /// <param name="endpoint">The parsed EndPoint</param>
         /// <returns>true if <paramref name="input"/> converted successfully; otherwise, false.</returns>
         public static bool TryParse(string input, out EndPoint endpoint)
         {

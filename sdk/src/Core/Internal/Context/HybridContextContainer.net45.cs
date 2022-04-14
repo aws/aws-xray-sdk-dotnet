@@ -119,7 +119,6 @@ namespace Amazon.XRay.Recorder.Core.Internal.Context
         /// <summary>
         /// Gets segment from <see cref="HttpContext"/> if available, else null.
         /// </summary>
-        /// <param name="context"></param>
         /// <returns>Entity from context.Items[XRayEntity </returns>
         private Entity GetEntityFromHTTPContext()
         {

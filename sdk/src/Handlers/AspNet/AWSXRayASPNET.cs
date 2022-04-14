@@ -120,7 +120,7 @@ namespace Amazon.XRay.Recorder.Handlers.AspNet
         /// A segment is created at the beginning of the request and closed at the end of the request.
         /// </summary>
         /// <param name="httpApplication">Instance of  <see cref="HttpApplication"/> class.</param>
-        /// <param name="fixedName">Name to be used for all generated segments.</param>
+        /// <param name="segmentName">Name to be used for all generated segments.</param>
         public static void RegisterXRay(HttpApplication httpApplication, string segmentName)
         {
             InitializeASPNET(segmentName);
@@ -135,6 +135,7 @@ namespace Amazon.XRay.Recorder.Handlers.AspNet
         /// </summary>
         /// <param name="httpApplication">Instance of  <see cref="HttpApplication"/> class.</param>
         /// <param name="segmentNamingStrategy">Instance of  <see cref="SegmentNamingStrategy"/> class. Defines segment naming strategy.</param>
+        [CLSCompliant(false)]
         public static void RegisterXRay(HttpApplication httpApplication, SegmentNamingStrategy segmentNamingStrategy)
         {
             InitializeASPNET(segmentNamingStrategy);

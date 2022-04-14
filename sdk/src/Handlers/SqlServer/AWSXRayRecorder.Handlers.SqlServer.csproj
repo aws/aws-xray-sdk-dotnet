@@ -21,12 +21,8 @@
     <RepositoryUrl>https://github.com/aws/aws-xray-sdk-dotnet</RepositoryUrl>
   </PropertyGroup>
   
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <NoWarn>1701;1702;1705;1591;1587;1572;1573</NoWarn>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <NoWarn>1701;1702;1705;1591;1587;1572;1573</NoWarn>
+  <PropertyGroup>
+    <NoWarn>1591</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -44,7 +40,5 @@
       <Version>4.4.0</Version>
     </PackageReference>
   </ItemGroup>
-
-
 
 </Project>

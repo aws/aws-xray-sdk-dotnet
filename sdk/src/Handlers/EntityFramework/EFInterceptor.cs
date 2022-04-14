@@ -22,10 +22,17 @@ using System.Threading.Tasks;
 
 namespace Amazon.XRay.Recorder.Handlers.EntityFramework
 {
+
+    /// <summary>
+    /// Intercepts DbCommands and records them in new Subsegments.
+    /// </summary>
     public class EFInterceptor : DbCommandInterceptor
     {
         private readonly bool? _collectSqlQueriesOverride;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EFInterceptor" /> class.
+        /// </summary>
         public EFInterceptor(bool? collectSqlQueries = null) : base()
         {
             _collectSqlQueriesOverride = collectSqlQueries;

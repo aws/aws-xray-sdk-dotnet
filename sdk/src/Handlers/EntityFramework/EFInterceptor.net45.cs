@@ -28,6 +28,10 @@ namespace Amazon.XRay.Recorder.Handlers.EntityFramework
     {
         private readonly bool? _collectSqlQueriesOverride;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EFInterceptor" /> class.
+        /// </summary>
+        /// <param name="collectSqlQueries"></param>
         public EFInterceptor(bool? collectSqlQueries = null) : base()
         {
             _collectSqlQueriesOverride = collectSqlQueries;

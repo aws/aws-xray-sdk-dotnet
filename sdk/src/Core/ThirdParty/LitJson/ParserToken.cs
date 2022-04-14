@@ -1,3 +1,5 @@
+#pragma warning disable CS1587 // XML comment is not placed on a valid language element.
+
 #region Header
 /**
  * ParserToken.cs

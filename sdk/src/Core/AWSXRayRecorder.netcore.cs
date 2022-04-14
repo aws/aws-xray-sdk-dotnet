@@ -63,6 +63,7 @@ namespace Amazon.XRay.Recorder.Core
         /// with given instance of <see cref="IConfiguration" />.
         /// </summary>
         /// <param name="configuration">Instance of <see cref="IConfiguration"/>.</param>
+        [CLSCompliant(false)]
         public static void InitializeInstance(IConfiguration configuration)
         {
             XRayOptions xRayOptions = XRayConfiguration.GetXRayOptions(configuration);
@@ -78,6 +79,7 @@ namespace Amazon.XRay.Recorder.Core
         /// </summary>
         /// <param name="configuration">Instance of <see cref="IConfiguration"/>.</param>
         /// <param name="recorder">Instance of <see cref="AWSXRayRecorder"/>.</param>
+        [CLSCompliant(false)]
         public static void InitializeInstance(IConfiguration configuration = null, AWSXRayRecorder recorder = null)
         {
             XRayOptions xRayOptions = XRayConfiguration.GetXRayOptions(configuration);

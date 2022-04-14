@@ -39,7 +39,7 @@ namespace Amazon.XRay.Recorder.Handlers.System.Net.Utils
         /// <summary>
         /// Collects information from the response and adds to <see cref="AWSXRayRecorder"/> instance.
         /// </summary>
-        /// <param name="request">An instance of <see cref="HttpWebResponse"/></param>
+        /// <param name="response">An instance of <see cref="HttpWebResponse"/></param>
         internal static void ProcessResponse(HttpWebResponse response)
         {
             ProcessResponse(response.StatusCode, response.ContentLength);
@@ -48,7 +48,7 @@ namespace Amazon.XRay.Recorder.Handlers.System.Net.Utils
         /// <summary>
         /// Collects information from the response and adds to <see cref="AWSXRayRecorder"/> instance.
         /// </summary>
-        /// <param name="request">An instance of <see cref="HttpResponseMessage"/></param>
+        /// <param name="response">An instance of <see cref="HttpResponseMessage"/></param>
         internal static void ProcessResponse(HttpResponseMessage response)
         {
             ProcessResponse(response.StatusCode, response.Content.Headers.ContentLength);

@@ -28,7 +28,7 @@ namespace Amazon.XRay.Recorder.Core.Strategies
         /// <summary>
         /// Determines whenther or not the provided segment/subsegment requires any subsegment streaming.
         /// </summary>
-        /// <param name="input">An instance of <see cref="Entity"/>.</param>
+        /// <param name="entity">An instance of <see cref="Entity"/>.</param>
         /// <returns>true if the segment/subsegment should be streamed.</returns>
         bool ShouldStream(Entity entity);
 
