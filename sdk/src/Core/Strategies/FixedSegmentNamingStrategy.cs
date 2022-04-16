@@ -44,7 +44,7 @@ namespace Amazon.XRay.Recorder.Core.Strategies
         {
             if (string.IsNullOrEmpty(fixedName))
             {
-                throw new ArgumentException("FixedName cannot be null or empty.", "fixedName");
+                throw new ArgumentException("FixedName cannot be null or empty.", nameof(fixedName));
             }
 
             this.FixedName = fixedName;

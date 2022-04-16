@@ -287,7 +287,7 @@ namespace Amazon.XRay.Recorder.Core
         {
             if (string.IsNullOrEmpty(value))
             {
-                throw new ArgumentException("Value cannot be null or empty.", "value");
+                throw new ArgumentException("Value cannot be null or empty.", nameof(value));
             }
 
             if (IsTracingDisabled())
@@ -411,12 +411,12 @@ namespace Amazon.XRay.Recorder.Core
 
             if (string.IsNullOrEmpty(key))
             {
-                throw new ArgumentException("Key cannot be null or empty", "key");
+                throw new ArgumentException("Key cannot be null or empty", nameof(key));
             }
 
             if (value == null)
             {
-                throw new ArgumentNullException("value");
+                throw new ArgumentNullException(nameof(value));
             }
 
             try
@@ -569,12 +569,12 @@ namespace Amazon.XRay.Recorder.Core
 
             if (string.IsNullOrEmpty(key))
             {
-                throw new ArgumentException("Key cannot be null or empty", "key");
+                throw new ArgumentException("Key cannot be null or empty", nameof(key));
             }
 
             if (string.IsNullOrEmpty(value))
             {
-                throw new ArgumentException("Value cannot be null or empty", "value");
+                throw new ArgumentException("Value cannot be null or empty", nameof(value));
             }
 
             try

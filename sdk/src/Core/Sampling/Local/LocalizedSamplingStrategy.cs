@@ -82,7 +82,7 @@ namespace Amazon.XRay.Recorder.Core.Sampling.Local
             {
                 if (value == null)
                 {
-                    throw new ArgumentNullException("value");
+                    throw new ArgumentNullException(nameof(value));
                 }
 
                 if (value.Host != null || value.HttpMethod != null || value.UrlPath != null ||

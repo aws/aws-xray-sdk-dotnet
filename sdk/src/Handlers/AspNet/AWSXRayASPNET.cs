@@ -104,7 +104,7 @@ namespace Amazon.XRay.Recorder.Handlers.AspNet
         {
             if (segmentNamingStrategy == null)
             {
-                throw new ArgumentNullException("segmentNamingStrategy");
+                throw new ArgumentNullException(nameof(segmentNamingStrategy));
             }
 
             if (GetSegmentNamingStrategy() == null) // ensures only one time initialization among many HTTPApplication instances

@@ -76,7 +76,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Entities
             {
                 if (!Entities.TraceId.IsIdValid(value))
                 {
-                    throw new ArgumentException("Trace id is invalid.", "value");
+                    throw new ArgumentException("Trace id is invalid.", nameof(value));
                 }
 
                 _traceId = value;
@@ -101,7 +101,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Entities
             {
                 if (value!=null && !IsIdValid(value))
                 {
-                    throw new ArgumentException("The id is invalid.", "value");
+                    throw new ArgumentException("The id is invalid.", nameof(value));
                 }
 
                 _id = value;
@@ -136,7 +136,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Entities
             {
                 if (value == null)
                 {
-                    throw new ArgumentNullException("value");
+                    throw new ArgumentNullException(nameof(value));
                 }
 
                 _name = value;
@@ -183,7 +183,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Entities
             {
                 if (!IsIdValid(value))
                 {
-                    throw new ArgumentException("The parent id is invalid.", "value");
+                    throw new ArgumentException("The parent id is invalid.", nameof(value));
                 }
 
                 _parentId = value;
@@ -447,12 +447,12 @@ namespace Amazon.XRay.Recorder.Core.Internal.Entities
         {
             if (string.IsNullOrEmpty(key))
             {
-                throw new ArgumentException("Key cannot be null or empty", "key");
+                throw new ArgumentException("Key cannot be null or empty", nameof(key));
             }
 
             if (value == null)
             {
-                throw new ArgumentNullException("value");
+                throw new ArgumentNullException(nameof(value));
             }
 
             if (value is int)
