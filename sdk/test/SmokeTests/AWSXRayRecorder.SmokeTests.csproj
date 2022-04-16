@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net452;netcoreapp2.0;netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks>net452;net462;netcoreapp2.0;netcoreapp3.1</TargetFrameworks>
     <Company>Amazon.com, Inc</Company>
     <Product>Amazon Web Service X-Ray Recorder</Product>
     <Copyright>Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.</Copyright>
@@ -9,10 +9,6 @@
     <FileVersion>1.0.0.0</FileVersion>
     <RootNamespace>Amazon.XRay.Recorder.SmokeTests</RootNamespace>
     <DelaySign>true</DelaySign>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(TargetFramework)'=='net452'">
-    <DefineConstants>NET45</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>

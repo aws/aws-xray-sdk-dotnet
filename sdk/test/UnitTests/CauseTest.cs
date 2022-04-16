@@ -31,11 +31,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         public void TestInitialize()
         {
             _recorder = new AWSXRayRecorder();
-#if NET45
-            AWSXRayRecorder.InitializeInstance(_recorder);
-#else
             AWSXRayRecorder.InitializeInstance(recorder: _recorder);
-# endif
         }
 
         [TestCleanup]

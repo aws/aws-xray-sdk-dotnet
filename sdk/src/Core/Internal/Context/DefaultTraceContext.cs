@@ -25,7 +25,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Context
         /// <returns>default instance of <see cref="ITraceContext"/></returns>
         public static ITraceContext GetTraceContext()
         {
-#if NET45
+#if NETFRAMEWORK
             return new CallContextContainer();
 #else
             if (AWSXRayRecorder.IsLambda())

@@ -44,7 +44,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         private AWSXRayRecorder _recorder;
 
         private static String _path = $"JSONs{Path.DirectorySeparatorChar}AWSRequestInfo.json";
-#if !NET45
+#if !NETFRAMEWORK
         private XRayOptions _xRayOptions = new XRayOptions();
 #endif
 
@@ -52,18 +52,14 @@ namespace Amazon.XRay.Recorder.UnitTests
         public void TestInitialize()
         {
             _recorder = new AWSXRayRecorder();
-#if NET45
-            AWSXRayRecorder.InitializeInstance(recorder:_recorder);
-#else
             AWSXRayRecorder.InitializeInstance(recorder: _recorder);
-# endif
         }
 
         [TestCleanup]
         public new void TestCleanup()
         {
             base.TestCleanup();
-#if NET45
+#if NETFRAMEWORK
             ConfigurationManager.AppSettings[ManifestKey] = null;
             AppSettings.Reset();
 #else
@@ -76,7 +72,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         }
 
         [TestMethod]
-        public void TestContextMissingStrategyForAWSSDKHandler()
+        public async Task TestContextMissingStrategyForAWSSDKHandler()
         {
             AWSXRayRecorder.Instance.ContextMissingStrategy = Core.Strategies.ContextMissingStrategy.LOG_ERROR;
             AWSSDKHandler.RegisterXRayForAllServices();
@@ -89,27 +85,22 @@ namespace Amazon.XRay.Recorder.UnitTests
             AWSXRayRecorder.Instance.EndSegment();
             // The test should not break. No segment is available in the context, however, since the context missing strategy is log error,
             // no exception should be thrown by below code.
-#if NET45
-            dynamo.ListTables();
-#else
-            dynamo.ListTablesAsync().Wait();
-#endif
+            await dynamo.ListTablesAsync();
+
             Assert.IsNotNull(segment);
         }
 
         [TestMethod]
-        public void TestS3SubsegmentNameIsCorrectForAWSSDKHandler()
+        public async Task TestS3SubsegmentNameIsCorrectForAWSSDKHandler()
         {
             AWSSDKHandler.RegisterXRay<IAmazonS3>();
             var s3 = new AmazonS3Client(new AnonymousAWSCredentials(), RegionEndpoint.USEast1);
             CustomResponses.SetResponse(s3, null, "TestAmazonId");
 
             _recorder.BeginSegment("test s3", TraceId);
-#if NET45
-            s3.GetObject("testBucket", "testKey");
-#else
-            s3.GetObjectAsync("testBucket", "testKey").Wait();
-#endif
+
+            await s3.GetObjectAsync("testBucket", "testKey");
+
             var segment = _recorder.TraceContext.GetEntity();
             _recorder.EndSegment();
             Assert.AreEqual("S3", segment.Subsegments[0].Name);
@@ -120,7 +111,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         }
 
         [TestMethod]
-        public void TestDynamoDbClient()
+        public async Task TestDynamoDbClient()
         {
             AWSSDKHandler.RegisterXRayForAllServices(_path);
             // IAmazonDynamoDb will be registered. All new instances of AmazonServiceClient will be automatically registered.
@@ -131,11 +122,9 @@ namespace Amazon.XRay.Recorder.UnitTests
                 CustomResponses.SetResponse(client, requestId);
 
                 _recorder.BeginSegment("test", TraceId);
-#if NET45
-                client.ListTables();
-#else
-                client.ListTablesAsync().Wait();
-#endif
+
+                await client.ListTablesAsync();
+
                 var segment = AWSXRayRecorder.Instance.TraceContext.GetEntity();
                 var subsegment = segment.Subsegments[0];
                 _recorder.EndSegment();
@@ -182,7 +171,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         }
 
         [TestMethod]
-        public void TestRequestResponseParameterAndDescriptorForAWSSDKHandler()
+        public async Task TestRequestResponseParameterAndDescriptorForAWSSDKHandler()
         {
             using (var client = new AmazonDynamoDBClient(new AnonymousAWSCredentials(), RegionEndpoint.USEast1))
             {
@@ -194,11 +183,8 @@ namespace Amazon.XRay.Recorder.UnitTests
                 var key2 = new Dictionary<string, AttributeValue>() { { "id", new AttributeValue("2") } };
                 var keys = new KeysAndAttributes() { Keys = new List<Dictionary<string, AttributeValue>>() { key1, key2 } };
 
-#if NET45
-                client.BatchGetItem(new Dictionary<string, KeysAndAttributes>() { { "test", keys } });
-#else
-                client.BatchGetItemAsync(new Dictionary<string, KeysAndAttributes>() { { "test", keys } }).Wait();
-#endif
+                await client.BatchGetItemAsync(new Dictionary<string, KeysAndAttributes>() { { "test", keys } });
+
                 _recorder.EndSegment();
                 Assert.IsTrue(segment.Subsegments[0].Aws.ContainsKey("request_items"));
                 Assert.IsTrue(segment.Subsegments[0].Aws.ContainsKey("responses"));
@@ -254,16 +240,14 @@ namespace Amazon.XRay.Recorder.UnitTests
         }
 
         [TestMethod]
-        public void TestDynamoSubsegmentNameIsCorrectForAWSSDKHandler()
+        public async Task TestDynamoSubsegmentNameIsCorrectForAWSSDKHandler()
         {
             var dynamo = new AmazonDynamoDBClient(new AnonymousAWSCredentials(), RegionEndpoint.USEast1);
             CustomResponses.SetResponse(dynamo);
             _recorder.BeginSegment("test dynamo", TraceId);
-#if NET45
-            dynamo.ListTables();
-#else
-            dynamo.ListTablesAsync().Wait();
-#endif
+
+            await dynamo.ListTablesAsync();
+
             var segment = AWSXRayRecorder.Instance.TraceContext.GetEntity();
             _recorder.EndSegment();
 
@@ -271,46 +255,36 @@ namespace Amazon.XRay.Recorder.UnitTests
         }
 
         [TestMethod]
-        public void TestManifestFileNoLambda() //At this point, current manifest file doen't contain Lambda service.
+        public async Task TestManifestFileNoLambda() //At this point, current manifest file doen't contain Lambda service.
         {
             var lambda = new AmazonLambdaClient(new AnonymousAWSCredentials(), RegionEndpoint.USEast1);
             CustomResponses.SetResponse(lambda);
             _recorder.BeginSegment("lambda", TraceId);
-#if NET45
-            lambda.Invoke(new InvokeRequest
+
+            await lambda.InvokeAsync(new InvokeRequest
             {
                 FunctionName = "testFunction"
             });
-#else
-            lambda.InvokeAsync(new InvokeRequest
-            {
-                FunctionName = "testFunction"
-            }).Wait();
-#endif
+
             var segment = AWSXRayRecorder.Instance.TraceContext.GetEntity();
             _recorder.EndSegment();
             Assert.IsFalse(segment.Subsegments[0].Aws.ContainsKey("function_name"));
         }
 
         [TestMethod]
-        public void TestLambdaInvokeSubsegmentContainsFunctionNameForAWSSDKHandler()
+        public async Task TestLambdaInvokeSubsegmentContainsFunctionNameForAWSSDKHandler()
         {
             String temp_path = $"JSONs{Path.DirectorySeparatorChar}AWSRequestInfoWithLambda.json"; //registering manifest file with Lambda
             AWSSDKHandler.RegisterXRayManifest(temp_path);
             var lambda = new AmazonLambdaClient(new AnonymousAWSCredentials(), RegionEndpoint.USEast1);
             CustomResponses.SetResponse(lambda);
             _recorder.BeginSegment("lambda", TraceId);
-#if NET45
-            lambda.Invoke(new InvokeRequest
+
+            await lambda.InvokeAsync(new InvokeRequest
             {
                 FunctionName = "testFunction"
             });
-#else
-            lambda.InvokeAsync(new InvokeRequest
-            {
-                FunctionName = "testFunction"
-            }).Wait();
-#endif
+
             var segment = AWSXRayRecorder.Instance.TraceContext.GetEntity();
             _recorder.EndSegment();
 
@@ -319,7 +293,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         }
 
         [TestMethod]
-        public void TestRegisterXRayManifestWithStreamLambdaForAWSSDKHandler()
+        public async Task TestRegisterXRayManifestWithStreamLambdaForAWSSDKHandler()
         {
             String temp_path = $"JSONs{Path.DirectorySeparatorChar}AWSRequestInfoWithLambda.json"; //registering manifest file with Lambda
             using (Stream stream = new FileStream(temp_path, FileMode.Open, FileAccess.Read))
@@ -329,17 +303,12 @@ namespace Amazon.XRay.Recorder.UnitTests
             var lambda = new AmazonLambdaClient(new AnonymousAWSCredentials(), RegionEndpoint.USEast1);
             CustomResponses.SetResponse(lambda);
             _recorder.BeginSegment("lambda", TraceId);
-#if NET45
-            lambda.Invoke(new InvokeRequest
+
+            await lambda.InvokeAsync(new InvokeRequest
             {
                 FunctionName = "testFunction"
             });
-#else
-            lambda.InvokeAsync(new InvokeRequest
-            {
-                FunctionName = "testFunction"
-            }).Wait();
-#endif
+
             var segment = AWSXRayRecorder.Instance.TraceContext.GetEntity();
             _recorder.EndSegment();
 

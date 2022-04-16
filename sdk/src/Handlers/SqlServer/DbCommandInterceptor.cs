@@ -150,7 +150,7 @@ namespace Amazon.XRay.Recorder.Handlers.SqlServer
         private static string BuildSubsegmentName(DbCommand command) 
             => command.Connection.Database + "@" + SqlUtil.RemovePortNumberFromDataSource(command.Connection.DataSource);
 
-#if !NET45
+#if !NETFRAMEWORK
         private bool ShouldCollectSqlText() 
             => _collectSqlQueriesOverride ?? _recorder.XRayOptions.CollectSqlQueries;
 #else

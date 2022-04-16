@@ -18,7 +18,7 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                version: [net452, netcoreapp2.0, netcoreapp3.1]
+                version: [net452, net462, netcoreapp2.0, netcoreapp3.1]
 
         steps:
         - name: Checkout repository

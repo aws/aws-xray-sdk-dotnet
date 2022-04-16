@@ -43,7 +43,7 @@ namespace Amazon.XRay.Recorder.UnitTests
     {
         private const string DisableXRayTracingKey = "DisableXRayTracing";
         private AWSXRayRecorder _recorder;
-#if !NET45
+#if !NETFRAMEWORK
         private XRayOptions _xRayOptions = new XRayOptions();
 #endif
 
@@ -57,7 +57,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         public new void TestCleanup()
         {
             base.TestCleanup();
-#if NET45
+#if NETFRAMEWORK
 
             ConfigurationManager.AppSettings[DisableXRayTracingKey] = string.Empty;
             AppSettings.Reset();
@@ -722,7 +722,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         [TestMethod]
         public void TestDisableXRayTracingAndNoSegmentSent()
         {
-#if NET45
+#if NETFRAMEWORK
             ConfigurationManager.AppSettings[DisableXRayTracingKey] = "true";
             AppSettings.Reset();
 #else
@@ -730,12 +730,12 @@ namespace Amazon.XRay.Recorder.UnitTests
 #endif
 
             Mock<ISegmentEmitter> mockSegmentEmitter = new Mock<ISegmentEmitter>();
-#if NET45
+#if NETFRAMEWORK
             AppSettings.Reset();
 #endif
             using (var recorder = AWSXRayRecorderFactory.CreateAWSXRayRecorder(mockSegmentEmitter.Object))
             {
-#if !NET45
+#if !NETFRAMEWORK
                 recorder.XRayOptions = _xRayOptions;
 #endif
                 recorder.BeginSegment("test", TraceId);
@@ -775,7 +775,7 @@ namespace Amazon.XRay.Recorder.UnitTests
                     .ProductVersion;
 
             Assert.AreEqual(versionText, xray["sdk_version"]);
-#if NET45
+#if NETFRAMEWORK
             Assert.AreEqual("X-Ray for .NET", xray["sdk"]);
 #else
             Assert.AreEqual("X-Ray for .NET Core", xray["sdk"]);
@@ -788,7 +788,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             _recorder.BeginSegment("test", TraceId);
             var segment = (Segment)AWSXRayRecorder.Instance.TraceContext.GetEntity();
             _recorder.EndSegment();
-#if NET45
+#if NETFRAMEWORK
             Assert.AreEqual(".NET Framework", segment.Service["runtime"]);
 #else
             Assert.AreEqual(".NET Core Framework", segment.Service["runtime"]);
@@ -941,7 +941,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         public void TestDefaultTraceContext()
         {
             var recorder = AWSXRayRecorder.Instance;
-#if NET45
+#if NETFRAMEWORK
             Assert.AreEqual(typeof(CallContextContainer).FullName, recorder.TraceContext.GetType().FullName);
 #else
             Assert.AreEqual(typeof(AsyncLocalContextContainer).FullName, recorder.TraceContext.GetType().FullName);
@@ -952,11 +952,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         public void TestInitializeInstanceWithRecorder1()
         {
             AWSXRayRecorder recorder = BuildAWSXRayRecorder(new TestSamplingStrategy());
-#if NET45
-            AWSXRayRecorder.InitializeInstance(recorder);
-#else
             AWSXRayRecorder.InitializeInstance(recorder: recorder);
-#endif
             Assert.AreEqual(AWSXRayRecorder.Instance.SamplingStrategy, recorder.SamplingStrategy); // Custom recorder set in AWSXRayRecorder.Instance.TraceContext
             Assert.AreEqual(typeof(TestSamplingStrategy), recorder.SamplingStrategy.GetType()); // custom strategy set
             Assert.AreEqual(typeof(UdpSegmentEmitter), recorder.Emitter.GetType()); // Default emitter set
@@ -970,11 +966,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             IPEndPoint expectedUDPEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.2"), 2001);
             IPEndPoint expectedTCPEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 2000);
             AWSXRayRecorder recorder = BuildAWSXRayRecorder(new TestSamplingStrategy(), daemonAddress: daemonAddress);
-#if NET45
-            AWSXRayRecorder.InitializeInstance(recorder);
-#else
             AWSXRayRecorder.InitializeInstance(recorder: recorder);
-#endif
             Assert.AreEqual(AWSXRayRecorder.Instance.SamplingStrategy, recorder.SamplingStrategy);
             Assert.AreEqual(typeof(TestSamplingStrategy), recorder.SamplingStrategy.GetType()); // custom strategy set
             Assert.AreEqual(typeof(UdpSegmentEmitter), recorder.Emitter.GetType()); // Default emitter set
@@ -991,11 +983,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             IPEndPoint expectedUDPEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.2"), 2001);
             IPEndPoint expectedTCPEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 2000);
             AWSXRayRecorder recorder = BuildAWSXRayRecorder(daemonAddress: daemonAddress);
-#if NET45
-            AWSXRayRecorder.InitializeInstance(recorder);
-#else
             AWSXRayRecorder.InitializeInstance(recorder: recorder);
-#endif
             Assert.AreEqual(AWSXRayRecorder.Instance.SamplingStrategy, recorder.SamplingStrategy);
             Assert.AreEqual(typeof(DefaultSamplingStrategy), recorder.SamplingStrategy.GetType()); // Default startegy set
             Assert.AreEqual(typeof(UdpSegmentEmitter), recorder.Emitter.GetType()); // Default emitter set
@@ -1014,11 +1002,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         public void TestInitializeInstanceWithRecorde4() // Set custom trace context
         {
             AWSXRayRecorder recorder = BuildAWSXRayRecorder(traceContext:new DummyTraceContext());
-#if NET45
-            AWSXRayRecorder.InitializeInstance(recorder);
-#else
             AWSXRayRecorder.InitializeInstance(recorder: recorder);
-#endif
             Assert.AreEqual(typeof(DummyTraceContext), AWSXRayRecorder.Instance.TraceContext.GetType()); // Custom trace context
             recorder.Dispose();
             AWSXRayRecorder.Instance.Dispose();

@@ -41,11 +41,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         public void TestInitialize()
         {
             _recorder = new AWSXRayRecorder();
-#if NET45
-            AWSXRayRecorder.InitializeInstance(_recorder);
-#else
             AWSXRayRecorder.InitializeInstance(recorder: _recorder);
-# endif
         }
 
         [TestCleanup]
@@ -87,11 +83,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         public void TestXrayDisabledGetResponseTraced()
         {
             _recorder = new MockAWSXRayRecorder() { IsTracingDisabledValue = true };
-#if NET45
-            AWSXRayRecorder.InitializeInstance(_recorder);
-#else
             AWSXRayRecorder.InitializeInstance(recorder: _recorder);
-# endif
             Assert.IsTrue(AWSXRayRecorder.Instance.IsTracingDisabled());
 
             var request = (HttpWebRequest)WebRequest.Create(URL);
@@ -134,11 +126,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         public async Task TestXrayDisabledGetAsyncResponseTraced()
         {
             _recorder = new MockAWSXRayRecorder() { IsTracingDisabledValue = true };
-#if NET45
-            AWSXRayRecorder.InitializeInstance(_recorder);
-#else
             AWSXRayRecorder.InitializeInstance(recorder: _recorder);
-# endif
             Assert.IsTrue(AWSXRayRecorder.Instance.IsTracingDisabled());
 
             var request = (HttpWebRequest)WebRequest.Create(URL);
@@ -150,7 +138,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             }
         }
 
-#if !NET45
+#if !NETFRAMEWORK
         [TestMethod]
         public void TestExceptionGetResponseTraced()
         {
@@ -222,11 +210,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         public async Task TestContextMissingStrategyGetAsyncResponseTraced()
         {
             _recorder = new AWSXRayRecorder();
-#if NET45
-            AWSXRayRecorder.InitializeInstance(_recorder);
-#else
             AWSXRayRecorder.InitializeInstance(recorder: _recorder);
-# endif
             Assert.IsFalse(AWSXRayRecorder.Instance.IsTracingDisabled());
 
             AWSXRayRecorder.Instance.ContextMissingStrategy = Core.Strategies.ContextMissingStrategy.LOG_ERROR;

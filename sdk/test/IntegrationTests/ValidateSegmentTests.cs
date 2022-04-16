@@ -17,9 +17,9 @@
 
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using Amazon.XRay.Recorder.Core;
 using Amazon.XRay.Recorder.Core.Internal.Entities;
-using Amazon.XRay.Recorder.Core.Internal.Utils;
 using Amazon.XRay.Recorder.Core.Plugins;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -43,18 +43,16 @@ namespace Amazon.XRay.Recorder.IntegrationTests
         }
 
         [TestMethod]
-        public void TestMinimalSegment()
+        public async Task TestMinimalSegment()
         {
             var traceId = TraceId.NewId();
             Recorder.BeginSegment(GetType().Name, traceId);
             var segment = AWSXRayRecorder.Instance.TraceContext.GetEntity();
             Thread.Sleep(100);
             Recorder.EndSegment();
-#if NET45
-            var response = BatchGetTraces(traceId);
-#else
-            var response = TestBase.BatchGetTracesAsync(traceId).Result;
-#endif
+
+            var response = await BatchGetTracesAsync(traceId);
+
             Assert.IsTrue(response.Traces.Count > 0);
 
             var segmentJsonData = JsonMapper.ToObject(response.Traces[0].Segments[0].Document);
@@ -65,7 +63,7 @@ namespace Amazon.XRay.Recorder.IntegrationTests
             Assert.AreEqual(segment.EndTime.ToString("F5"), ((double)segmentJsonData["end_time"]).ToString("F5"));
         }
         [TestMethod]
-        public void TestMultipleSubsegments()
+        public async Task TestMultipleSubsegments()
         {
             var traceId = TraceId.NewId();
             Recorder.BeginSegment(GetType().Name, traceId);
@@ -80,11 +78,9 @@ namespace Amazon.XRay.Recorder.IntegrationTests
             AWSXRayRecorder.Instance.TraceContext.GetEntity().Subsegments.ForEach(x => subsegmentNames[x.Id] = x.Name);
 
             Recorder.EndSegment();
-#if NET45
-            var response = BatchGetTraces(traceId);
-#else
-            var response = TestBase.BatchGetTracesAsync(traceId).Result;
-#endif
+
+            var response = await BatchGetTracesAsync(traceId);
+
             Assert.IsTrue(response.Traces.Count > 0);
 
             var segmentJsonData = JsonMapper.ToObject(response.Traces[0].Segments[0].Document);
@@ -102,7 +98,7 @@ namespace Amazon.XRay.Recorder.IntegrationTests
             Assert.AreEqual(0, subsegmentNames.Count);
         }
         [TestMethod]
-        public void TestEC2Plugin()
+        public async Task TestEC2Plugin()
         {
             var mockEC2Plugin = new Mock<IPlugin>();
             IDictionary<string, object> fakeEC2Context = new Dictionary<string, object>();
@@ -120,11 +116,9 @@ namespace Amazon.XRay.Recorder.IntegrationTests
             Thread.Sleep(100);
             recorder.EndSegment();
 
-#if NET45
-            var response = BatchGetTraces(traceId);
-#else
-            var response = TestBase.BatchGetTracesAsync(traceId).Result;
-#endif
+
+            var response = await BatchGetTracesAsync(traceId);
+
             Assert.IsTrue(response.Traces.Count > 0);
 
             var segmentJsonData = JsonMapper.ToObject(response.Traces[0].Segments[0].Document);
@@ -137,7 +131,7 @@ namespace Amazon.XRay.Recorder.IntegrationTests
         }
 
         [TestMethod]
-        public void TestECSPlugin()
+        public async Task TestECSPlugin()
         {
             var mockECSPlugin = new Mock<IPlugin>();
             IDictionary<string, object> fakeECSContext = new Dictionary<string, object>();
@@ -151,11 +145,9 @@ namespace Amazon.XRay.Recorder.IntegrationTests
             recorder.BeginSegment(GetType().Name, traceId);
             Thread.Sleep(100);
             recorder.EndSegment();
-#if NET45
-            var response = BatchGetTraces(traceId);
-#else
-            var response = TestBase.BatchGetTracesAsync(traceId).Result;
-#endif
+
+            var response = await BatchGetTracesAsync(traceId);
+
             Assert.IsTrue(response.Traces.Count > 0);
 
             var segmentJsonData = JsonMapper.ToObject(response.Traces[0].Segments[0].Document);
@@ -165,7 +157,7 @@ namespace Amazon.XRay.Recorder.IntegrationTests
         }
 
         [TestMethod]
-        public void TestElasticBeanstalkPlugin()
+        public async Task TestElasticBeanstalkPlugin()
         {
             var mockEBPlugin = new Mock<IPlugin>();
             IDictionary<string, object> fakeEBContext = new Dictionary<string, object>();
@@ -182,11 +174,9 @@ namespace Amazon.XRay.Recorder.IntegrationTests
             recorder.BeginSegment(GetType().Name, traceId);
             Thread.Sleep(100);
             recorder.EndSegment();
-#if NET45
-            var response = BatchGetTraces(traceId);
-#else
-            var response = TestBase.BatchGetTracesAsync(traceId).Result;
-#endif
+
+            var response = await BatchGetTracesAsync(traceId);
+
             Assert.IsTrue(response.Traces.Count > 0);
 
             var segmentJsonData = JsonMapper.ToObject(response.Traces[0].Segments[0].Document);
