@@ -129,7 +129,7 @@ namespace Amazon.XRay.Recorder.UnitTests
                     {
                         recorder.AddException(e);
                         recorder.EndSubsegment();
-                        throw e;
+                        throw;
                     }
                 }
                 catch (ArgumentNullException e)
