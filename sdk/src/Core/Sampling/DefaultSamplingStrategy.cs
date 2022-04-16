@@ -115,7 +115,7 @@ namespace Amazon.XRay.Recorder.Core.Sampling
             if (sampleRule != null)
             {
                 _logger.DebugFormat("Rule {0} is selected to make a sampling decision.", sampleRule.RuleName);
-                return ProcessMatchedRule(sampleRule, time);
+                return DefaultSamplingStrategy.ProcessMatchedRule(sampleRule, time);
             }
             else
             {
@@ -124,7 +124,7 @@ namespace Amazon.XRay.Recorder.Core.Sampling
             }
         }
 
-        private SamplingResponse ProcessMatchedRule(SamplingRule sampleRule, TimeStamp time)
+        private static SamplingResponse ProcessMatchedRule(SamplingRule sampleRule, TimeStamp time)
         {
             bool shouldSample = true;
             Reservior reservior = sampleRule.Reservior;

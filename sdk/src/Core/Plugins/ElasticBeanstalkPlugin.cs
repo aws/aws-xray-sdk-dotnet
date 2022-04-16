@@ -64,7 +64,7 @@ namespace Amazon.XRay.Recorder.Core.Plugins
         {
             context = null;
 
-            var dict = GetElasticBeanstalkMetaData();
+            var dict = ElasticBeanstalkPlugin.GetElasticBeanstalkMetaData();
 
             if (dict.Count == 0)
             {
@@ -77,14 +77,14 @@ namespace Amazon.XRay.Recorder.Core.Plugins
             return true;
         }
 
-        private Dictionary<string, object> GetElasticBeanstalkMetaData()
+        private static Dictionary<string, object> GetElasticBeanstalkMetaData()
         {
             Dictionary<string, object> dictionary = new Dictionary<string, object>();
             try
             {
                 using (Stream stream = new FileStream(_confPath, FileMode.Open, FileAccess.Read))
                 {
-                    dictionary = ReadStream(stream);
+                    dictionary = ElasticBeanstalkPlugin.ReadStream(stream);
                 }
             }
             catch (Exception e)
@@ -95,7 +95,7 @@ namespace Amazon.XRay.Recorder.Core.Plugins
             return dictionary;
         }
 
-        private Dictionary<string, object> ReadStream(Stream stream)
+        private static Dictionary<string, object> ReadStream(Stream stream)
         {
             Dictionary<string, object> dict = new Dictionary<string, object>();
             using (var reader = new StreamReader(stream))

@@ -198,7 +198,7 @@ namespace ThirdParty.LitJson
                     throw new ArgumentException (
                         "The key has to be a string");
 
-                JsonData data = ToJsonData (value);
+                JsonData data = JsonData.ToJsonData(value);
 
                 this[(string) key] = data;
             }
@@ -215,7 +215,7 @@ namespace ThirdParty.LitJson
 
             set {
                 EnsureDictionary ();
-                JsonData data = ToJsonData (value);
+                JsonData data = JsonData.ToJsonData(value);
 
                 KeyValuePair<string, JsonData> old_entry = object_list[idx];
 
@@ -238,7 +238,7 @@ namespace ThirdParty.LitJson
 
             set {
                 EnsureList ();
-                JsonData data = ToJsonData (value);
+                JsonData data = JsonData.ToJsonData(value);
 
                 this[index] = data;
             }
@@ -465,7 +465,7 @@ namespace ThirdParty.LitJson
         #region IDictionary Methods
         void IDictionary.Add (object key, object value)
         {
-            JsonData data = ToJsonData (value);
+            JsonData data = JsonData.ToJsonData(value);
 
             EnsureDictionary ().Add (key, data);
 
@@ -664,7 +664,7 @@ namespace ThirdParty.LitJson
         void IOrderedDictionary.Insert (int idx, object key, object value)
         {
             string property = (string) key;
-            JsonData data  = ToJsonData (value);
+            JsonData data  = JsonData.ToJsonData(value);
 
             this[property] = data;
 
@@ -728,7 +728,7 @@ namespace ThirdParty.LitJson
             return (IList) inst_array;
         }
 
-        private JsonData ToJsonData (object obj)
+        private static JsonData ToJsonData (object obj)
         {
             if (obj == null)
                 return null;
@@ -797,7 +797,7 @@ namespace ThirdParty.LitJson
 
         public int Add (object value)
         {
-            JsonData data = ToJsonData (value);
+            JsonData data = JsonData.ToJsonData(value);
 
             json = null;
 
