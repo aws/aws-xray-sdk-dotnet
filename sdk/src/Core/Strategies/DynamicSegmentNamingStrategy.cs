@@ -51,12 +51,12 @@ namespace Amazon.XRay.Recorder.Core.Strategies
         {
             if (string.IsNullOrEmpty(fallbackSegmentName))
             {
-                throw new ArgumentException("fallbackSegmentName cannot be null or empty.", "fallbackSegmentName");
+                throw new ArgumentException("fallbackSegmentName cannot be null or empty.", nameof(fallbackSegmentName));
             }
 
             if (string.IsNullOrEmpty(hostNamePattern))
             {
-                throw new ArgumentException("hostNamePattern cannot be null or empty.", "hostNamePattern");
+                throw new ArgumentException("hostNamePattern cannot be null or empty.", nameof(hostNamePattern));
             }
 
             this.FallbackSegmentName = fallbackSegmentName;

@@ -48,7 +48,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
         {
             if (digits < 0)
             {
-                throw new ArgumentException("Length can't be a negative number.", "digits");
+                throw new ArgumentException("Length can't be a negative number.", nameof(digits));
             }
 
             byte[] bytes = new byte[digits / 2];

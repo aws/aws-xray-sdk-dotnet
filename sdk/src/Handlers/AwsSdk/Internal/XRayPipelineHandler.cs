@@ -200,12 +200,12 @@ namespace Amazon.XRay.Recorder.Handlers.AwsSdk.Internal
         {
             if (prefix == null)
             {
-                throw new ArgumentNullException("prefix");
+                throw new ArgumentNullException(nameof(prefix));
             }
 
             if (originalString == null)
             {
-                throw new ArgumentNullException("originalString");
+                throw new ArgumentNullException(nameof(originalString));
             }
 
             if (originalString.StartsWith(prefix))
@@ -220,12 +220,12 @@ namespace Amazon.XRay.Recorder.Handlers.AwsSdk.Internal
         {
             if (suffix == null)
             {
-                throw new ArgumentNullException("suffix");
+                throw new ArgumentNullException(nameof(suffix));
             }
 
             if (originalString == null)
             {
-                throw new ArgumentNullException("originalString");
+                throw new ArgumentNullException(nameof(originalString));
             }
 
             if (originalString.EndsWith(suffix))
@@ -469,22 +469,22 @@ namespace Amazon.XRay.Recorder.Handlers.AwsSdk.Internal
         {
             if (serviceName == null)
             {
-                throw new ArgumentNullException("serviceName");
+                throw new ArgumentNullException(nameof(serviceName));
             }
 
             if (operation == null)
             {
-                throw new ArgumentNullException("operation");
+                throw new ArgumentNullException(nameof(operation));
             }
 
             if (request == null)
             {
-                throw new ArgumentNullException("request");
+                throw new ArgumentNullException(nameof(request));
             }
 
             if (aws == null)
             {
-                throw new ArgumentNullException("aws");
+                throw new ArgumentNullException(nameof(aws));
             }
 
             if (AWSServiceHandlerManifest == null)
@@ -539,22 +539,22 @@ namespace Amazon.XRay.Recorder.Handlers.AwsSdk.Internal
         {
             if (serviceName == null)
             {
-                throw new ArgumentNullException("serviceName");
+                throw new ArgumentNullException(nameof(serviceName));
             }
 
             if (operation == null)
             {
-                throw new ArgumentNullException("operation");
+                throw new ArgumentNullException(nameof(operation));
             }
 
             if (response == null)
             {
-                throw new ArgumentNullException("response");
+                throw new ArgumentNullException(nameof(response));
             }
 
             if (aws == null)
             {
-                throw new ArgumentNullException("aws");
+                throw new ArgumentNullException(nameof(aws));
             }
 
             if (AWSServiceHandlerManifest == null)

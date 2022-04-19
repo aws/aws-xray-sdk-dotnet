@@ -62,8 +62,8 @@ namespace Amazon.XRay.Recorder.Handlers.AspNetCore.Internal
         public AWSXRayMiddleware(RequestDelegate next, SegmentNamingStrategy segmentNamingStrategy, AWSXRayRecorder recorder)
         {
             _next = next;
-            SegmentNamingStrategy = segmentNamingStrategy ?? throw new ArgumentNullException("segmentNamingStrategy");
-            _recorder = recorder ?? throw new ArgumentNullException("recorder");
+            SegmentNamingStrategy = segmentNamingStrategy ?? throw new ArgumentNullException(nameof(segmentNamingStrategy));
+            _recorder = recorder ?? throw new ArgumentNullException(nameof(recorder));
         }
 
         /// <summary>
@@ -78,7 +78,7 @@ namespace Amazon.XRay.Recorder.Handlers.AspNetCore.Internal
             AWSXRayRecorder.InitializeInstance(configuration);
             _recorder = AWSXRayRecorder.Instance;
             _next = next;
-            SegmentNamingStrategy = segmentNamingStrategy ?? throw new ArgumentNullException("segmentNamingStrategy");
+            SegmentNamingStrategy = segmentNamingStrategy ?? throw new ArgumentNullException(nameof(segmentNamingStrategy));
         }
 
         /// <summary>

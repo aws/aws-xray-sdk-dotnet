@@ -168,7 +168,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Entities
         {
             if (user == null)
             {
-                throw new ArgumentNullException("user");
+                throw new ArgumentNullException(nameof(user));
             }
 
             HasAlreadyStreamed();

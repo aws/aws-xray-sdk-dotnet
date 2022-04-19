@@ -174,7 +174,7 @@ namespace Amazon.XRay.Recorder.Core
         {
             if (plugin == null)
             {
-                throw new ArgumentNullException("plugin");
+                throw new ArgumentNullException(nameof(plugin));
             }
 
             _plugins.Add(plugin);
