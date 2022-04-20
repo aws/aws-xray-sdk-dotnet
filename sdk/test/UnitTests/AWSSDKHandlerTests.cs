@@ -178,7 +178,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         [ExpectedException(typeof(FileNotFoundException))]
         public void TestLoadServiceInfoManifestInvalidPathForAWSSDKHandler()
         {
-            var handler = new XRayPipelineHandler(@"IncorrectPath.abc");
+            _ = new XRayPipelineHandler(@"IncorrectPath.abc");
         }
 
         [TestMethod]

@@ -102,7 +102,7 @@ namespace Amazon.XRay.Recorder.Handlers.EntityFramework
             EFUtil.ProcessBeginCommand(command, _collectSqlQueriesOverride);
         }
 
-        private void OnCommandStop(Exception exception)
+        private static void OnCommandStop(Exception exception)
         {
             if (exception != null)
             {

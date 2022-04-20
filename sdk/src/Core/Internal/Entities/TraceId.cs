@@ -93,8 +93,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Entities
             }
 
             // Is the version a valid integer?
-            int idVersion;
-            if (!int.TryParse(elements[0], out idVersion))
+            if (!int.TryParse(elements[0], out int idVersion))
             {
                 return false;
             }
@@ -115,15 +114,13 @@ namespace Amazon.XRay.Recorder.Core.Internal.Entities
             }
 
             // Is the epoch a valid 32bit hex number?
-            int epoch;
-            if (!int.TryParse(idEpoch, NumberStyles.HexNumber, null, out epoch))
+            if (!int.TryParse(idEpoch, NumberStyles.HexNumber, null, out _))
             {
                 return false;
             }
 
             // Is the random number a valid hex number?
-            BigInteger rand = BigInteger.Zero;
-            if (!BigInteger.TryParse(idRand, NumberStyles.HexNumber, null, out rand))
+            if (!BigInteger.TryParse(idRand, NumberStyles.HexNumber, null, out _))
             {
                 return false;
             }

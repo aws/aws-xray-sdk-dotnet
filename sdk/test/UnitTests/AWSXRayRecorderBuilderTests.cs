@@ -223,7 +223,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestSetNullEmitter()
         {
-            var recorder = new AWSXRayRecorderBuilder().WithContextMissingStrategy(ContextMissingStrategy.LOG_ERROR).WithSegmentEmitter(null).Build();
+            _ = new AWSXRayRecorderBuilder().WithContextMissingStrategy(ContextMissingStrategy.LOG_ERROR).WithSegmentEmitter(null).Build();
             Assert.Fail();
         }
 
@@ -239,7 +239,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestSetNullTraceContext()
         {
-            var recorder = new AWSXRayRecorderBuilder().WithTraceContext(null).Build();
+            _ = new AWSXRayRecorderBuilder().WithTraceContext(null).Build();
             Assert.Fail();
         }
 
@@ -446,7 +446,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         [ExpectedException(typeof(ArgumentNullException))]
         public void TestSetNullExceptionSerializationStrategy()
         {
-            var recorder = new AWSXRayRecorderBuilder().WithExceptionSerializationStrategy(null).Build();
+            _ = new AWSXRayRecorderBuilder().WithExceptionSerializationStrategy(null).Build();
             Assert.Fail();
         }
         private class DummySamplingStrategy : ISamplingStrategy

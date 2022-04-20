@@ -128,18 +128,17 @@ namespace Amazon.XRay.Recorder.UnitTests
         [ExpectedException(typeof(ArgumentNullException))]
         public void CreateSegmentWithInvalidNameTest()
         {
-            var segment = new Segment(null, TraceId);
+            _ = new Segment(null, TraceId);
         }
 
         [TestMethod]
         public void TestSegmentIdIsValid()
         {
             var segment = new Segment("test", _validTraceIds[0]);
-            long result;
             string id = segment.Id;
 
             Assert.AreEqual(id.Length, 16);
-            Assert.IsTrue(long.TryParse(id, NumberStyles.HexNumber, null, out result));
+            Assert.IsTrue(long.TryParse(id, NumberStyles.HexNumber, null, out _));
         }
 
         [TestMethod]

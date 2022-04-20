@@ -123,8 +123,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
         private static bool GetSettingBool(string key, bool defaultValue = false)
         {
             string value = GetSetting(key);
-            bool result;
-            if (bool.TryParse(value, out result))
+            if (bool.TryParse(value, out bool result))
             {
                 return result;
             }
@@ -136,8 +135,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
         private static bool GetSettingBoolForRuntimeError(string key, bool defaultValue = true)
         {
             string value = GetSetting(key);
-            bool result;
-            if (bool.TryParse(value, out result))
+            if (bool.TryParse(value, out bool result))
             {
                 return result;
             }

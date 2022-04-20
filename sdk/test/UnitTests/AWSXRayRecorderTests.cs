@@ -293,7 +293,7 @@ namespace Amazon.XRay.Recorder.UnitTests
                 // Subsegment is not ended
                 mockEmitter.Verify(x => x.Send(It.IsAny<Segment>()), Times.Never);
 
-                Task.WaitAll(task);
+                task.Wait();
                 Assert.IsNotNull(child);
 
                 // subsegment ends
@@ -363,7 +363,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         {
             _recorder.BeginSegment("test", TraceId);
 
-            int count = _recorder.TraceMethod("PlusOneReturn", () => PlusOneReturn(0));
+            int count = _recorder.TraceMethod("PlusOneReturn", () => AwsXrayRecorderTests.PlusOneReturn(0));
             Assert.AreEqual(1, count);
 
             var subsegment = AWSXRayRecorder.Instance.TraceContext.GetEntity().Subsegments[0];
@@ -378,7 +378,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             _recorder.BeginSegment("test", TraceId);
 
             int count = 0;
-            _recorder.TraceMethod("PlusOneNoReturn", () => PlusOneNoReturn(ref count));
+            _recorder.TraceMethod("PlusOneNoReturn", () => AwsXrayRecorderTests.PlusOneNoReturn(ref count));
             Assert.AreEqual(1, count);
 
             var subsegment = AWSXRayRecorder.Instance.TraceContext.GetEntity().Subsegments[0];
@@ -393,7 +393,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             _recorder.BeginSegment("test", TraceId);
 
             int count = 0;
-            await _recorder.TraceMethodAsync("PlusOneNoReturnAsync", () => PlusOneNoReturnAsync<int>(count));
+            await _recorder.TraceMethodAsync("PlusOneNoReturnAsync", () => AwsXrayRecorderTests.PlusOneNoReturnAsync<int>(count));
 
             var subsegment = AWSXRayRecorder.Instance.TraceContext.GetEntity().Subsegments[0];
             Assert.AreEqual("PlusOneNoReturnAsync", subsegment.Name);
@@ -406,7 +406,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         {
             _recorder.BeginSegment("test", TraceId);
             int count = 0;
-            var result = await _recorder.TraceMethodAsync("PlusOneReturnAsync", () => PlusOneReturnAsync<int>(count));
+            var result = await _recorder.TraceMethodAsync("PlusOneReturnAsync", () => AwsXrayRecorderTests.PlusOneReturnAsync<int>(count));
 
             Assert.AreEqual(1, result);
 
@@ -446,7 +446,7 @@ namespace Amazon.XRay.Recorder.UnitTests
 
             try
             {
-               await  _recorder.TraceMethodAsync("exception", () => PlusOneReturnAsyncThrowException<int>(0));
+               await  _recorder.TraceMethodAsync("exception", () => AwsXrayRecorderTests.PlusOneReturnAsyncThrowException<int>(0));
                 Assert.Fail();
             }
             catch (ArgumentNullException)
@@ -755,7 +755,7 @@ namespace Amazon.XRay.Recorder.UnitTests
                 recorder.AddPrecursorId("id");
                 recorder.AddSqlInformation("key", "value");
                 recorder.SetNamespace("namespace");
-                recorder.TraceMethod("method", () => PlusOneReturn(1));
+                recorder.TraceMethod("method", () => AwsXrayRecorderTests.PlusOneReturn(1));
 
                 recorder.EndSegment();
                 mockSegmentEmitter.Verify(x => x.Send(It.IsAny<Segment>()), Times.Never);
@@ -1132,7 +1132,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             }
         }
 
-        public class DummyEmitter : ISegmentEmitter
+        public sealed class DummyEmitter : ISegmentEmitter
         {
             public void Dispose()
             {
@@ -1146,31 +1146,31 @@ namespace Amazon.XRay.Recorder.UnitTests
             {
             }
         }
-        private int PlusOneReturn(int count)
+        private static int PlusOneReturn(int count)
         {
             return count + 1;
         }
 
-        private void PlusOneNoReturn(ref int count)
+        private static void PlusOneNoReturn(ref int count)
         {
             count++;
         }
        
-        private async Task<int> PlusOneReturnAsync <TResult>(int count)
+        private static async Task<int> PlusOneReturnAsync <TResult>(int count)
         {
            await Task.FromResult<int>(count++);
            return count;
         }
 
-        private async Task PlusOneNoReturnAsync<TResult>( int count)
+        private static async Task PlusOneNoReturnAsync<TResult>( int count)
         {
             await Task.FromResult<int>(count++);
         }
 
-        private async Task<int> PlusOneReturnAsyncThrowException<TResult>(int count)
+        private static async Task<int> PlusOneReturnAsyncThrowException<TResult>(int count)
         {
             await Task.FromResult<int>(count++);
-            throw new ArgumentNullException("value");
+            throw new ArgumentNullException(null);
         }
     }
 }

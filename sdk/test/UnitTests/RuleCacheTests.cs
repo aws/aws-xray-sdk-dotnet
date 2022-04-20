@@ -29,7 +29,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         {
             RuleCache ruleCache = new RuleCache();
             List<SamplingRule> newRules = new List<SamplingRule>();
-            SamplingRule rule = GetSamplingRule("a", 1, 0.5, 10, "test", "test", "GET", "/api/5");
+            SamplingRule rule = RuleCacheTests.GetSamplingRule("a", 1, 0.5, 10, "test", "test", "GET", "/api/5");
             newRules.Add(rule);
             ruleCache.LoadRules(newRules);
             IList<SamplingRule> rulesInCache = ruleCache.GetRules();
@@ -41,10 +41,10 @@ namespace Amazon.XRay.Recorder.UnitTests
         {
             RuleCache ruleCache = new RuleCache();
             List<SamplingRule> newRules = new List<SamplingRule>();
-            SamplingRule rule1 = GetSamplingRule("a", 2);
-            SamplingRule rule2 = GetSamplingRule("b", 1);
-            SamplingRule rule3 = GetSamplingRule("c", 3);
-            SamplingRule rule4 = GetSamplingRule("d", 3);
+            SamplingRule rule1 = RuleCacheTests.GetSamplingRule("a", 2);
+            SamplingRule rule2 = RuleCacheTests.GetSamplingRule("b", 1);
+            SamplingRule rule3 = RuleCacheTests.GetSamplingRule("c", 3);
+            SamplingRule rule4 = RuleCacheTests.GetSamplingRule("d", 3);
             newRules.Add(rule1);
             newRules.Add(rule2);
             newRules.Add(rule3);
@@ -65,8 +65,8 @@ namespace Amazon.XRay.Recorder.UnitTests
         {
             RuleCache ruleCache = new RuleCache();
             List<SamplingRule> newRules = new List<SamplingRule>();
-            SamplingRule rule1 = GetSamplingRule("a", 2);
-            SamplingRule rule2 = GetSamplingRule("b", 1);
+            SamplingRule rule1 = RuleCacheTests.GetSamplingRule("a", 2);
+            SamplingRule rule2 = RuleCacheTests.GetSamplingRule("b", 1);
            
             newRules.Add(rule1);
             newRules.Add(rule2);
@@ -111,10 +111,10 @@ namespace Amazon.XRay.Recorder.UnitTests
         {
             RuleCache ruleCache = new RuleCache();
             List<SamplingRule> newRules = new List<SamplingRule>();
-            SamplingRule rule1 = GetSamplingRule("a", 2);
+            SamplingRule rule1 = RuleCacheTests.GetSamplingRule("a", 2);
             Statistics expectedStatistic = new Statistics(2, 1, 1);
             rule1.Statistics = expectedStatistic;
-            SamplingRule rule2 = GetSamplingRule("b", 1);
+            SamplingRule rule2 = RuleCacheTests.GetSamplingRule("b", 1);
             newRules.Add(rule1);
             newRules.Add(rule2);
 
@@ -138,8 +138,8 @@ namespace Amazon.XRay.Recorder.UnitTests
             newTargets.Add(t2);
 
             ruleCache.LoadTargets(newTargets);
-            rulesInCache = ruleCache.GetRules();
-            rule1 = GetSamplingRule("a", 1);
+            _ = ruleCache.GetRules();
+            rule1 = RuleCacheTests.GetSamplingRule("a", 1);
             newRules = new List<SamplingRule>();
             newRules.Add(rule1);
 
@@ -167,7 +167,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             RuleCache ruleCache = new RuleCache();
             List<SamplingRule> newRules = new List<SamplingRule>();
             SamplingInput samplingInput = new SamplingInput("elasticbeanstalk", "/api/1", "GET", "dynamo", "AWS::ECS::Container");
-            SamplingRule expectedRule = GetSamplingRule("a", 1, 0.5, 10, samplingInput.Host, samplingInput.ServiceName, samplingInput.Method, samplingInput.Url, serviceType: samplingInput.ServiceType);
+            SamplingRule expectedRule = RuleCacheTests.GetSamplingRule("a", 1, 0.5, 10, samplingInput.Host, samplingInput.ServiceName, samplingInput.Method, samplingInput.Url, serviceType: samplingInput.ServiceType);
             newRules.Add(expectedRule);
             ruleCache.LoadRules(newRules);
             TimeStamp current = TimeStamp.CurrentTime();
@@ -184,7 +184,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             RuleCache ruleCache = new RuleCache();
             List<SamplingRule> newRules = new List<SamplingRule>();
             SamplingInput samplingInput = new SamplingInput("elasticbeanstalk", "/api/1", "GET", "dynamo", "AWS::ECS::Container");
-            SamplingRule expectedRule = GetSamplingRule("a", 1, 0.5, 10, samplingInput.Host, samplingInput.ServiceName, samplingInput.Method, samplingInput.Url, serviceType:"XYZ");
+            SamplingRule expectedRule = RuleCacheTests.GetSamplingRule("a", 1, 0.5, 10, samplingInput.Host, samplingInput.ServiceName, samplingInput.Method, samplingInput.Url, serviceType:"XYZ");
             newRules.Add(expectedRule);
             ruleCache.LoadRules(newRules);
             TimeStamp current = TimeStamp.CurrentTime();
@@ -201,7 +201,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             RuleCache ruleCache = new RuleCache();
             List<SamplingRule> newRules = new List<SamplingRule>();
             SamplingInput samplingInput = new SamplingInput("elasticbeanstalk", "/api/1", "GET", "", "");
-            SamplingRule expectedRule = GetSamplingRule("a", 1, 0.5, 10, samplingInput.Host, "test", samplingInput.Method, samplingInput.Url, serviceType: "XYZ");
+            SamplingRule expectedRule = RuleCacheTests.GetSamplingRule("a", 1, 0.5, 10, samplingInput.Host, "test", samplingInput.Method, samplingInput.Url, serviceType: "XYZ");
             newRules.Add(expectedRule);
             ruleCache.LoadRules(newRules);
             TimeStamp current = TimeStamp.CurrentTime();
@@ -218,7 +218,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             RuleCache ruleCache = new RuleCache();
             List<SamplingRule> newRules = new List<SamplingRule>();
             SamplingInput samplingInput = new SamplingInput("elasticbeanstalk");
-            SamplingRule expectedRule = GetSamplingRule("a", 1, 0.5, 10, serviceName: samplingInput.ServiceName);
+            SamplingRule expectedRule = RuleCacheTests.GetSamplingRule("a", 1, 0.5, 10, serviceName: samplingInput.ServiceName);
             newRules.Add(expectedRule);
             ruleCache.LoadRules(newRules);
             TimeStamp current = TimeStamp.CurrentTime();
@@ -235,7 +235,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             RuleCache ruleCache = new RuleCache();
             List<SamplingRule> newRules = new List<SamplingRule>();
             SamplingInput samplingInput = new SamplingInput("elasticbeanstalk", "/api/1", "GET", "dynamo", "*");
-            SamplingRule rule = GetSamplingRule("a", 1, 0.5, 10, "j", samplingInput.ServiceName, samplingInput.Method, samplingInput.Url);
+            SamplingRule rule = RuleCacheTests.GetSamplingRule("a", 1, 0.5, 10, "j", samplingInput.ServiceName, samplingInput.Method, samplingInput.Url);
             newRules.Add(rule);
             ruleCache.LoadRules(newRules);
             TimeStamp current = TimeStamp.CurrentTime();
@@ -252,7 +252,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             RuleCache ruleCache = new RuleCache();
             List<SamplingRule> newRules = new List<SamplingRule>();
             SamplingInput samplingInput = new SamplingInput("elasticbeanstalk");
-            SamplingRule rule = GetSamplingRule("a", 1, 0.5, 10, serviceName: "XYZ");
+            SamplingRule rule = RuleCacheTests.GetSamplingRule("a", 1, 0.5, 10, serviceName: "XYZ");
             newRules.Add(rule);
             ruleCache.LoadRules(newRules);
             TimeStamp current = TimeStamp.CurrentTime();
@@ -269,9 +269,9 @@ namespace Amazon.XRay.Recorder.UnitTests
             RuleCache ruleCache = new RuleCache();
             List<SamplingRule> newRules = new List<SamplingRule>();
             SamplingInput samplingInput = new SamplingInput("elasticbeanstalk", "/api/1", "GET", "dynamo", "*");
-            SamplingRule rule = GetSamplingRule("a", 1, 0.5, 10, "j", "test", samplingInput.Method, samplingInput.Url);
+            SamplingRule rule = RuleCacheTests.GetSamplingRule("a", 1, 0.5, 10, "j", "test", samplingInput.Method, samplingInput.Url);
             newRules.Add(rule);
-            SamplingRule expectedRule = GetSamplingRule(SamplingRule.Default, 10000, 0.5, 1, "j", "*", "*","*"); // should match to default rule
+            SamplingRule expectedRule = RuleCacheTests.GetSamplingRule(SamplingRule.Default, 10000, 0.5, 1, "j", "*", "*","*"); // should match to default rule
             newRules.Add(expectedRule);
             ruleCache.LoadRules(newRules);
             TimeStamp current = TimeStamp.CurrentTime();
@@ -288,9 +288,9 @@ namespace Amazon.XRay.Recorder.UnitTests
             RuleCache ruleCache = new RuleCache();
             List<SamplingRule> newRules = new List<SamplingRule>();
             SamplingInput samplingInput = new SamplingInput("elasticbeanstalk");
-            SamplingRule rule = GetSamplingRule("a", 1, 0.5, 10, serviceName: "XYZ");
+            SamplingRule rule = RuleCacheTests.GetSamplingRule("a", 1, 0.5, 10, serviceName: "XYZ");
             newRules.Add(rule);
-            SamplingRule expectedRule = GetSamplingRule(SamplingRule.Default, 10000, 0.5, 1, "j", "*", "*", "*"); // should match to default rule
+            SamplingRule expectedRule = RuleCacheTests.GetSamplingRule(SamplingRule.Default, 10000, 0.5, 1, "j", "*", "*", "*"); // should match to default rule
             newRules.Add(expectedRule);
             ruleCache.LoadRules(newRules);
             TimeStamp current = TimeStamp.CurrentTime();
@@ -319,7 +319,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             RuleCache ruleCache = new RuleCache();
             List<SamplingRule> newRules = new List<SamplingRule>();
             SamplingInput samplingInput = new SamplingInput("elasticbeanstalk", "/api/1", "GET", "dynamo", "*");
-            SamplingRule expectedRule = GetSamplingRule("a", 1, 0.5, 10, samplingInput.Host, samplingInput.ServiceName, samplingInput.Method, samplingInput.Url);
+            SamplingRule expectedRule = RuleCacheTests.GetSamplingRule("a", 1, 0.5, 10, samplingInput.Host, samplingInput.ServiceName, samplingInput.Method, samplingInput.Url);
             newRules.Add(expectedRule);
             ruleCache.LoadRules(newRules);
             TimeStamp current = TimeStamp.CurrentTime();
@@ -330,7 +330,7 @@ namespace Amazon.XRay.Recorder.UnitTests
 
             Assert.IsNull(actualRule);
         }
-        private SamplingRule GetSamplingRule(string ruleName, int priority, double fixedRate = 0, int reservoirSize = 0, string host = null, string serviceName = null, string httpMethod = null, string urlPath = null, string serviceType = "*", string resourceARN = "*", Dictionary<string,string> attributes = null)
+        private static SamplingRule GetSamplingRule(string ruleName, int priority, double fixedRate = 0, int reservoirSize = 0, string host = null, string serviceName = null, string httpMethod = null, string urlPath = null, string serviceType = "*", string resourceARN = "*", Dictionary<string,string> attributes = null)
         {
             return new SamplingRule(ruleName,priority,fixedRate,reservoirSize,host,serviceName,httpMethod,urlPath,serviceType,resourceARN,attributes);
         }

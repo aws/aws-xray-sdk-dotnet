@@ -173,7 +173,6 @@ namespace Amazon.XRay.Recorder.Core.Sampling
         {
             Statistics.CopyFrom(oldRule.Statistics);
             Reservior.CopyFrom(oldRule.Reservior);
-            oldRule = null;
         }
 
         /// <summary>

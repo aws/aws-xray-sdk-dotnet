@@ -264,8 +264,8 @@ namespace ThirdParty.LitJson
                 number.IndexOf ('e') != -1 ||
                 number.IndexOf ('E') != -1) {
 
-                double n_double;
-                if (Double.TryParse (number, out n_double)) {
+                if (Double.TryParse(number, out double n_double))
+                {
                     token = JsonToken.Double;
                     token_value = n_double;
 
@@ -273,24 +273,23 @@ namespace ThirdParty.LitJson
                 }
             }
 
-            int n_int32;
-            if (Int32.TryParse (number, out n_int32)) {
+            if (Int32.TryParse(number, out int n_int32))
+            {
                 token = JsonToken.Int;
                 token_value = n_int32;
 
                 return;
             }
 
-            long n_int64;
-            if (Int64.TryParse (number, out n_int64)) {
+            if (Int64.TryParse(number, out long n_int64))
+            {
                 token = JsonToken.Long;
                 token_value = n_int64;
 
                 return;
             }
 
-            ulong n_uint64;
-            if (UInt64.TryParse(number, out n_uint64))
+            if (UInt64.TryParse(number, out ulong n_uint64))
             {
                 token = JsonToken.Long;
                 token_value = n_uint64;

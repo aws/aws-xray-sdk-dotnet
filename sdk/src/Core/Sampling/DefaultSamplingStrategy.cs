@@ -128,8 +128,6 @@ namespace Amazon.XRay.Recorder.Core.Sampling
         {
             bool shouldSample = true;
             Reservior reservior = sampleRule.Reservior;
-            SamplingResponse sampleResult = null;
-
             sampleRule.IncrementRequestCount(); // increment request counter for matched rule
             ReserviorDecision reserviorDecision = reservior.BorrowOrTake(time, sampleRule.CanBorrow); // check if we can borrow or take from reservior
 
@@ -150,6 +148,7 @@ namespace Amazon.XRay.Recorder.Core.Sampling
                 shouldSample = false;
             }
 
+            SamplingResponse sampleResult;
             if (shouldSample)
             {
                 sampleResult = new SamplingResponse(sampleRule.RuleName, SampleDecision.Sampled);

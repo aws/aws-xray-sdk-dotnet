@@ -45,7 +45,7 @@ namespace Amazon.XRay.Recorder.IntegrationTests
         }
 
 #if NET45
-        protected BatchGetTracesResponse BatchGetTraces(string traceId)
+        protected static BatchGetTracesResponse BatchGetTraces(string traceId)
         {
             var request = new BatchGetTracesRequest();
 
@@ -71,7 +71,7 @@ namespace Amazon.XRay.Recorder.IntegrationTests
             return response;
         }
 #else
-        protected async System.Threading.Tasks.Task<BatchGetTracesResponse> BatchGetTracesAsync(string traceId)
+        protected static async System.Threading.Tasks.Task<BatchGetTracesResponse> BatchGetTracesAsync(string traceId)
         {
             var request = new BatchGetTracesRequest();
             request.TraceIds = new List<string>() { traceId };

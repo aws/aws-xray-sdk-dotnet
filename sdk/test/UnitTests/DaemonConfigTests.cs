@@ -79,8 +79,6 @@ namespace Amazon.XRay.Recorder.UnitTests
         public void TestGetEndpointInvalidDoubleForm2()
         {
             string daemonAddress = "udp:127.0.0.2:2001 udp:127.0.0.1:2000";
-            IPEndPoint expectedUDPEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.2"), 2001);
-            IPEndPoint expectedTCPEndpoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 2000);
             DaemonConfig daemonConfig = DaemonConfig.GetEndPoint(daemonAddress);
             Assert.IsTrue(DaemonConfig.DefaultEndpoint.Equals(daemonConfig.UDPEndpoint));
             Assert.IsTrue(DaemonConfig.DefaultEndpoint.Equals(daemonConfig.TCPEndpoint));

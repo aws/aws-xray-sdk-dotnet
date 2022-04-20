@@ -134,12 +134,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Entities
 
             set
             {
-                if (value == null)
-                {
-                    throw new ArgumentNullException(nameof(value));
-                }
-
-                _name = value;
+                _name = value ?? throw new ArgumentNullException(nameof(value));
             }
         }
         
@@ -373,8 +368,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Entities
         /// <returns>A value indicates if the id is valid</returns>
         public static bool IsIdValid(string id)
         {
-            long tmp;
-            return id.Length == SegmentIdHexDigits && long.TryParse(id, NumberStyles.HexNumber, null, out tmp);
+            return id.Length == SegmentIdHexDigits && long.TryParse(id, NumberStyles.HexNumber, null, out _);
         }
 
         /// <summary>

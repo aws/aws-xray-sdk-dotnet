@@ -314,8 +314,7 @@ namespace Amazon.XRay.Recorder.Core
         {
             foreach (IPlugin plugin in _plugins)
             {
-                IDictionary<string, object> pluginContext;
-                if (plugin.TryGetRuntimeContext(out pluginContext))
+                if (plugin.TryGetRuntimeContext(out IDictionary<string, object> pluginContext))
                 {
                     recorder.RuntimeContext.Add(plugin.ServiceName, pluginContext);
                     recorder.Origin = plugin.Origin;

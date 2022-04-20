@@ -237,9 +237,8 @@ namespace Amazon.XRay.Recorder.Core
         {
             _lambdaVariables = AWSXRayRecorder.GetTraceVariablesFromEnvironment();
             _logger.DebugFormat("Lambda Environment detected. Lambda variables: {0}", _lambdaVariables);
-            TraceHeader traceHeader;
 
-            if (!TraceHeader.TryParseAll(_lambdaVariables, out traceHeader))
+            if (!TraceHeader.TryParseAll(_lambdaVariables, out TraceHeader traceHeader))
             {
                 if (name != null)
                 {

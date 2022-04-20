@@ -73,15 +73,13 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
             }
 
             // Validate IP address is in valid range
-            IPAddress ip;
-            if (!IPAddress.TryParse(ep[0], out ip))
+            if (!IPAddress.TryParse(ep[0], out IPAddress ip))
             {
                 _logger.InfoFormat("Failed to parse IPEndPoint because ip address is invalid. ({0})", input);
                 return false;
             }
 
-            int port;
-            if (!int.TryParse(ep[1], NumberStyles.Integer, NumberFormatInfo.InvariantInfo, out port))
+            if (!int.TryParse(ep[1], NumberStyles.Integer, NumberFormatInfo.InvariantInfo, out int port))
             {
                 _logger.InfoFormat("Failed to parse IPEndPoint because port is invalid. ({0})", input);
                 return false;
@@ -214,10 +212,9 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
 
         private static bool ParseSingleForm(string[] daemonAddress, out DaemonConfig endPoint)
         {
-            EndPoint udpEndpoint = null;
             endPoint = new DaemonConfig();
 
-            if (TryParse(daemonAddress[0], out udpEndpoint))
+            if (TryParse(daemonAddress[0], out EndPoint udpEndpoint))
             {
                 endPoint._udpEndpoint = udpEndpoint;
                 endPoint._tcpEndpoint = udpEndpoint;
@@ -232,22 +229,15 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
         private static bool ParseDoubleForm(string[] daemonAddress, out DaemonConfig endPoint)
         {
             endPoint = new DaemonConfig();
-            EndPoint udpEndpoint = null;
-            EndPoint tcpEndpoint = null;
             IDictionary<string, string> addressMap = new Dictionary<string, string>();
             string[] address1 = daemonAddress[0].Split(_addressPortDelimiter); // tcp:<hostname or address>:2000 udp:<hostname or address>:2001
             string[] address2 = daemonAddress[1].Split(_addressPortDelimiter);
 
             addressMap[address1[0]] = address1[1] + _addressPortDelimiter + address1[2];
             addressMap[address2[0]] = address2[1] + _addressPortDelimiter + address2[2];
-
-            string udpAddress = null;
-            string tcpAddress = null;
-
-            udpAddress = addressMap[_udpKey];
-            tcpAddress = addressMap[_tcpKey];
-
-            if (TryParse(udpAddress, out udpEndpoint) && TryParse(tcpAddress, out tcpEndpoint))
+            string udpAddress = addressMap[_udpKey];
+            string tcpAddress = addressMap[_tcpKey];
+            if (TryParse(udpAddress, out EndPoint udpEndpoint) && TryParse(tcpAddress, out EndPoint tcpEndpoint))
             {
                 endPoint._udpEndpoint = udpEndpoint;
                 endPoint._tcpEndpoint = tcpEndpoint;

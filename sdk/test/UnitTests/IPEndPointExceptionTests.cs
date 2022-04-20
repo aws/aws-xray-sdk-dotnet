@@ -77,40 +77,36 @@ namespace Amazon.XRay.Recorder.UnitTests
         [TestMethod]
         public void TestValidIpAddresses()
         {
-            IPEndPoint endpoint;
             foreach (var ip in _validIPs)
             {
-                Assert.IsTrue(IPEndPointExtension.TryParse(ip, out endpoint));
+                Assert.IsTrue(IPEndPointExtension.TryParse(ip, out IPEndPoint _));
             }
         }
 
         [TestMethod]
         public void TestValidDomains()
         {
-            HostEndPoint endpoint;
             foreach (var domain in _validDomains)
             {
-                Assert.IsTrue(IPEndPointExtension.TryParse(domain, out endpoint));
+                Assert.IsTrue(IPEndPointExtension.TryParse(domain, out HostEndPoint _));
             }
         }
 
         [TestMethod]
         public void TestInvalidDomains()
         {
-            HostEndPoint endpoint;
             foreach (var domain in _invalidDomains)
             {
-                Assert.IsFalse(IPEndPointExtension.TryParse(domain, out endpoint));
+                Assert.IsFalse(IPEndPointExtension.TryParse(domain, out HostEndPoint _));
             }
         }
 
         [TestMethod]
         public void TestInvalidIpAddress()
         {
-            IPEndPoint endPoint;
             foreach (var ip in _invalidIPs)
             {
-                Assert.IsFalse(IPEndPointExtension.TryParse(ip, out endPoint));
+                Assert.IsFalse(IPEndPointExtension.TryParse(ip, out IPEndPoint _));
             }
         }
     }

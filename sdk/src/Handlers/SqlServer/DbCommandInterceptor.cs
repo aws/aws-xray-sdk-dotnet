@@ -71,7 +71,7 @@ namespace Amazon.XRay.Recorder.Handlers.SqlServer
         /// <inheritdoc />
         public async Task<TResult> InterceptAsync<TResult>(Func<Task<TResult>> method, DbCommand command)
         {
-            _recorder.BeginSubsegment(BuildSubsegmentName(command));
+            _recorder.BeginSubsegment(DbCommandInterceptor.BuildSubsegmentName(command));
             try
             {
                 _recorder.SetNamespace("remote");
@@ -94,7 +94,7 @@ namespace Amazon.XRay.Recorder.Handlers.SqlServer
         /// <inheritdoc />
         public TResult Intercept<TResult>(Func<TResult> method, DbCommand command)
         {
-            _recorder.BeginSubsegment(BuildSubsegmentName(command));
+            _recorder.BeginSubsegment(DbCommandInterceptor.BuildSubsegmentName(command));
             try
             {
                 _recorder.SetNamespace("remote");
@@ -147,7 +147,7 @@ namespace Amazon.XRay.Recorder.Handlers.SqlServer
         /// </summary>
         /// <param name="command"></param>
         /// <returns>Returns the formed subsegment name as a string.</returns>
-        private string BuildSubsegmentName(DbCommand command) 
+        private static string BuildSubsegmentName(DbCommand command) 
             => command.Connection.Database + "@" + SqlUtil.RemovePortNumberFromDataSource(command.Connection.DataSource);
 
 #if !NET45

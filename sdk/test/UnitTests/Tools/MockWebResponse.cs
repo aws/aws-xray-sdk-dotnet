@@ -51,9 +51,8 @@ namespace Amazon.XRay.Recorder.UnitTests.Tools
                 }
             }
 
-            Stream responseBodyStream = null;
             body = body ?? string.Empty;
-            responseBodyStream = Utils.CreateStreamFromString(body);
+            Stream responseBodyStream = Utils.CreateStreamFromString(body);
 
             var statusFieldInfo = type.GetField(
                 "m_StatusCode",
@@ -104,9 +103,8 @@ namespace Amazon.XRay.Recorder.UnitTests.Tools
                 }
             }
 
-            Stream responseBodyStream = null;
             body = body ?? string.Empty;
-            responseBodyStream = Utils.CreateStreamFromString(body);
+            _ = Utils.CreateStreamFromString(body);
             httpResponseMessage.StatusCode = statusCode;
             StreamReader streamReader = new StreamReader($"JSONs{Path.DirectorySeparatorChar}FakeResponse.json");
             string json = streamReader.ReadToEnd();
@@ -122,21 +120,37 @@ namespace Amazon.XRay.Recorder.UnitTests.Tools
 
             var responseLines = rawResponse.Split('\n');
 
-            if (responseLines.Count() == 0)
+            if (responseLines.Length == 0)
             {
                 throw new ArgumentException(
                     "The resource does not contain a valid HTTP response.",
-                    "resourceName");
+                    nameof(rawResponse));
             }
 
             response.StatusLine = responseLines[0];
             var currentLine = responseLines[0];
-            var statusCode = ParseStatusCode(currentLine);
 
-            var lineIndex = 0;
-            if (responseLines.Count() > 1)
+/* Unmerged change from project 'AWSXRayRecorder.UnitTests (netcoreapp2.0)'
+Before:
+            var statusCode = ParseStatusCode(currentLine);
+After:
+            HttpStatusCode statusCode;
+            _ = ParseStatusCode(currentLine);
+*/
+
+/* Unmerged change from project 'AWSXRayRecorder.UnitTests (netcoreapp3.1)'
+Before:
+            var statusCode = ParseStatusCode(currentLine);
+After:
+            HttpStatusCode statusCode;
+            _ = ParseStatusCode(currentLine);
+*/
+            _ = ParseStatusCode(currentLine);
+            if (responseLines.Length > 1)
             {
-                for (lineIndex = 1; lineIndex < responseLines.Count(); lineIndex++)
+
+                int lineIndex;
+                for (lineIndex = 1; lineIndex < responseLines.Length; lineIndex++)
                 {
                     currentLine = responseLines[lineIndex];
                     if (currentLine.Trim() == string.Empty)
@@ -162,10 +176,9 @@ namespace Amazon.XRay.Recorder.UnitTests.Tools
 
         private static HttpStatusCode ParseStatusCode(string statusLine)
         {
-            var statusCode = string.Empty;
             try
             {
-                statusCode = statusLine.Split(' ')[1];
+                string statusCode = statusLine.Split(' ')[1];
                 return (HttpStatusCode)Enum.Parse(typeof(HttpStatusCode), statusCode);
             }
             catch (Exception exception)

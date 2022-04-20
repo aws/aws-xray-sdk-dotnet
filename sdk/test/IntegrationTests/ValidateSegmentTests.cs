@@ -53,7 +53,7 @@ namespace Amazon.XRay.Recorder.IntegrationTests
 #if NET45
             var response = BatchGetTraces(traceId);
 #else
-            var response = BatchGetTracesAsync(traceId).Result;
+            var response = TestBase.BatchGetTracesAsync(traceId).Result;
 #endif
             Assert.IsTrue(response.Traces.Count > 0);
 
@@ -83,7 +83,7 @@ namespace Amazon.XRay.Recorder.IntegrationTests
 #if NET45
             var response = BatchGetTraces(traceId);
 #else
-            var response = BatchGetTracesAsync(traceId).Result;
+            var response = TestBase.BatchGetTracesAsync(traceId).Result;
 #endif
             Assert.IsTrue(response.Traces.Count > 0);
 
@@ -123,7 +123,7 @@ namespace Amazon.XRay.Recorder.IntegrationTests
 #if NET45
             var response = BatchGetTraces(traceId);
 #else
-            var response = BatchGetTracesAsync(traceId).Result;
+            var response = TestBase.BatchGetTracesAsync(traceId).Result;
 #endif
             Assert.IsTrue(response.Traces.Count > 0);
 
@@ -154,7 +154,7 @@ namespace Amazon.XRay.Recorder.IntegrationTests
 #if NET45
             var response = BatchGetTraces(traceId);
 #else
-            var response = BatchGetTracesAsync(traceId).Result;
+            var response = TestBase.BatchGetTracesAsync(traceId).Result;
 #endif
             Assert.IsTrue(response.Traces.Count > 0);
 
@@ -185,7 +185,7 @@ namespace Amazon.XRay.Recorder.IntegrationTests
 #if NET45
             var response = BatchGetTraces(traceId);
 #else
-            var response = BatchGetTracesAsync(traceId).Result;
+            var response = TestBase.BatchGetTracesAsync(traceId).Result;
 #endif
             Assert.IsTrue(response.Traces.Count > 0);
 

@@ -60,8 +60,7 @@ namespace Amazon.XRay.Recorder.UnitTests.Tools
 
         public string GetHeaderValue(string headerName)
         {
-            string headerValue;
-            if (_headers.TryGetValue(headerName, out headerValue))
+            if (_headers.TryGetValue(headerName, out string headerValue))
                 return headerValue;
 
             return string.Empty;
@@ -85,7 +84,7 @@ namespace Amazon.XRay.Recorder.UnitTests.Tools
             foreach (KeyValuePair<string, IEnumerable<string>> kvp in response.Headers)
             {
                 headerNames.Add(kvp.Key);
-                var headerValue = GetFirstHeaderValue(response.Headers, kvp.Key);
+                var headerValue = CustomWebResponse.GetFirstHeaderValue(response.Headers, kvp.Key);
                 _headers.Add(kvp.Key, headerValue);
             }
 
@@ -96,7 +95,7 @@ namespace Amazon.XRay.Recorder.UnitTests.Tools
                     if (!headerNames.Contains(kvp.Key))
                     {
                         headerNames.Add(kvp.Key);
-                        var headerValue = GetFirstHeaderValue(response.Content.Headers, kvp.Key);
+                        var headerValue = CustomWebResponse.GetFirstHeaderValue(response.Content.Headers, kvp.Key);
                         _headers.Add(kvp.Key, headerValue);
                     }
                 }
@@ -105,10 +104,9 @@ namespace Amazon.XRay.Recorder.UnitTests.Tools
             _headerNamesSet = new HashSet<string>(_headerNames, StringComparer.OrdinalIgnoreCase);
         }
 
-        private string GetFirstHeaderValue(HttpHeaders headers, string key)
+        private static string GetFirstHeaderValue(HttpHeaders headers, string key)
         {
-            IEnumerable<string> headerValues = null;
-            if (headers.TryGetValues(key, out headerValues))
+            if (headers.TryGetValues(key, out IEnumerable<string> headerValues))
                 return headerValues.FirstOrDefault();
 
             return string.Empty;
