@@ -369,7 +369,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         }
 #endif
 
-        private object SerializeAndDeserialize(Object source)
+        private static object SerializeAndDeserialize(Object source)
         {
             IFormatter formatter = new BinaryFormatter();
             Stream stream = new MemoryStream();

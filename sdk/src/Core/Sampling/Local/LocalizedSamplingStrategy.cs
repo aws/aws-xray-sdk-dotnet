@@ -191,13 +191,13 @@ namespace Amazon.XRay.Recorder.Core.Sampling.Local
                 {
                     foreach (var rule in samplingConfiguration.Rules) // contains supported versions.
                     {
-                        if (IsValidVersion1(samplingConfiguration, rule))
+                        if (LocalizedSamplingStrategy.IsValidVersion1(samplingConfiguration, rule))
                         {
                             rule.Host = rule.ServiceName;
                         }
                         else 
                         {
-                            ValidateVersion2(samplingConfiguration, rule); // rule.Host already parsed in rule.
+                            LocalizedSamplingStrategy.ValidateVersion2(samplingConfiguration, rule); // rule.Host already parsed in rule.
                         }
 
                         rules.Add(rule);
@@ -208,7 +208,7 @@ namespace Amazon.XRay.Recorder.Core.Sampling.Local
             }
         }
 
-        private bool IsValidVersion1(SamplingConfiguration samplingConfiguration, SamplingRule rule)
+        private static bool IsValidVersion1(SamplingConfiguration samplingConfiguration, SamplingRule rule)
         {
             if (samplingConfiguration.Version == 1)
             {
@@ -227,7 +227,7 @@ namespace Amazon.XRay.Recorder.Core.Sampling.Local
 
             return false;
         }
-        private void ValidateVersion2(SamplingConfiguration samplingConfiguration, SamplingRule rule)
+        private static void ValidateVersion2(SamplingConfiguration samplingConfiguration, SamplingRule rule)
         {
             if (rule.Host == null || rule.HttpMethod == null || rule.UrlPath == null ||
                              rule.FixedTarget == -1 || rule.Rate == -1d || rule.ServiceName != null)

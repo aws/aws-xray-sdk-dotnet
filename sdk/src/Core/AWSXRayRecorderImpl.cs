@@ -354,7 +354,7 @@ namespace Amazon.XRay.Recorder.Core
                 }
             }
 
-            AddRuleName(newSegment, sampleResponse);
+            AWSXRayRecorderImpl.AddRuleName(newSegment, sampleResponse);
 
             if (Origin != null)
             {
@@ -370,7 +370,7 @@ namespace Amazon.XRay.Recorder.Core
         /// <summary>
         /// If non null, adds given rulename to the segment..
         /// </summary>
-        private void AddRuleName(Segment newSegment, SamplingResponse sampleResponse)
+        private static void AddRuleName(Segment newSegment, SamplingResponse sampleResponse)
         {
             var ruleName = sampleResponse.RuleName;
             string ruleNameKey = "sampling_rule_name";

@@ -111,7 +111,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Context
         /// Gets instance of <see cref="HttpContext"/>
         /// </summary>
         /// <returns>Instance of <see cref="HttpContext"/>.</returns>
-        private HttpContext GetHTTPContext()
+        private static HttpContext GetHTTPContext()
         {
             return HttpContext.Current;
         }
@@ -120,7 +120,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Context
         /// Gets segment from <see cref="HttpContext"/> if available, else null.
         /// </summary>
         /// <returns>Entity from context.Items[XRayEntity </returns>
-        private Entity GetEntityFromHTTPContext()
+        private static Entity GetEntityFromHTTPContext()
         {
             try
             {
@@ -159,7 +159,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Context
         /// Populates <see cref="HttpContext"/> with the segment.
         /// </summary>
         /// <param name="segment">Segment that is stored in HTTPContext</param>
-        private void StoreEntityInHTTPContext(Segment segment)
+        private static void StoreEntityInHTTPContext(Segment segment)
         {
             HttpContext context = GetHTTPContext();
             if (context != null)

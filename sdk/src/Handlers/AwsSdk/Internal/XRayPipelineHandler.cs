@@ -611,7 +611,7 @@ namespace Amazon.XRay.Recorder.Handlers.AwsSdk.Internal
         /// </summary>
         public override void InvokeSync(IExecutionContext executionContext)
         {
-            if (IsTracingDisabled() || ExcludeServiceOperation(executionContext))
+            if (XRayPipelineHandler.IsTracingDisabled() || XRayPipelineHandler.ExcludeServiceOperation(executionContext))
             {
                 base.InvokeSync(executionContext);
             }
@@ -659,7 +659,7 @@ namespace Amazon.XRay.Recorder.Handlers.AwsSdk.Internal
             return;
         }
 
-        private bool ExcludeServiceOperation(IExecutionContext executionContext)
+        private static bool ExcludeServiceOperation(IExecutionContext executionContext)
         {
             var requestContext = executionContext.RequestContext;
             var serviceName = RemoveAmazonPrefixFromServiceName(requestContext.Request.ServiceName);
@@ -668,7 +668,7 @@ namespace Amazon.XRay.Recorder.Handlers.AwsSdk.Internal
             return AWSXRaySDKUtils.IsBlacklistedOperation(serviceName,operation);
         }
 
-        private bool IsTracingDisabled()
+        private static bool IsTracingDisabled()
         {
             if (AWSXRayRecorder.Instance.IsTracingDisabled())
             {
@@ -686,7 +686,7 @@ namespace Amazon.XRay.Recorder.Handlers.AwsSdk.Internal
         {
             T ret = null;
 
-            if (IsTracingDisabled() || ExcludeServiceOperation(executionContext))
+            if (XRayPipelineHandler.IsTracingDisabled() || XRayPipelineHandler.ExcludeServiceOperation(executionContext))
             {
                 ret = await base.InvokeAsync<T>(executionContext).ConfigureAwait(false);
             }
