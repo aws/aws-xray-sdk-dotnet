@@ -29,7 +29,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Amazon.XRay.Recorder.UnitTests.Tools
 {
-    public class MockHttpRequest : IHttpRequest<Stream>
+    public sealed class MockHttpRequest : IHttpRequest<Stream>
     {
         private Stream requestStream = null;
         public MockHttpRequest(Uri requestUri, Action action, Func<MockHttpRequest, HttpWebResponse> responseCreator = null)

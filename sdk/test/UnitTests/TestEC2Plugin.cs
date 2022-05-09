@@ -34,29 +34,24 @@ namespace Amazon.XRay.Recorder.UnitTests
         {
             // Arrange
             EC2Plugin ec2_plugin = new MockEC2Plugin(failV1: false, failV2: false);
-            IDictionary<string, object> context = new Dictionary<string, object>();
 
             // Act
-            bool ret = ec2_plugin.TryGetRuntimeContext(out context);
+            bool ret = ec2_plugin.TryGetRuntimeContext(out IDictionary<string, object> context);
 
             // Assert
             Assert.IsTrue(ret);
             Assert.AreEqual(4, context.Count);
-            
-            object instance_id = "";
-            context.TryGetValue("instance_id", out instance_id);
+
+            context.TryGetValue("instance_id", out object instance_id);
             Assert.AreEqual("i-07a181803de94c666", instance_id.ToString());
 
-            object availability_zone = "";
-            context.TryGetValue("availability_zone", out availability_zone);
+            context.TryGetValue("availability_zone", out object availability_zone);
             Assert.AreEqual("us-east-2a", availability_zone.ToString());
 
-            object instance_size = "";
-            context.TryGetValue("instance_size", out instance_size);
+            context.TryGetValue("instance_size", out object instance_size);
             Assert.AreEqual("t3.xlarge", instance_size.ToString());
 
-            object ami_id = "";
-            context.TryGetValue("ami_id", out ami_id);
+            context.TryGetValue("ami_id", out object ami_id);
             Assert.AreEqual("ami-03cca83dd001d4666", ami_id.ToString());
         }
 
@@ -65,28 +60,23 @@ namespace Amazon.XRay.Recorder.UnitTests
         {
             // Arrange
             EC2Plugin ec2_plugin = new MockEC2Plugin(failV1: false, failV2: true);
-            IDictionary<string, object> context = new Dictionary<string, object>();
-            
+
             // Act
-            bool ret = ec2_plugin.TryGetRuntimeContext(out context);
+            bool ret = ec2_plugin.TryGetRuntimeContext(out IDictionary<string, object> context);
 
             // Assert
             Assert.IsTrue(ret);
             Assert.AreEqual(4, context.Count);
-            object instance_id = "";
-            context.TryGetValue("instance_id", out instance_id);
+            context.TryGetValue("instance_id", out object instance_id);
             Assert.AreEqual("i-07a181803de94c477", instance_id.ToString());
 
-            object availability_zone = "";
-            context.TryGetValue("availability_zone", out availability_zone);
+            context.TryGetValue("availability_zone", out object availability_zone);
             Assert.AreEqual("us-west-2a", availability_zone.ToString());
 
-            object instance_size = "";
-            context.TryGetValue("instance_size", out instance_size);
+            context.TryGetValue("instance_size", out object instance_size);
             Assert.AreEqual("t2.xlarge", instance_size.ToString());
 
-            object ami_id = "";
-            context.TryGetValue("ami_id", out ami_id);
+            context.TryGetValue("ami_id", out object ami_id);
             Assert.AreEqual("ami-03cca83dd001d4d11", ami_id.ToString());
         }
 
@@ -95,10 +85,9 @@ namespace Amazon.XRay.Recorder.UnitTests
         {
             // Arrange
             EC2Plugin ec2_plugin = new MockEC2Plugin(failV1: true, failV2: true);
-            IDictionary<string, object> context = new Dictionary<string, object>();
 
             // Act
-            bool ret = ec2_plugin.TryGetRuntimeContext(out context);
+            bool ret = ec2_plugin.TryGetRuntimeContext(out IDictionary<string, object> context);
 
             // Assert
             Assert.IsFalse(ret);
@@ -133,8 +122,8 @@ namespace Amazon.XRay.Recorder.UnitTests
             {
                 throw new Exception("Unable to complete the v1 request successfully");
             }
-            
-            string meta_string = "";
+
+            string meta_string;
             if (headers == null) // for v1 endpoint request
             {
                 meta_string = "{\"availabilityZone\" : \"us-west-2a\", \"imageId\" : \"ami-03cca83dd001d4d11\", \"instanceId\" : \"i-07a181803de94c477\", \"instanceType\" : \"t2.xlarge\"}";
@@ -148,5 +137,5 @@ namespace Amazon.XRay.Recorder.UnitTests
         }
 
     }
-    
+
 }

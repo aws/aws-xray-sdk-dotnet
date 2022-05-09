@@ -30,8 +30,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         public void TestTryParseWithOnlyRootTraceId()
         {
             string input = "Root=1-5759e988-bd862e3fe1be46a994272793;";
-            TraceHeader header;
-            Assert.IsTrue(TraceHeader.TryParse(input, out header));
+            Assert.IsTrue(TraceHeader.TryParse(input, out TraceHeader header));
             Assert.AreEqual("1-5759e988-bd862e3fe1be46a994272793", header.RootTraceId);
             Assert.IsNull(header.ParentId);
             Assert.AreEqual(SampleDecision.Unknown, header.Sampled);
@@ -41,8 +40,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         public void TestTrParseWithInvalidTraceId()
         {
             string input = "Root=1-5759e988";
-            TraceHeader header;
-            Assert.IsFalse(TraceHeader.TryParse(input, out header));
+            Assert.IsFalse(TraceHeader.TryParse(input, out TraceHeader header));
             Assert.IsNull(header);
         }
 
@@ -50,8 +48,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         public void TestTryParseWithRootParentSampled()
         {
             string input = "Root=1-5759e988-bd862e3fe1be46a994272793; Parent=defdfd9912dc5a56; Sampled=1";
-            TraceHeader header;
-            Assert.IsTrue(TraceHeader.TryParse(input, out header));
+            Assert.IsTrue(TraceHeader.TryParse(input, out TraceHeader header));
 
             Assert.AreEqual("1-5759e988-bd862e3fe1be46a994272793", header.RootTraceId);
             Assert.AreEqual("defdfd9912dc5a56", header.ParentId);
@@ -62,8 +59,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         public void TestTryParseWithInvalidParentId()
         {
             string input = "Root=1-5759e988-bd862e3fe1be46a994272793; Parent=215748";
-            TraceHeader header;
-            Assert.IsFalse(TraceHeader.TryParse(input, out header));
+            Assert.IsFalse(TraceHeader.TryParse(input, out TraceHeader header));
             Assert.IsNull(header);
         }
 
@@ -71,8 +67,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         public void TestTryParseWithSampleDisabled()
         {
             string input = "Root=1-5759e988-bd862e3fe1be46a994272793; Sampled=0";
-            TraceHeader header;
-            Assert.IsTrue(TraceHeader.TryParse(input, out header));
+            Assert.IsTrue(TraceHeader.TryParse(input, out TraceHeader header));
 
             Assert.AreEqual(SampleDecision.NotSampled, header.Sampled);
         }
@@ -81,17 +76,15 @@ namespace Amazon.XRay.Recorder.UnitTests
         public void TestTryParseSampleRequested()
         {
             string input = "Root=1-5759e988-bd862e3fe1be46a994272793; Sampled=?";
-            TraceHeader header;
-            Assert.IsTrue(TraceHeader.TryParse(input, out header));
+            Assert.IsTrue(TraceHeader.TryParse(input, out TraceHeader header));
             Assert.AreEqual(SampleDecision.Requested, header.Sampled);
         }
 
         [TestMethod]
         public void TestTryParseNullString()
         {
-            TraceHeader header;
             string nullString = null;
-            Assert.IsFalse(TraceHeader.TryParse(nullString, out header));
+            Assert.IsFalse(TraceHeader.TryParse(nullString, out _));
         }
 
         [TestMethod]
@@ -101,8 +94,7 @@ namespace Amazon.XRay.Recorder.UnitTests
 
             foreach (string s in invalidStrings)
             {
-                TraceHeader header;
-                Assert.IsFalse(TraceHeader.TryParse(s, out header));
+                Assert.IsFalse(TraceHeader.TryParse(s, out _));
             }
         }
 
@@ -165,8 +157,7 @@ namespace Amazon.XRay.Recorder.UnitTests
                 recorder.BeginSubsegment("subjob");
                 var subsegment = AWSXRayRecorder.Instance.TraceContext.GetEntity();
 
-                TraceHeader header;
-                Assert.IsTrue(TraceHeader.TryParse(subsegment, out header));
+                Assert.IsTrue(TraceHeader.TryParse(subsegment, out TraceHeader header));
 
                 Assert.AreEqual(TraceId, header.RootTraceId);
                 Assert.AreEqual(subsegment.Id, header.ParentId);

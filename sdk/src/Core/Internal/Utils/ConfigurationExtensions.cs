@@ -82,8 +82,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
         private static bool GetSettingBool(string key, IConfiguration section, bool defaultValue = false)
         {
             string value = GetSetting(key,section);
-            bool result;
-            if (bool.TryParse(value, out result))
+            if (bool.TryParse(value, out bool result))
             {
                 return result;
             }

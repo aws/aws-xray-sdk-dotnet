@@ -161,7 +161,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             RemoveInterceptor(efInterceptor);
         }
 
-        private EFInterceptor RegisterInterceptor(bool collectSqlQueries)
+        private static EFInterceptor RegisterInterceptor(bool collectSqlQueries)
         {
             var efInterceptor = new EFInterceptor(collectSqlQueries);
             DbInterception.Add(efInterceptor);
@@ -169,7 +169,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         }
 
         // Remove EFInterceptor from DbInterceptor to avoid duplicate tracing
-        private void RemoveInterceptor(EFInterceptor interceptor)
+        private static void RemoveInterceptor(EFInterceptor interceptor)
         {
             DbInterception.Remove(interceptor);
         }

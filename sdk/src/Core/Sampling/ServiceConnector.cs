@@ -91,17 +91,17 @@ namespace Amazon.XRay.Recorder.Core.Sampling
             lock (_xrayClientLock)
             {
                 RefreshEndPoint();
-                responseTask = GetSamplingInfoAsync(_xrayConfig.ServiceURL + "/GetSamplingRules", string.Empty);
+                responseTask = ServiceConnector.GetSamplingInfoAsync(_xrayConfig.ServiceURL + "/GetSamplingRules", string.Empty);
             }
             var responseContent = await responseTask;
 
-            List<SamplingRule> samplingRules = UnmarshallSamplingRuleResponse(responseContent);
+            List<SamplingRule> samplingRules = ServiceConnector.UnmarshallSamplingRuleResponse(responseContent);
 
             GetSamplingRulesResponse result = new GetSamplingRulesResponse(samplingRules);
             return result;
         }
 
-        private async Task<string> GetSamplingInfoAsync(string url, string content)
+        private static async Task<string> GetSamplingInfoAsync(string url, string content)
         {
             using (var stringContent = new StringContent(content, Encoding.UTF8, "application/json"))
             {
@@ -116,7 +116,7 @@ namespace Amazon.XRay.Recorder.Core.Sampling
             }
         }
 
-        private List<SamplingRule> UnmarshallSamplingRuleResponse(string responseContent)
+        private static List<SamplingRule> UnmarshallSamplingRuleResponse(string responseContent)
         {
             List<SamplingRule> samplingRules = new List<SamplingRule>();
 
@@ -168,11 +168,11 @@ namespace Amazon.XRay.Recorder.Core.Sampling
             lock (_xrayClientLock)
             {
                 RefreshEndPoint();
-                responseTask = GetSamplingInfoAsync(_xrayConfig.ServiceURL + "/SamplingTargets", requestContent);
+                responseTask = ServiceConnector.GetSamplingInfoAsync(_xrayConfig.ServiceURL + "/SamplingTargets", requestContent);
             }
             var responseContent = await responseTask;
 
-            var samplingTargetResponse = UnmarshallSamplingTargetResponse(responseContent);
+            var samplingTargetResponse = ServiceConnector.UnmarshallSamplingTargetResponse(responseContent);
 
             var targetList = ConvertTargetList(samplingTargetResponse.SamplingTargetDocuments);
 
@@ -199,7 +199,7 @@ namespace Amazon.XRay.Recorder.Core.Sampling
             return result;
         }
 
-        private SamplingTargetResponseModel UnmarshallSamplingTargetResponse(string responseContent)
+        private static SamplingTargetResponseModel UnmarshallSamplingTargetResponse(string responseContent)
         {
             var samplingTargetResponse = JsonMapper.ToObject<SamplingTargetResponseModel>(responseContent);
 

@@ -100,10 +100,7 @@ namespace ThirdParty.LitJson
 
         public JsonWriter (TextWriter writer)
         {
-            if (writer == null)
-                throw new ArgumentNullException (nameof(writer));
-
-            this.writer = writer;
+            this.writer = writer ?? throw new ArgumentNullException (nameof(writer));
 
             Init ();
         }

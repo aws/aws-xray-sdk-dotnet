@@ -25,7 +25,7 @@ namespace Amazon.XRay.Recorder.UnitTests.Tools
     /// <summary>
     /// Not thread safe, initialize once for each test.
     /// </summary>
-    public class MockHttpRequestFactory : IHttpRequestFactory<Stream>
+    public sealed class MockHttpRequestFactory : IHttpRequestFactory<Stream>
     {
         public Action GetResponseAction { get; set; }
         public Func<MockHttpRequest, HttpWebResponse> ResponseCreator { get; set; }

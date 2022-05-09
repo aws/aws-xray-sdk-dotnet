@@ -266,7 +266,6 @@ namespace Amazon.XRay.Recorder.Handlers.SqlServer
         /// <param name="callback">The callback.</param>
         /// <param name="stateObject">The state object.</param>
         /// <returns>An System.IAsyncResult that can be used to poll or wait for results, or both;</returns>
-        [SuppressMessage("Microsoft.Naming", "CA1720:IdentifiersShouldNotContainTypeNames", MessageId = "object", Justification = "Keep consistent with System.Data.SqlClient.SqlCommand")]
         public IAsyncResult BeginExecuteNonQuery(AsyncCallback callback, object stateObject)
         {
             return InnerSqlCommand.BeginExecuteNonQuery(callback, stateObject);
@@ -297,7 +296,6 @@ namespace Amazon.XRay.Recorder.Handlers.SqlServer
         /// <param name="callback">The callback.</param>
         /// <param name="stateObject">The state object.</param>
         /// <returns>An System.IAsyncResult that can be used to poll or wait for results, or both;</returns>
-        [SuppressMessage("Microsoft.Naming", "CA1720:IdentifiersShouldNotContainTypeNames", MessageId = "object", Justification = "Keep consistent with System.Data.SqlClient.SqlCommand")]
         public IAsyncResult BeginExecuteReader(AsyncCallback callback, object stateObject)
         {
             return InnerSqlCommand.BeginExecuteReader(callback, stateObject);
@@ -310,7 +308,6 @@ namespace Amazon.XRay.Recorder.Handlers.SqlServer
         /// <param name="stateObject">The state object.</param>
         /// <param name="behavior">The behavior.</param>
         /// <returns>An System.IAsyncResult that can be used to poll or wait for results, or both;</returns>
-        [SuppressMessage("Microsoft.Naming", "CA1720:IdentifiersShouldNotContainTypeNames", MessageId = "object", Justification = "Keep consistent with System.Data.SqlClient.SqlCommand")]
         public IAsyncResult BeginExecuteReader(AsyncCallback callback, object stateObject, CommandBehavior behavior)
         {
             return InnerSqlCommand.BeginExecuteReader(callback, stateObject, behavior);
@@ -331,7 +328,6 @@ namespace Amazon.XRay.Recorder.Handlers.SqlServer
         /// <param name="callback">The callback.</param>
         /// <param name="stateObject">The state object.</param>
         /// <returns>An System.IAsyncResult that can be used to poll or wait for results, or both;</returns>
-        [SuppressMessage("Microsoft.Naming", "CA1720:IdentifiersShouldNotContainTypeNames", MessageId = "object", Justification = "Keep consistent with System.Data.SqlClient.SqlCommand")]
         public IAsyncResult BeginExecuteXmlReader(AsyncCallback callback, object stateObject)
         {
             return InnerSqlCommand.BeginExecuteXmlReader(callback, stateObject);

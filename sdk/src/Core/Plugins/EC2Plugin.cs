@@ -110,7 +110,7 @@ namespace Amazon.XRay.Recorder.Core.Plugins
                 }
                 string identity_doc_url = metadata_base_url + "dynamic/instance-identity/document";
                 string doc_string = DoRequest(identity_doc_url, HttpMethod.Get, headers);
-                return ParseMetadata(doc_string);
+                return EC2Plugin.ParseMetadata(doc_string);
             }
             catch (Exception)
             {
@@ -152,7 +152,7 @@ namespace Amazon.XRay.Recorder.Core.Plugins
         }
 
 
-        private IDictionary<string, object> ParseMetadata(string jsonString)
+        private static IDictionary<string, object> ParseMetadata(string jsonString)
         {
             JsonData data = JsonMapper.ToObject(jsonString);
             Dictionary<string, object> ec2_meta_dict = new Dictionary<string, object>();

@@ -97,11 +97,11 @@ namespace Amazon.XRay.Recorder.UnitTests
             int[] ttls = {1, 4};
             foreach (var ttl in ttls)
             {
-                TestMultiThreadedUpdateSpacing(ttl);
+                HostEndPointTests.TestMultiThreadedUpdateSpacing(ttl);
             }
         }
         
-        private void TestMultiThreadedUpdateSpacing(int ttl)
+        private static void TestMultiThreadedUpdateSpacing(int ttl)
         {
             var targetRuntime = ttl * 1;
             const int numberOfThreads = 20;

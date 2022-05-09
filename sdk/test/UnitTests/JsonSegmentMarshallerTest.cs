@@ -89,9 +89,9 @@ namespace Amazon.XRay.Recorder.UnitTests
             segment.StartTime = 1;
             segment.EndTime = 2;
 
-            Func<object, object> func = SyncFunction;
-            Action<object> action = SyncAction;
-            Func<object, Task<object>> asyncFunc = AsyncFunction;
+            Func<object, object> func = JsonSegmentMarshallerTest.SyncFunction;
+            Action<object> action = JsonSegmentMarshallerTest.SyncAction;
+            Func<object, Task<object>> asyncFunc = JsonSegmentMarshallerTest.AsyncFunction;
 
             var functionName = "function";
             var actionName = "action";
@@ -112,9 +112,9 @@ namespace Amazon.XRay.Recorder.UnitTests
                             (string)actualJson["metadata"]["default"][asyncFunctionName]);
         }
 
-        public object SyncFunction(object obj) => obj;
-        public void SyncAction(object obj) { return; }
-        public Task<object> AsyncFunction(object obj) => Task.FromResult(obj);
+        public static object SyncFunction(object obj) => obj;
+        public static void SyncAction(object obj) { return; }
+        public static Task<object> AsyncFunction(object obj) => Task.FromResult(obj);
 
         [TestMethod]
         public void TestMarshallSimpleSegment()

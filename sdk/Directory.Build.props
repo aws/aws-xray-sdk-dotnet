@@ -7,4 +7,10 @@
   <PropertyGroup Condition="'$(TargetFramework)' == 'net45' or '$(TargetFramework)' == 'net452'">
     <DebugType>portable</DebugType>
   </PropertyGroup>
+
+  <PropertyGroup>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisMode>minimum</AnalysisMode>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+  </PropertyGroup>
 </Project>

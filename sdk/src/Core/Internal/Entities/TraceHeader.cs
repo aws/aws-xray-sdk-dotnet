@@ -83,10 +83,9 @@ namespace Amazon.XRay.Recorder.Core.Internal.Entities
                     .Select(value => value.Trim().Split('='))
                     .ToDictionary(pair => pair[0], pair => pair[1]);
 
-                string tmpValue;
 
                 // Root trace id is required
-                if (!keyValuePairs.TryGetValue(RootKey, out tmpValue))
+                if (!keyValuePairs.TryGetValue(RootKey, out string tmpValue))
                 {
                     return false;
                 }
@@ -110,8 +109,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Entities
                 }
 
                 // Sample decision is optional
-                char tmpChar;
-                if (keyValuePairs.TryGetValue(SampledKey, out tmpValue) && char.TryParse(tmpValue, out tmpChar))
+                if (keyValuePairs.TryGetValue(SampledKey, out tmpValue) && char.TryParse(tmpValue, out char tmpChar))
                 {
                     if (Enum.IsDefined(typeof(SampleDecision), (int)tmpChar))
                     {
@@ -169,9 +167,8 @@ namespace Amazon.XRay.Recorder.Core.Internal.Entities
                     .Select(value => value.Trim().Split('='))
                     .ToDictionary(pair => pair[0], pair => pair[1]);
 
-                string tmpValue;
 
-                if (keyValuePairs.TryGetValue(RootKey, out tmpValue) && TraceId.IsIdValid(tmpValue))
+                if (keyValuePairs.TryGetValue(RootKey, out string tmpValue) && TraceId.IsIdValid(tmpValue))
                 {
                     result.RootTraceId = tmpValue;
                 }
@@ -180,16 +177,15 @@ namespace Amazon.XRay.Recorder.Core.Internal.Entities
                 {
                     result.ParentId = tmpValue;
                 }
-            
-                char tmpChar;
-                if (keyValuePairs.TryGetValue(SampledKey, out tmpValue) && char.TryParse(tmpValue, out tmpChar))
+
+                if (keyValuePairs.TryGetValue(SampledKey, out tmpValue) && char.TryParse(tmpValue, out char tmpChar))
                 {
                     if (Enum.IsDefined(typeof(SampleDecision), (int)tmpChar))
                     {
                         result.Sampled = (SampleDecision)tmpChar;
                     }
                 }
-               
+
                 return result;
             }
             catch (IndexOutOfRangeException e)

@@ -141,7 +141,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             Assert.IsFalse(AppSettings.CollectSqlQueries);
         }
 
-        private AWSXRayRecorder GetRecorder()
+        private static AWSXRayRecorder GetRecorder()
         {
             return new AWSXRayRecorderBuilder().WithPluginsFromAppSettings().WithContextMissingStrategyFromAppSettings().Build();
         }

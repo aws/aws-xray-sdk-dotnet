@@ -31,7 +31,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Amazon.XRay.Recorder.UnitTests.Tools
 {
     //Used for NetCore
-    public class MockHttpRequest : IHttpRequest<HttpContent>
+    public sealed class MockHttpRequest : IHttpRequest<HttpContent>
     {
         private HttpClient _httpClient = new HttpClient();
 

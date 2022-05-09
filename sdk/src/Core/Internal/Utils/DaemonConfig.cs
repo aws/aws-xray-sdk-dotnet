@@ -82,11 +82,10 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
 
         internal static DaemonConfig ParsEndpoint(string daemonAddress)
         {
-            DaemonConfig daemonEndPoint;
-          
-            if (!IPEndPointExtension.TryParse(daemonAddress, out daemonEndPoint))
+
+            if (!IPEndPointExtension.TryParse(daemonAddress, out DaemonConfig daemonEndPoint))
             {
-                 daemonEndPoint = new DaemonConfig();
+                daemonEndPoint = new DaemonConfig();
                 _logger.InfoFormat("The given daemonAddress ({0}) is invalid, using default daemon UDP and TCP address {1}:{2}.", daemonAddress, daemonEndPoint.UDPEndpoint.Address.ToString(), daemonEndPoint.UDPEndpoint.Port);
             }
             return daemonEndPoint;
