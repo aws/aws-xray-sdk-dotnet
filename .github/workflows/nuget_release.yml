@@ -1,0 +1,43 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: The version to tag the release with, e.g., 1.2.0, 1.3.0
+        required: true
+
+jobs:
+    build-pack-release:
+        runs-on: ${{ matrix.os }}
+
+        env:
+            DOTNET_MULTILEVEL_LOOKUP: 1
+
+        strategy:
+            fail-fast: true
+            matrix:
+                os: [windows-latest]
+
+        steps:
+        - name: Checkout repository
+          uses: actions/checkout@v2
+
+        - name: Configure AWS Credentials
+          uses: aws-actions/configure-aws-credentials@v1
+          with:
+            role-to-assume: ${{ secrets.AWS_ASSUME_ROLE_ARN_RELEASE }}
+            aws-region: us-west-2
+
+        - name: Get Strong-Naming Key
+          run: aws s3api get-object "--bucket" ${{ env.SNK_BUCKET }} "--key" awsxrayrecorder.dll.snk
+
+        - name: Install dependencies
+          run: dotnet restore .\sdk\AWSXRayRecorder.sln
+
+        - name: Build solution
+          run: dotnet build .\sdk\AWSXRayRecorder.sln /p:Configuration=Release --no-restore /p:AssemblyOriginatorKeyFile=awsxrayrecorder.dll.snk
+
+        - name: Sign
+          run: echo "Hello"
+
