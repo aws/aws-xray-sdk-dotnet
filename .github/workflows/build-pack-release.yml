@@ -44,21 +44,10 @@ jobs:
           run: dotnet build .\sdk\AWSXRayRecorder.sln /p:Configuration=Release --no-restore /p:AssemblyOriginatorKeyFile=${{ github.workspace }}\awsxrayrecorder.dll.snk
 
         - name: Assume signer role
-          run: |
-            $resp = aws sts assume-role --role-arn ${{ secrets.AWS_ARTIFACT_ACCESS_ROLE_ARN }} --external-id ${{ secrets.AWS_ROLE_EXTERNAL_ID }} --role-session-name AWSSigner-Session
-            $ak = echo $resp | jq -r ".Credentials.AccessKeyId"
-            $sk = echo $resp | jq -r ".Credentials.SecretAccessKey"
-            $tk = echo $resp | jq -r ".Credentials.SessionToken"
-            
-            # It is important that we mask the credentials before even setting it in the env var.
-            # Otherwise it will leak the secrets in GH workflow logs.
-            Write-Output "::add-mask::$ak"
-            Write-Output "::add-mask::$sk"
-            Write-Output "::add-mask::$tk"
-
-            echo "AWS_ACCESS_KEY_ID=$ak" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf-8 -Append
-            echo "AWS_SECRET_ACCESS_KEY=$sk" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf-8 -Append
-            echo "AWS_SESSION_TOKEN=$tk" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf-8 -Append
+          uses: aws-actions/configure-aws-credentials@v1
+          with:
+            role-to-assume: ${{ secrets.AWS_ARTIFACT_ACCESS_ROLE_ARN }}
+            aws-region: us-west-2
 
         - name: Invoke Signing script
           run: |
@@ -75,39 +64,19 @@ jobs:
             name: nuget-packages
             path: Deployment/nuget-packages/
 
-        - name: Configure AWS credentials
+        - name: Assume nuget role
           uses: aws-actions/configure-aws-credentials@v1
           with:
-            role-to-assume: ${{ secrets.AWS_ASSUME_ROLE_ARN_RELEASE }}
+            role-to-assume: ${{ secrets.NUGET_ACCESS_ROLE_ARN }}
             aws-region: us-west-2
 
-        - name: Assume nuget role
-          run: |
-            $resp = aws sts assume-role --role-arn ${{ secrets.NUGET_ACCESS_ROLE_ARN}} --role-session-name NugetAccess-Session
-            $ak = echo $resp | jq -r ".Credentials.AccessKeyId"
-            $sk = echo $resp | jq -r ".Credentials.SecretAccessKey"
-            $tk = echo $resp | jq -r ".Credentials.SessionToken"
-
-            # It is important that we mask the credentials before even setting it in the env var.
-            # Otherwise it will leak the secrets in GH workflow logs.
-            Write-Output "::add-mask::$ak"
-            Write-Output "::add-mask::$sk"
-            Write-Output "::add-mask::$tk"
-
-            echo "AWS_ACCESS_KEY_ID=$ak" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf-8 -Append
-            echo "AWS_SECRET_ACCESS_KEY=$sk" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf-8 -Append
-            echo "AWS_SESSION_TOKEN=$tk" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf-8 -Append
-
-        - name: Get and set the Nuget key
-          run: | 
-            $nugetKey = aws secretsmanager get-secret-value --region us-west-2 --secret-id ${{ secrets.NUGET_SECRETS_ID }} | jq -r ".SecretString"
-            Write-Output "::add-mask::$nugetKey"
-            nuget setapikey $nugetKey -Source https://api.nuget.org/v3/index.json
-
         # TODO: uncomment this step once the rest of the workflow has been verified in prod.
-        #- name: Publish nugets
-        #  run: nuget push .\Deployment\nuget-packages\*.nupkg
+        #- name: Push packages to Nuget.org
+        #  run: |
+        #    $nugetKey = aws secretsmanager get-secret-value --secret-id ${{ secrets.NUGET_SECRETS_ID }} --region us-west-2 --output text --query SecretString
+        #    nuget push .\Deployment\nuget-packages\*.nupkg -Source https://api.nuget.org/v3/index.json -ApiKey $nugetKey
             
+        # TODO: Chnage this step to directly create a public release once the workflow has been verified.
         - name: Create draft release
           id: create_release
           uses: actions/create-release@v1
@@ -123,5 +92,3 @@ jobs:
         - name: Clean up
           run: |
             rm .\awsxrayrecorder.dll.snk
-            
-          
