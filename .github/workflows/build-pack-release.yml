@@ -17,7 +17,6 @@ jobs:
 
         env:
             DOTNET_MULTILEVEL_LOOKUP: 1
-            SNK_BUCKET: srprash-xray-dotnet-assets
 
         strategy:
             fail-fast: true
@@ -35,7 +34,7 @@ jobs:
             aws-region: us-west-2
 
         - name: Get Strong-Naming Key
-          run: aws s3api get-object --bucket ${{ env.SNK_BUCKET }} --key awsxrayrecorder.dll.snk awsxrayrecorder.dll.snk
+          run: aws s3api get-object --bucket ${{ secrets.SNK_BUCKET }} --key awsxrayrecorder.dll.snk awsxrayrecorder.dll.snk
           
         - name: Install dependencies
           run: dotnet restore .\sdk\AWSXRayRecorder.sln
@@ -52,6 +51,9 @@ jobs:
         - name: Invoke Signing script
           run: |
             .\buildtools\sign_files.ps1 -Path .\sdk\src -Filter AWSXRayRecorder.*.dll -Recurse
+          env:
+            UNSIGNED_BUCKET: ${{ secrets.AWS_UNSIGNED_BUCKET_NAME }}
+            SIGNED_BUCKET: ${{ secrets.AWS_SIGNED_BUCKET_NAME }}
 
         - name: Pack nugets
           run: |

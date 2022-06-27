@@ -26,8 +26,8 @@ Param
 Begin
 {
     $ErrorActionPreference = "Stop"
-    $unsignedS3bucket = "936832377454-unsigned-bucket"
-    $signedS3bucket = "936832377454-signed-bucket"
+    $unsignedS3bucket = $Env:UNSIGNED_BUCKET
+    $signedS3bucket = $Env:SIGNED_BUCKET
 
     $Files = @()
 
