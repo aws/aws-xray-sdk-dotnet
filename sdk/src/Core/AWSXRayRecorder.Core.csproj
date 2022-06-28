@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net45;netstandard2.0;netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks>net45;net462;netstandard2.0;netcoreapp3.1</TargetFrameworks>
     <Company>Amazon.com, Inc</Company>
     <Product>Amazon Web Service X-Ray Recorder</Product>
     <Copyright>Copyright 2017-2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.</Copyright>
@@ -47,14 +47,14 @@
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' != 'net45'">
-    <Compile Remove="Internal\Context\CallContextContainer.net45.cs" />
-    <Compile Remove="Internal\Context\HybridContextContainer.net45.cs" />
-    <Compile Remove="Internal\Utils\AppSettings.net45.cs" />
+  <ItemGroup Condition="'$(TargetFramework)' != 'net45' AND '$(TargetFramework)' != 'net462'">
+    <Compile Remove="Internal\Context\CallContextContainer.netframework.cs" />
+    <Compile Remove="Internal\Context\HybridContextContainer.netframework.cs" />
+    <Compile Remove="Internal\Utils\AppSettings.netframework.cs" />
     <Compile Remove="AWSXRayRecorder.cs" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'net45' OR '$(TargetFramework)' == 'net462'">
     <Compile Remove="Internal\Context\AsyncLocalContextContainer.netstandard.cs" />
     <Compile Remove="Internal\Context\LambdaContextContainer.netstandard.cs" />
     <Compile Remove="Internal\Utils\AppSettings.netcore.cs" />
@@ -63,7 +63,7 @@
     <Compile Remove="FacadeSegment.cs" />
   </ItemGroup>
   
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net45'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'net45' OR '$(TargetFramework)' == 'net462'">
     <Reference Include="System.Configuration" />
     <Reference Include="System.Web" />
     <Reference Include="System.Net.Http" />

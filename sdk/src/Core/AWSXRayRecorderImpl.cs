@@ -37,7 +37,7 @@ namespace Amazon.XRay.Recorder.Core
     public abstract class AWSXRayRecorderImpl : IAWSXRayRecorder
     {
         private static readonly Logger _logger = Logger.GetLogger(typeof(AWSXRayRecorderImpl));
-#if NET45
+#if NETFRAMEWORK
         private static Lazy<AWSXRayRecorder> _lazyDefaultRecorder = new Lazy<AWSXRayRecorder>(() => AWSXRayRecorderBuilder.GetDefaultBuilder().Build());
         protected static Lazy<AWSXRayRecorder> LazyDefaultRecorder
         {
@@ -151,7 +151,7 @@ namespace Amazon.XRay.Recorder.Core
         /// <exception cref="ArgumentNullException">The argument has a null value.</exception>
         public void BeginSegment(string name, string traceId = null, string parentId = null, SamplingResponse samplingResponse = null, DateTime? timestamp = null)
         {
-#if !NET45
+#if !NETFRAMEWORK
             if (AWSXRayRecorder.IsLambda())
             {
                 throw new UnsupportedOperationException("Cannot override Facade Segment. New segment not created.");
@@ -193,7 +193,7 @@ namespace Amazon.XRay.Recorder.Core
         /// <exception cref="EntityNotAvailableException">Entity is not available in trace context.</exception>
         public void EndSegment(DateTime? timestamp = null)
         {
-#if !NET45
+#if !NETFRAMEWORK
             if (AWSXRayRecorder.IsLambda())
             {
                 throw new UnsupportedOperationException("Cannot override Facade Segment. New segment not created.");
@@ -728,7 +728,7 @@ namespace Amazon.XRay.Recorder.Core
             // Prepare XRay section for runtime context
             var xrayContext = new ConcurrentDictionary<string, string>();
 
-#if NET45
+#if NETFRAMEWORK
             xrayContext["sdk"] = "X-Ray for .NET";
 #else
             xrayContext["sdk"] = "X-Ray for .NET Core";
@@ -744,7 +744,7 @@ namespace Amazon.XRay.Recorder.Core
             }
 
             RuntimeContext["xray"] = xrayContext;
-#if NET45
+#if NETFRAMEWORK
             ServiceContext["runtime"] = ".NET Framework";
 #else
             ServiceContext["runtime"] = ".NET Core Framework";

@@ -311,7 +311,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         }
 
 
-#if NET45
+#if NETFRAMEWORK
         [TestMethod]
         public void TestSegmentIsSerializable()
         {

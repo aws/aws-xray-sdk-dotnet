@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net45</TargetFrameworks>
+    <TargetFrameworks>net45;net462</TargetFrameworks>
     <Company>Amazon.com, Inc</Company>
     <Product>Amazon Web Service X-Ray Recorder</Product>
     <Copyright>Copyright 2017-2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.</Copyright>
@@ -23,10 +23,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Core\AWSXRayRecorder.Core.csproj" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
-    <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
 
   <ItemGroup>

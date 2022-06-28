@@ -17,6 +17,7 @@
 
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using Amazon.XRay;
 using Amazon.XRay.Model;
 using Amazon.XRay.Recorder.Core;
@@ -44,34 +45,7 @@ namespace Amazon.XRay.Recorder.IntegrationTests
             Recorder.Dispose();
         }
 
-#if NET45
-        protected static BatchGetTracesResponse BatchGetTraces(string traceId)
-        {
-            var request = new BatchGetTracesRequest();
-
-            request.TraceIds = new List<string>() { traceId };
-
-            int retries = 0;
-            BatchGetTracesResponse response = null;
-
-            while (retries < 60)
-            {
-                response = XrayClient.BatchGetTraces(request);
-                if (response.Traces.Count > 0)
-                {
-                    break;
-                }
-                else
-                {
-                    retries++;
-                    Thread.Sleep(500);
-                }
-            }
-
-            return response;
-        }
-#else
-        protected static async System.Threading.Tasks.Task<BatchGetTracesResponse> BatchGetTracesAsync(string traceId)
+        protected async Task<BatchGetTracesResponse> BatchGetTracesAsync(string traceId)
         {
             var request = new BatchGetTracesRequest();
             request.TraceIds = new List<string>() { traceId };
@@ -96,6 +70,5 @@ namespace Amazon.XRay.Recorder.IntegrationTests
         
         return response;
         }
-#endif
     }
 }
