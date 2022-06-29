@@ -1,8 +1,8 @@
 <#
 .Synopsis
-    Authenticode-sign a set of files.
+    Authenticode-sign the set of provided files in-place.
 .DESCRIPTION
-    Authenticode-sign a set of files.
+    Authenticode-sign the set of provided files in-place.
     You can pass either a file (or files e.g. -File file1, file2 - mind the limits of PS command line though)
     or a folder with filter and recurse conditions (e.g. -Path folder -Filter *.dll,*.exe -Recurse).
 #>
