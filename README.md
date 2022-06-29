@@ -1,3 +1,11 @@
+![Build Status](https://github.com/aws/aws-xray-sdk-dotnet/actions/workflows/ci.yml/badge.svg)
+
+### :mega: OpenTelemetry .NET with AWS X-Ray
+
+AWS X-Ray recommends using AWS Distro for OpenTelemetry (ADOT) to instrument your application **instead of this X-Ray SDK** due to its wider range of features and instrumentations. See the [AWS X-Ray docs on Working with .NET](https://docs.aws.amazon.com/xray/latest/devguide/xray-dotnet.html) for more help with choosing between ADOT and X-Ray SDK.
+
+If you want additional features when tracing your .NET applications, please [open an issue on the OpenTelemetry .NET Instrumentation repository](https://github.com/open-telemetry/opentelemetry-dotnet-contrib/issues/new?labels=enhancement&template=miscellaneous.md&title=X-Ray%20Compatible%20Feature%20Request).
+
 # AWS X-Ray SDK for .NET and .NET Core
 
 ![Screenshot of the AWS X-Ray console](images/example_servicemap.png?raw=true)
