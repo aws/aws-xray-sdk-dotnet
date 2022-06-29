@@ -9,19 +9,17 @@ on:
 
 permissions:
   id-token: write
-  contents: read
+  contents: write
 
 jobs:
     build-pack-release:
-        runs-on: ${{ matrix.os }}
+        runs-on: windows-latest
 
         env:
             DOTNET_MULTILEVEL_LOOKUP: 1
 
         strategy:
             fail-fast: true
-            matrix:
-                os: [windows-latest]
 
         steps:
         - name: Checkout repository
@@ -64,13 +62,21 @@ jobs:
           run: >
             .\buildtools\sign_files.ps1
               -Path .\sdk\src
-              -Filter AWSXRayRecorder.*.dll
+              -Filters AWSXRayRecorder.*.dll
               -Recurse
 
         - name: Pack nugets
-          run: |
-            dotnet pack .\sdk\AWSXRayRecorder.sln  --no-build -c Release -o .\Deployment\nuget-packages
-            nuget pack .\sdk\AWSXRayRecorder.nuspec -OutputDirectory .\Deployment\nuget-packages -Exclude **
+          run: >
+            dotnet pack
+              .\sdk\AWSXRayRecorder.sln
+              --no-build
+              -c Release
+              -o .\Deployment\nuget-packages
+
+            nuget pack
+              .\sdk\AWSXRayRecorder.nuspec
+              -OutputDirectory .\Deployment\nuget-packages
+              -Exclude **
 
         - name: Upload nugets to this GitHub Action run as an artifact
           uses: actions/upload-artifact@v2

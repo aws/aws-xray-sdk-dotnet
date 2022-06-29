@@ -3,21 +3,21 @@
     Authenticode-sign the set of provided files in-place.
 .DESCRIPTION
     Authenticode-sign the set of provided files in-place.
-    You can pass either a file (or files e.g. -File file1, file2 - mind the limits of PS command line though)
-    or a folder with filter and recurse conditions (e.g. -Path folder -Filter *.dll,*.exe -Recurse).
+    You can pass either a file (or files e.g. -Files file1, file2 - mind the limits of PS command line though)
+    or a folder with filter and recurse conditions (e.g. -Path folder -Filters *.dll,*.exe -Recurse).
 #>
 
 [CmdletBinding()]
 Param
 (
-    [Parameter(Mandatory=$true, ParameterSetName="File")]
-    [string[]]$File,
+    [Parameter(Mandatory=$true, ParameterSetName="Files")]
+    [string[]]$Files,
 
     [Parameter(Mandatory=$true, ParameterSetName="Path")]
     [string]$Path,
 
     [Parameter(ParameterSetName="Path")]
-    [string[]]$Filter,
+    [string[]]$Filters,
 
     [Parameter(ParameterSetName="Path")]
     [switch]$Recurse
@@ -29,25 +29,25 @@ Begin
     $unsignedS3bucket = $Env:UNSIGNED_BUCKET
     $signedS3bucket = $Env:SIGNED_BUCKET
 
-    $Files = @()
+    $FilesToSign = @()
 
-    if ($PSCmdlet.ParameterSetName -eq "File")
+    if ($PSCmdlet.ParameterSetName -eq "Files")
     {
-        $Files = $File
+        $FilesToSign = $Files
     }
     else
     {
         if ($Recurse)
         {
-            $Files = Get-ChildItem -Path $Path -Include $Filter -File -Recurse | Select-Object -ExpandProperty FullName
+            $FilesToSign = Get-ChildItem -Path $Path -Include $Filters -File -Recurse | Select-Object -ExpandProperty FullName
         }
         else 
         {
-            $Files = Get-ChildItem -Path $Path\* -Include $Filter -File | Select-Object -ExpandProperty FullName
+            $FilesToSign = Get-ChildItem -Path $Path\* -Include $Filters -File | Select-Object -ExpandProperty FullName
         }
     }
 
-    if ($Files.Count -eq 0) 
+    if ($FilesToSign.Count -eq 0) 
     { 
         return "Nothing to sign" 
     }
@@ -108,9 +108,9 @@ Begin
 
     Get-Job | Remove-Job
 
-    Write-Host "Signing", $Files.Count, "file(s)..."
+    Write-Host "Signing", $FilesToSign.Count, "file(s)..."
     
-    foreach ($file in $Files)
+    foreach ($file in $FilesToSign)
     {  
         $null = Invoke-Command -ScriptBlock $signFile -ArgumentList $file
     }
