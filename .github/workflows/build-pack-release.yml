@@ -62,6 +62,7 @@ jobs:
           env:
             UNSIGNED_BUCKET: ${{ secrets.AWS_UNSIGNED_BUCKET_NAME }}
             SIGNED_BUCKET: ${{ secrets.AWS_SIGNED_BUCKET_NAME }}
+          #TODO: There is probably a better way to pass in a list of paths as a single parameter to the script.
           run: |
             .\buildtools\sign_files.ps1 -Filters AWSXRayRecorder.*.dll -Recurse -Path .\sdk\src\Core\bin\Release
             .\buildtools\sign_files.ps1 -Filters AWSXRayRecorder.*.dll -Recurse -Path .\sdk\src\Handlers\AspNet\bin\Release
