@@ -62,12 +62,16 @@ jobs:
           env:
             UNSIGNED_BUCKET: ${{ secrets.AWS_UNSIGNED_BUCKET_NAME }}
             SIGNED_BUCKET: ${{ secrets.AWS_SIGNED_BUCKET_NAME }}
-          run: >
-            .\buildtools\sign_files.ps1
-            -Path .\sdk\src
-            -Filters AWSXRayRecorder.*.dll
-            -Recurse
-
+          #TODO: There is probably a better way to pass in a list of paths as a single parameter to the script.
+          run: |
+            .\buildtools\sign_files.ps1 -Filters AWSXRayRecorder.*.dll -Recurse -Path .\sdk\src\Core\bin\Release
+            .\buildtools\sign_files.ps1 -Filters AWSXRayRecorder.*.dll -Recurse -Path .\sdk\src\Handlers\AspNet\bin\Release
+            .\buildtools\sign_files.ps1 -Filters AWSXRayRecorder.*.dll -Recurse -Path .\sdk\src\Handlers\AspNetCore\bin\Release
+            .\buildtools\sign_files.ps1 -Filters AWSXRayRecorder.*.dll -Recurse -Path .\sdk\src\Handlers\AwsSdk\bin\Release
+            .\buildtools\sign_files.ps1 -Filters AWSXRayRecorder.*.dll -Recurse -Path .\sdk\src\Handlers\EntityFramework\bin\Release
+            .\buildtools\sign_files.ps1 -Filters AWSXRayRecorder.*.dll -Recurse -Path .\sdk\src\Handlers\SqlServer\bin\Release
+            .\buildtools\sign_files.ps1 -Filters AWSXRayRecorder.*.dll -Recurse -Path .\sdk\src\Handlers\System.Net\bin\Release
+            
         - name: Pack nugets
           run: >
             dotnet pack
@@ -93,13 +97,19 @@ jobs:
             role-to-assume: ${{ secrets.NUGET_ACCESS_ROLE_ARN }}
             aws-region: us-west-2
 
-        # TODO: uncomment this step once the rest of the workflow has been verified in prod.
-        #- name: Push packages to Nuget.org
-        #  run: |
-        #    $nugetKey = aws secretsmanager get-secret-value --secret-id ${{ secrets.NUGET_SECRETS_ID }} --region us-west-2 --output text --query SecretString
-        #    nuget push .\Deployment\nuget-packages\*.nupkg -Source https://api.nuget.org/v3/index.json -ApiKey $nugetKey
+        - name: Push packages to Nuget.org
+          run: >
+            $nugetKey = aws secretsmanager get-secret-value
+            --secret-id ${{ secrets.NUGET_SECRETS_ID }}
+            --region us-west-2
+            --output text
+            --query SecretString
+
+            nuget push
+            .\Deployment\nuget-packages\*.nupkg
+            -Source https://api.nuget.org/v3/index.json
+            -ApiKey $nugetKey
             
-        # TODO: Change this step to directly create a public release once the workflow has been verified.
         - name: Create draft release
           id: create_release
           uses: actions/create-release@v1
