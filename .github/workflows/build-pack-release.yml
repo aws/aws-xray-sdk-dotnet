@@ -62,12 +62,15 @@ jobs:
           env:
             UNSIGNED_BUCKET: ${{ secrets.AWS_UNSIGNED_BUCKET_NAME }}
             SIGNED_BUCKET: ${{ secrets.AWS_SIGNED_BUCKET_NAME }}
-          run: >
-            .\buildtools\sign_files.ps1
-            -Path .\sdk\src
-            -Filters AWSXRayRecorder.*.dll
-            -Recurse
-
+          run: |
+            .\buildtools\sign_files.ps1 -Filters AWSXRayRecorder.*.dll -Recurse -Path .\sdk\src\Core\bin\Release
+            .\buildtools\sign_files.ps1 -Filters AWSXRayRecorder.*.dll -Recurse -Path .\sdk\src\Handlers\AspNet\bin\Release
+            .\buildtools\sign_files.ps1 -Filters AWSXRayRecorder.*.dll -Recurse -Path .\sdk\src\Handlers\AspNetCore\bin\Release
+            .\buildtools\sign_files.ps1 -Filters AWSXRayRecorder.*.dll -Recurse -Path .\sdk\src\Handlers\AwsSdk\bin\Release
+            .\buildtools\sign_files.ps1 -Filters AWSXRayRecorder.*.dll -Recurse -Path .\sdk\src\Handlers\EntityFramework\bin\Release
+            .\buildtools\sign_files.ps1 -Filters AWSXRayRecorder.*.dll -Recurse -Path .\sdk\src\Handlers\SqlServer\bin\Release
+            .\buildtools\sign_files.ps1 -Filters AWSXRayRecorder.*.dll -Recurse -Path .\sdk\src\Handlers\System.Net\bin\Release
+            
         - name: Pack nugets
           run: >
             dotnet pack
