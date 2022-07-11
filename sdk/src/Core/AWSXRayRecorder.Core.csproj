@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net45;net462;netstandard2.0;netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks>net45;net462;netstandard2.0;netcoreapp3.1;net6.0</TargetFrameworks>
     <Company>Amazon.com, Inc</Company>
     <Product>Amazon Web Service X-Ray Recorder</Product>
     <Copyright>Copyright 2017-2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.</Copyright>
@@ -43,7 +43,7 @@
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="2.0.0" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1' OR '$(TargetFramework)' == 'net6.0'">
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 

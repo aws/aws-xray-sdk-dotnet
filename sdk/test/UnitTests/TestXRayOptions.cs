@@ -46,7 +46,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         [TestMethod]
         public void TestDisableXRayTracingKeyTrue()
         {
-            IConfiguration configuration = BuildConfiguration("DisabledXRayTrue.json");
+            IConfiguration configuration = TestXRayOptions.BuildConfiguration("DisabledXRayTrue.json");
 
             _xRayOptions = XRayConfiguration.GetXRayOptions(configuration);
             Assert.IsTrue(_xRayOptions.IsXRayTracingDisabled);
@@ -58,7 +58,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         [TestMethod]
         public void TestDisableXRayTracingKeyFalse()
         {
-            IConfiguration configuration = BuildConfiguration("DisabledXRayFalse.json");
+            IConfiguration configuration = TestXRayOptions.BuildConfiguration("DisabledXRayFalse.json");
 
             _xRayOptions = XRayConfiguration.GetXRayOptions(configuration);
             Assert.IsFalse(_xRayOptions.IsXRayTracingDisabled);
@@ -70,7 +70,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         [TestMethod]
         public void TestDisableXRayTracingKeyMissing()
         {
-            IConfiguration configuration = BuildConfiguration("DisabledXRayMissing.json");
+            IConfiguration configuration = TestXRayOptions.BuildConfiguration("DisabledXRayMissing.json");
 
             _xRayOptions = XRayConfiguration.GetXRayOptions(configuration);
             Assert.IsFalse(_xRayOptions.IsXRayTracingDisabled);
@@ -82,7 +82,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         [TestMethod]
         public void TestDisableXRayTracingKeyInvalid()
         {
-            IConfiguration configuration = BuildConfiguration("DisabledXRayInvalid.json");
+            IConfiguration configuration = TestXRayOptions.BuildConfiguration("DisabledXRayInvalid.json");
 
             _xRayOptions = XRayConfiguration.GetXRayOptions(configuration);
             Assert.IsFalse(_xRayOptions.IsXRayTracingDisabled);
@@ -94,7 +94,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         [TestMethod]
         public void TestConfigurationIsNull()
         {
-            IConfiguration configuration = BuildConfiguration("NoXRaySection.json");
+            IConfiguration configuration = TestXRayOptions.BuildConfiguration("NoXRaySection.json");
 
             _xRayOptions = XRayConfiguration.GetXRayOptions(configuration);
             Assert.IsFalse(_xRayOptions.IsXRayTracingDisabled);
@@ -118,7 +118,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         [TestMethod]
         public void TestInitializeInstance()
         {
-            IConfiguration configuration = BuildConfiguration("DisabledXRayTrue.json");
+            IConfiguration configuration = TestXRayOptions.BuildConfiguration("DisabledXRayTrue.json");
 
             AWSXRayRecorder.InitializeInstance(configuration);
             _xRayOptions = AWSXRayRecorder.Instance.XRayOptions;
@@ -137,7 +137,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         [TestMethod]
         public void TestInitializeInstanceWithRecorder1()
         {
-            IConfiguration configuration = BuildConfiguration("DisabledXRayTrue.json");
+            IConfiguration configuration = TestXRayOptions.BuildConfiguration("DisabledXRayTrue.json");
 
             AWSXRayRecorder recorder = BuildAWSXRayRecorder(new TestSamplingStrategy());
 
@@ -157,7 +157,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         [TestMethod]
         public void TestInitializeInstanceWithRecorder2()
         {
-            IConfiguration configuration = BuildConfiguration("DisabledXRayTrue.json");
+            IConfiguration configuration = TestXRayOptions.BuildConfiguration("DisabledXRayTrue.json");
 
             AWSXRayRecorder recorder = BuildAWSXRayRecorder(new TestSamplingStrategy(), new DummyEmitter());
 
@@ -177,7 +177,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         [TestMethod]
         public void TestUseRuntimeErrorsFalse()
         {
-            IConfiguration configuration = BuildConfiguration("UseRuntimeErrorsFalse.json");
+            IConfiguration configuration = TestXRayOptions.BuildConfiguration("UseRuntimeErrorsFalse.json");
 
             _xRayOptions = XRayConfiguration.GetXRayOptions(configuration);
 
@@ -190,7 +190,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         [TestMethod]
         public void TestUseRuntimeErrorsTrue()
         {
-            IConfiguration configuration = BuildConfiguration("UseRuntimeErrorsTrue.json");
+            IConfiguration configuration = TestXRayOptions.BuildConfiguration("UseRuntimeErrorsTrue.json");
 
             _xRayOptions = XRayConfiguration.GetXRayOptions(configuration);
 
@@ -203,7 +203,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         [TestMethod]
         public void TestUseRuntimeErrorsDefaultsTrue_WhenNotSpecifiedInJson()
         {
-            IConfiguration configuration = BuildConfiguration("DisabledXRayMissing.json");
+            IConfiguration configuration = TestXRayOptions.BuildConfiguration("DisabledXRayMissing.json");
 
             _xRayOptions = XRayConfiguration.GetXRayOptions(configuration);
 
@@ -216,7 +216,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         [TestMethod]
         public void TestCollectSqlQueriesFalse_WhenNotSpecifiedInJson()
         {
-            IConfiguration configuration = BuildConfiguration("DisabledXRayMissing.json");
+            IConfiguration configuration = TestXRayOptions.BuildConfiguration("DisabledXRayMissing.json");
             _xRayOptions = XRayConfiguration.GetXRayOptions(configuration);
             AWSXRayRecorder.InitializeInstance(configuration);
 
@@ -226,7 +226,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         [TestMethod]
         public void TestCollecSqlQueriesFalse()
         {
-            IConfiguration configuration = BuildConfiguration("CollectSqlQueriesFalse.json");
+            IConfiguration configuration = TestXRayOptions.BuildConfiguration("CollectSqlQueriesFalse.json");
             _xRayOptions = XRayConfiguration.GetXRayOptions(configuration);
             AWSXRayRecorder.InitializeInstance(configuration);
 
@@ -236,7 +236,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         [TestMethod]
         public void TestCollecSqlQueriesTrue()
         {
-            IConfiguration configuration = BuildConfiguration("CollectSqlQueriesTrue.json");
+            IConfiguration configuration = TestXRayOptions.BuildConfiguration("CollectSqlQueriesTrue.json");
             _xRayOptions = XRayConfiguration.GetXRayOptions(configuration);
             AWSXRayRecorder.InitializeInstance(configuration);
 
@@ -244,7 +244,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         }
 
         // Creating custom configuration
-        private IConfiguration BuildConfiguration(string path)
+        private static IConfiguration BuildConfiguration(string path)
         {
             IConfigurationBuilder builder = new ConfigurationBuilder()
                               .SetBasePath(Directory.GetCurrentDirectory())

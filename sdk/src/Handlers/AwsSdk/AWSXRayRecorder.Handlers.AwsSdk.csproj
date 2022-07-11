@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net45;net462;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net45;net462;netstandard2.0;net6.0</TargetFrameworks>
     <Company>Amazon.com, Inc</Company>
     <Product>Amazon Web Service X-Ray Recorder</Product>
     <Copyright>Copyright 2017-2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.</Copyright>

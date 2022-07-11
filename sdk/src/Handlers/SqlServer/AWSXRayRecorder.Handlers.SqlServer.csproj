@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net45;net462;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net45;net462;netstandard2.0;net6.0</TargetFrameworks>
     <Company>Amazon.com, Inc</Company>
     <Product>Amazon Web Service X-Ray Recorder</Product>
     <Copyright>Copyright 2017-2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.</Copyright>
@@ -32,13 +32,13 @@
   <ItemGroup Condition="'$(TargetFramework)' != 'net45' AND '$(TargetFramework)' != 'net462'">
     <Compile Remove="TraceableSqlCommand.netframework.cs" />
   </ItemGroup>
+
   <ItemGroup Condition="'$(TargetFramework)' != 'netstandard2.0'">
     <Compile Remove="TraceableSqlCommand.netstandard.cs" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-    <PackageReference Include="System.Data.SqlClient">
-      <Version>4.4.0</Version>
-    </PackageReference>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0' OR '$(TargetFramework)' == 'net6.0'">
+    <PackageReference Include="System.Data.SqlClient" Version="4.4.0" />
   </ItemGroup>
 
 </Project>
