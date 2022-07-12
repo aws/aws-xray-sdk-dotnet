@@ -204,7 +204,7 @@ namespace Amazon.XRay.Recorder.UnitTests
                 text.Append(t[Math.Abs(r.Next()) % t.Length]);
             }
 
-            text.Append("b");
+            text.Append('b');
 
             Assert.IsTrue(text.ToString().WildcardMatch("a*b"));
         }
