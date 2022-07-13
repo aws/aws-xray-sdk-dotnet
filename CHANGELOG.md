@@ -1,6 +1,54 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 2.11.0 (TBD)
+### AWSXRayRecorder.Core (2.11.0)
+#### Fixed
+- Fix ability to serialize GUIDs [PR#203](https://github.com/aws/aws-xray-sdk-dotnet/pull/203)
+
+#### Upgraded
+- Add netcoreapp3.1 target framework [PR#215](https://github.com/aws/aws-xray-sdk-dotnet/pull/215)
+- Add support for net462 [PR#248](https://github.com/aws/aws-xray-sdk-dotnet/pull/248)
+- Add targets for net6.0 [PR#242](https://github.com/aws/aws-xray-sdk-dotnet/pull/242)
+- Bump Microsoft.AspNetCore.Http from 2.0.0 to 2.1.22 in /sdk/src/Core [PR#256](https://github.com/aws/aws-xray-sdk-dotnet/pull/256)
+
+#### Improved
+- Reuse the same cause id for same exception in different subsegments [PR#210](https://github.com/aws/aws-xray-sdk-dotnet/pull/210)
+- Removed blocking call which was producing deadlocks from EC2Plugin [PR#234](https://github.com/aws/aws-xray-sdk-dotnet/pull/234)
+ 
+### AWSXRayRecorder.Handlers.AspNet (2.8.0)
+#### Fixed
+- Bailing out of AWSXRayASPNET.ProcessHTTPResponse for 'parent' requests that have not been populated with an X-Ray Entity. [PR#235](https://github.com/aws/aws-xray-sdk-dotnet/pull/235)
+
+#### Upgraded
+- Add support for net462 [PR#248](https://github.com/aws/aws-xray-sdk-dotnet/pull/248)
+
+### AWSXRayRecorder.Handlers.AspNetCore (2.8.0)
+#### Upgraded
+- Add netcoreapp3.1 target framework [PR#215](https://github.com/aws/aws-xray-sdk-dotnet/pull/215)
+- Add targets for net6.0 [PR#242](https://github.com/aws/aws-xray-sdk-dotnet/pull/242)
+
+### AWSXRayRecorder.Handlers.AwsSdk (2.9.0)
+#### Upgraded
+- Add support for net462 [PR#248](https://github.com/aws/aws-xray-sdk-dotnet/pull/248)
+- Add targets for net6.0 [PR#242](https://github.com/aws/aws-xray-sdk-dotnet/pull/242)
+ 
+### AWSXRayRecorder.Handlers.EntityFramework (1.2.0)
+#### Upgraded
+- Add support for net462 [PR#248](https://github.com/aws/aws-xray-sdk-dotnet/pull/248)
+- Add targets for net6.0 [PR#242](https://github.com/aws/aws-xray-sdk-dotnet/pull/242)
+ 
+### AWSXRayRecorder.Handlers.SqlServer (2.8.0)
+#### Upgraded
+- Add support for net462 [PR#248](https://github.com/aws/aws-xray-sdk-dotnet/pull/248)
+- Add targets for net6.0 [PR#242](https://github.com/aws/aws-xray-sdk-dotnet/pull/242)
+ 
+### AWSXRayRecorder.Handlers.System.Net (2.8.0)
+#### Upgraded
+- Add support for net462 [PR#248](https://github.com/aws/aws-xray-sdk-dotnet/pull/248)
+- Add targets for net6.0 [PR#242](https://github.com/aws/aws-xray-sdk-dotnet/pull/242)
+
+
 ## 2.10.1 (2021-04-21)
 ### AWSXRayRecorder.Core (2.10.1)
 #### Fixed
