@@ -103,12 +103,12 @@ jobs:
             --secret-id ${{ secrets.NUGET_SECRETS_ID }}
             --region us-west-2
             --output text
-            --query SecretString
+            --query SecretString | ConvertFrom-Json
 
             nuget push
             .\Deployment\nuget-packages\*.nupkg
             -Source https://api.nuget.org/v3/index.json
-            -ApiKey $nugetKey
+            -ApiKey $nugetKey.Key
             
         - name: Create draft release
           id: create_release
