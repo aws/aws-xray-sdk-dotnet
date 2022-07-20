@@ -1,7 +1,31 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## 2.11.0 (TBD)
+## 2.11.1 (TBD)
+### AWSXRayRecorder.Core (2.11.1)
+- No changes. Bumping to release with lateral related packages.
+ 
+### AWSXRayRecorder.Handlers.AspNet (2.8.1)
+- No changes. Bumping to release with lateral related packages.
+
+### AWSXRayRecorder.Handlers.AspNetCore (2.8.1)
+- No changes. Bumping to release with lateral related packages.
+
+### AWSXRayRecorder.Handlers.AwsSdk (2.9.1)
+- No changes. Bumping to release with lateral related packages.
+ 
+### AWSXRayRecorder.Handlers.EntityFramework (1.2.1)
+- No changes. Bumping to release with lateral related packages.
+ 
+### AWSXRayRecorder.Handlers.SqlServer (2.8.1)
+#### Fixed
+- Restore TraceableSqlCommand for NetCoreApp3.1 and Dotnet 6 Runtimes [PR#262](https://github.com/aws/aws-xray-sdk-dotnet/pull/262)
+ 
+### AWSXRayRecorder.Handlers.System.Net (2.8.1)
+- No changes. Bumping to release with lateral related packages.
+
+
+## 2.11.0 (2022-07-14)
 ### AWSXRayRecorder.Core (2.11.0)
 #### Fixed
 - Fix ability to serialize GUIDs [PR#203](https://github.com/aws/aws-xray-sdk-dotnet/pull/203)
