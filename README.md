@@ -262,6 +262,18 @@ HttpWebRequest request = (HttpWebRequest) WebRequest.Create(URL); // enter desir
 request.GetResponseTraced();
 ```
 
+for query parameter stripped http requests in trace 
+
+```csharp
+using Amazon.XRay.Recorder.Handlers.System.Net;
+
+HttpWebRequest request = (HttpWebRequest) WebRequest.Create(URL); // enter desired url
+
+// Any other configuration to the request
+
+request.GetResponseTraced(true);
+```
+
 #### Asynchronous request
 
 An extension method `GetAsyncResponseTraced()` is provided to trace `GetResponseAsync()` in `System.Net.HttpWebRequest` class. If you want to trace the out-going HTTP request, call the `GetAsyncResponseTraced()` instead of `GetResponseAsync()`. The extension method will generate a trace subsegment, inject the trace header to the out-going HTTP request header and collect trace information. 
@@ -276,6 +288,18 @@ HttpWebRequest request = (HttpWebRequest) WebRequest.Create(URL); // enter desir
 request.GetAsyncResponseTraced();
 ```
 
+for query parameter stripped http requests in trace 
+
+```csharp
+using Amazon.XRay.Recorder.Handlers.System.Net;
+
+HttpWebRequest request = (HttpWebRequest) WebRequest.Create(URL); // enter desired url
+
+// Any other configuration to the request
+
+request.GetAsyncResponseTraced(true);
+```
+
 #### Using `System.Net.HttpClient`
 
 A handler derived from `DelegatingHandler` is provided to trace the `HttpMessageHandler.SendAsync` method
@@ -288,6 +312,20 @@ var httpClient = new HttpClient(new HttpClientXRayTracingHandler(new HttpClientH
 // Any other configuration to the client
 
 httpClient.GetAsync(URL);
+```
+
+If you want to santize the Http request tracing then define the Tracing Handler as - 
+
+```CSharp
+
+using Amazon.XRay.Recorder.Handlers.System.Net;
+
+var httpClient = new HttpClient(new HttpClientXRaySanitizedTracingHandler(new HttpClientHandler()));
+
+// Any other configuration to the client
+
+httpClient.GetAsync(URL);
+
 ```
 
 #### Using `System.Net.Http.HttpClientFactory` (.Net Core 2.1 and above)
@@ -307,6 +345,22 @@ services.AddHttpClient("foo")
         .ConfigurePrimaryHttpMessageHandler(() =>
         {
             return new HttpClientXRayTracingHandler(new HttpClientHandler());
+        });
+```
+
+And to get sanitized http requests in tracing 
+
+```csharp
+services.AddHttpClient<IFooClient, FooClient>()
+        .AddHttpMessageHandler<HttpClientXRaySanitizedTracingHandler>();
+```
+or
+
+```csharp
+services.AddHttpClient("foo")
+        .ConfigurePrimaryHttpMessageHandler(() =>
+        {
+            return new HttpClientXRaySanitizedTracingHandler(new HttpClientHandler());
         });
 ```
 

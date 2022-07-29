@@ -15,19 +15,24 @@ namespace Amazon.XRay.Recorder.Handlers.System.Net.Utils
 
         /// <summary>
         /// Collects information from and adds a tracing header to the request.
+        /// Depending on the flag sanitizeHttpRequestTracing the query string on http request is stripped before tracing is submitted.
         /// </summary>
         /// <param name="request">An instance of <see cref="WebRequest"/></param>
-        internal static void ProcessRequest(WebRequest request)
+        /// <param name="sanitizeHttpRequestTracing"><see cref="Boolean"/> value</param>
+        internal static void ProcessRequest(WebRequest request, bool sanitizeHttpRequestTracing = false)
         {
-            ProcessRequest(request.RequestUri, request.Method, header => request.Headers.Add(TraceHeader.HeaderKey, header));
+            ProcessRequest(request.RequestUri, request.Method, header => request.Headers.Add(TraceHeader.HeaderKey, header), sanitizeHttpRequestTracing);
         }
+
         /// <summary>
         /// Collects information from and adds a tracing header to the request.
+        /// Depending on the flag sanitizeHttpRequestTracing the query string on http request is stripped before tracing is submitted.
         /// </summary>
         /// <param name="request">An instance of <see cref="HttpRequestMessage"/></param>
-        internal static void ProcessRequest(HttpRequestMessage request)
+        /// <param name="sanitizeHttpRequestTracing"><see cref="Boolean"/> value</param>
+        internal static void ProcessRequest(HttpRequestMessage request, bool sanitizeHttpRequestTracing = false)
         {
-            ProcessRequest(request.RequestUri, request.Method.Method, AddOrReplaceHeader);
+            ProcessRequest(request.RequestUri, request.Method.Method, AddOrReplaceHeader, sanitizeHttpRequestTracing);
 
             void AddOrReplaceHeader(string header)
             {
@@ -54,7 +59,7 @@ namespace Amazon.XRay.Recorder.Handlers.System.Net.Utils
             ProcessResponse(response.StatusCode, response.Content.Headers.ContentLength);
         }
 
-        private static void ProcessRequest(Uri uri, string method, Action<string> addHeaderAction)
+        private static void ProcessRequest(Uri uri, string method, Action<string> addHeaderAction, bool sanitizeHttpRequestTracing)
         {
             if (AWSXRayRecorder.Instance.IsTracingDisabled())
             {
@@ -68,7 +73,7 @@ namespace Amazon.XRay.Recorder.Handlers.System.Net.Utils
 
             var requestInformation = new Dictionary<string, object>
             {
-                ["url"] = uri.AbsoluteUri,
+                ["url"] = sanitizeHttpRequestTracing ? uri.AbsoluteUri.Split(new[] { '?' })[0] : uri.AbsoluteUri,
                 ["method"] = method
             };
             recorder.AddHttpInformation("request", requestInformation);
