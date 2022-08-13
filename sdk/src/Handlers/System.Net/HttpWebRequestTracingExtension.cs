@@ -34,12 +34,14 @@ namespace Amazon.XRay.Recorder.Handlers.System.Net
         /// It collects information from request and response. Also, a trace header will be injected 
         /// into the HttpWebRequest to propagate the tracing to downstream web service. This method is 
         /// used for synchronous requests.
+        /// Request query string can be omitted from the http tracing depending on sanitizeHttpRequestTracing flag. Defaults to false, thus tracing absolute Uri.
         /// </summary>
         /// <param name="request">An instance of <see cref="WebRequest"/> which the method extended to</param>
+        /// <param name="sanitizeHttpRequestTracing"> <see cref="Boolean"/> value.</param>
         /// <returns>A <see cref="WebResponse"/> that contains the response from the Internet resource.</returns>
-        public static WebResponse GetResponseTraced(this WebRequest request)
+        public static WebResponse GetResponseTraced(this WebRequest request, bool sanitizeHttpRequestTracing = false)
         {
-            RequestUtil.ProcessRequest(request);
+            RequestUtil.ProcessRequest(request, sanitizeHttpRequestTracing);
 
             try
             {
@@ -75,12 +77,14 @@ namespace Amazon.XRay.Recorder.Handlers.System.Net
         /// It collects information from request and response. Also, a trace header will be injected 
         /// into the HttpWebRequest to propagate the tracing to downstream web service. This method is
         /// used for asynchronous requests.
+        /// Request query string can be omitted from the http tracing depending on sanitizeHttpRequestTracing flag. Defaults to false, thus tracing absolute Uri.
         /// </summary>
         /// <param name="request">An instance of <see cref="WebRequest"/> which the method extended to</param>
+        /// <param name="sanitizeHttpRequestTracing"> <see cref="Boolean"/> value.</param>
         /// <returns>A task of <see cref="WebResponse"/> that contains the response from the Internet resource.</returns>
-        public static async Task<WebResponse> GetAsyncResponseTraced(this WebRequest request)
+        public static async Task<WebResponse> GetAsyncResponseTraced(this WebRequest request, bool sanitizeHttpRequestTracing = false)
         {
-            RequestUtil.ProcessRequest(request);
+            RequestUtil.ProcessRequest(request, sanitizeHttpRequestTracing);
 
             try
             {
