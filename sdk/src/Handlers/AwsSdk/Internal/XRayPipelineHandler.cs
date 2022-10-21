@@ -745,11 +745,11 @@ namespace Amazon.XRay.Recorder.Handlers.AwsSdk.Internal
 
             if (addCustomization && AWSServiceHandlerManifest == null)
             {
-                pipeline.AddHandlerAfter<EndpointResolver>(new XRayPipelineHandler());
+                pipeline.AddHandlerBefore<RetryHandler>(new XRayPipelineHandler());
             }
             else if (addCustomization && AWSServiceHandlerManifest != null)
             {
-                pipeline.AddHandlerAfter<EndpointResolver>(new XRayPipelineHandler(AWSServiceHandlerManifest)); // Custom AWS Manifest file path/stream provided
+                pipeline.AddHandlerBefore<RetryHandler>(new XRayPipelineHandler(AWSServiceHandlerManifest)); // Custom AWS Manifest file path/stream provided
             }
         }
 
