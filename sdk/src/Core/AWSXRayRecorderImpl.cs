@@ -241,6 +241,16 @@ namespace Amazon.XRay.Recorder.Core
         public abstract void BeginSubsegment(string name, DateTime? timestamp = null);
 
         /// <summary>
+        /// Begin a tracing subsegment. A new segment will be created and added as a subsegment to previous segment.
+        /// </summary>
+        /// <param name="name">Name of the operation.</param>
+        public void BeginSubsegmentWithoutSampling(string name)
+        {
+            BeginSubsegment(name, null);
+            TraceContext.GetEntity().Sampled = SampleDecision.NotSampled;
+        }
+
+        /// <summary>
         /// End a subsegment.
         /// </summary>
         /// <param name="timestamp">Sets the end time for the subsegment</param>
@@ -802,7 +812,7 @@ namespace Amazon.XRay.Recorder.Core
             }
 
             // Check emittable
-            if (subsegment.IsEmittable())
+            if (subsegment.Sampled == SampleDecision.Sampled && subsegment.IsEmittable())
             {
                 // Emit
                 Emitter.Send(subsegment.RootSegment);

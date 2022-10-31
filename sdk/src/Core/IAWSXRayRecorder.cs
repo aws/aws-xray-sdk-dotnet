@@ -96,6 +96,13 @@ namespace Amazon.XRay.Recorder.Core
         void BeginSubsegment(string name, DateTime? timestamp = null);
 
         /// <summary>
+        /// Start a subsegment with a given segment
+        /// This subsegment will not emit and its trace context will have Sampled=0
+        /// </summary>
+        /// <param name="name">Name of the operation</param>
+        void BeginSubsegmentWithoutSampling(string name);
+
+        /// <summary>
         /// End a subsegment
         /// </summary>
         /// <param name="timestamp">Sets the end time for the subsegment</param>
