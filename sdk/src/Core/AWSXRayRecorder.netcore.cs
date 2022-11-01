@@ -356,7 +356,7 @@ namespace Amazon.XRay.Recorder.Core
             }
 
             // Check emittable
-            if (subsegment.IsEmittable())
+            if (subsegment.Sampled == SampleDecision.Sampled && subsegment.IsEmittable())
             {
                 // Emit
                 Emitter.Send(subsegment.RootSegment);
@@ -405,7 +405,7 @@ namespace Amazon.XRay.Recorder.Core
                 if (!IsTracingDisabled())
                 {
                     PrepEndSegment(facadeSegment);
-                    if (facadeSegment.Sampled == SampleDecision.Sampled && facadeSegment.RootSegment != null && facadeSegment.RootSegment.Size >= 0)
+                    if (facadeSegment.RootSegment != null && facadeSegment.RootSegment.Size >= 0)
                     {
                         StreamingStrategy.Stream(facadeSegment, Emitter); //Facade segment is not emitted, all its subsegments, if emmittable, are emitted
                     }

@@ -22,12 +22,19 @@ using Amazon.XRay.Recorder.Core.Exceptions;
 using Amazon.XRay.Recorder.Core.Sampling;
 using Amazon.XRay.Recorder.Core.Internal.Context;
 using Amazon.XRay.Recorder.Core.Internal.Utils;
+using System.Net;
+using System.Security.Policy;
+using Amazon.XRay.Recorder.Handlers.System.Net;
+using Moq;
+using Amazon.XRay.Recorder.Core.Internal.Emitters;
+using Amazon.XRay.Recorder.UnitTests.Tools;
 
 namespace Amazon.XRay.Recorder.UnitTests
 {
     [TestClass]
     public class TestLambdaContext : TestBase
     {
+        private const string URL = "https://httpbin.org/";
         private static readonly String _traceHeaderValue = "Root=" + TraceId + ";Parent=53995c3f42cd8ad8;Sampled=1";
         private AWSXRayRecorder _recorder;
 
@@ -46,6 +53,53 @@ namespace Amazon.XRay.Recorder.UnitTests
             base.TestCleanup();
             Environment.SetEnvironmentVariable(AWSXRayRecorder.LambdaTaskRootKey, null);
             Environment.SetEnvironmentVariable(AWSXRayRecorder.LambdaTraceHeaderKey, null);
+        }
+
+        [TestMethod]
+        public void TestLamdaSampled()
+        {
+            var mockEmitter = new Mock<ISegmentEmitter>();
+
+            using (AWSXRayRecorder recorder = AWSXRayRecorderFactory.CreateAWSXRayRecorder(mockEmitter.Object))
+            {
+                AWSXRayRecorder.InitializeInstance(recorder: _recorder);
+
+                LambdaTestHelper(recorder, true);
+                mockEmitter.Verify(x => x.Send(It.IsAny<Subsegment>()), Times.Exactly(2));
+
+                LambdaTestHelper(recorder, false);
+                mockEmitter.Verify(x => x.Send(It.IsAny<Subsegment>()), Times.Exactly(2));
+
+                LambdaTestHelper(recorder, true);
+                mockEmitter.Verify(x => x.Send(It.IsAny<Subsegment>()), Times.Exactly(4));
+
+                LambdaTestHelper(recorder, false);
+                mockEmitter.Verify(x => x.Send(It.IsAny<Subsegment>()), Times.Exactly(4));
+            }
+        }
+
+        private void LambdaTestHelper(AWSXRayRecorder recorder, bool sampled)
+        {
+            if (sampled)
+            {
+                recorder.BeginSubsegment("subsegment1");
+            }
+            else
+            {
+                recorder.BeginSubsegmentWithoutSampling("subsegment1");
+            }
+
+            var request = (HttpWebRequest)WebRequest.Create(URL);
+
+            using (var response = request.GetResponseTraced() as HttpWebResponse)
+            {
+                Assert.IsNotNull(response);
+                Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+                string header = request.Headers.Get(TraceHeader.HeaderKey);
+                Assert.AreEqual(sampled ? SampleDecision.Sampled : SampleDecision.NotSampled, TraceHeader.FromString(header).Sampled);
+            }
+
+            recorder.EndSubsegment();
         }
 
         [TestMethod]
