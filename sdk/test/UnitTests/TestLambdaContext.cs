@@ -78,7 +78,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             }
         }
 
-        private void LambdaTestHelper(AWSXRayRecorder recorder, bool sampled)
+        private static void LambdaTestHelper(AWSXRayRecorder recorder, bool sampled)
         {
             if (sampled)
             {
