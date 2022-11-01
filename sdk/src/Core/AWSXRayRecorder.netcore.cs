@@ -356,7 +356,7 @@ namespace Amazon.XRay.Recorder.Core
             }
 
             // Check emittable
-            if (subsegment.Sampled == SampleDecision.Sampled && subsegment.IsEmittable())
+            if (subsegment.IsEmittable())
             {
                 // Emit
                 Emitter.Send(subsegment.RootSegment);
