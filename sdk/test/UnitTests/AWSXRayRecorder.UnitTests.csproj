@@ -58,7 +58,7 @@
 
   <ItemGroup Condition="'$(TargetFramework)' != 'net452' AND '$(TargetFramework)' != 'net462'">
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="3.1.0" />
-
+    <PackageReference Include="Amazon.Lambda.SQSEvents" Version="2.1.0"/>
     <Compile Remove="TestAppSettings.cs" />
     <Compile Remove="Tools\MockHttpRequest.cs" />
     <Compile Remove="Tools\MockHttpRequestFactory.cs" />
@@ -75,6 +75,7 @@
     <Compile Remove="Tools\TestEFContext.cs" />
     <Compile Remove="TestXRayOptions.cs" />
     <Compile Remove="TestLambdaContext.cs" />
+    <Compile Remove="SQSMessageHelperTests.cs" />
     <Compile Remove="FacadeSegmentTest.cs" />
     <Compile Remove="Tools\TestEFContext.cs" />
     <Compile Remove="EfCoreTests.cs" />

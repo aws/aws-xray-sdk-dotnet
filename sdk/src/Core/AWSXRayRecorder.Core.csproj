@@ -48,6 +48,7 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' != 'net45' AND '$(TargetFramework)' != 'net462'">
+    <PackageReference Include="Amazon.Lambda.SQSEvents" Version="2.1.0"/>
     <Compile Remove="Internal\Context\CallContextContainer.netframework.cs" />
     <Compile Remove="Internal\Context\HybridContextContainer.netframework.cs" />
     <Compile Remove="Internal\Utils\AppSettings.netframework.cs" />
@@ -57,6 +58,7 @@
   <ItemGroup Condition="'$(TargetFramework)' == 'net45' OR '$(TargetFramework)' == 'net462'">
     <Compile Remove="Internal\Context\AsyncLocalContextContainer.netstandard.cs" />
     <Compile Remove="Internal\Context\LambdaContextContainer.netstandard.cs" />
+    <Compile Remove="Lambda\SQSMessageHelper.cs" />
     <Compile Remove="Internal\Utils\AppSettings.netcore.cs" />
     <Compile Remove="Internal\Utils\ConfigurationExtensions.cs" />
     <Compile Remove="AWSXRayRecorder.netcore.cs" />
