@@ -2,7 +2,7 @@
 
   
   <PropertyGroup>
-    <TargetFrameworks>net6.0;net452;net462;netcoreapp2.0;netcoreapp3.1</TargetFrameworks>
+    <TargetFrameworks>net6.0;netcoreapp3.1;netstandard2.0;net462;net452</TargetFrameworks>
     <Company>Amazon.com, Inc</Company>
     <Product>Amazon Web Service X-Ray Recorder</Product>
     <Copyright>Copyright 2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.</Copyright>
@@ -20,7 +20,7 @@
     <PackageReference Include="AWSSDK.SimpleNotificationService" Version="3.5.0.26" />
     <PackageReference Include="Moq" Version="4.7.137" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.0'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
     <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="3.1.0">
     </PackageReference>
 

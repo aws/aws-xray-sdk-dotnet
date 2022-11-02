@@ -23,18 +23,16 @@ using Amazon.XRay.Recorder.Core.Sampling;
 using Amazon.XRay.Recorder.Core.Internal.Context;
 using Amazon.XRay.Recorder.Core.Internal.Utils;
 using System.Net;
-using System.Security.Policy;
 using Amazon.XRay.Recorder.Handlers.System.Net;
 using Moq;
 using Amazon.XRay.Recorder.Core.Internal.Emitters;
-using Amazon.XRay.Recorder.UnitTests.Tools;
 
 namespace Amazon.XRay.Recorder.UnitTests
 {
     [TestClass]
     public class TestLambdaContext : TestBase
     {
-        private const string URL = "https://httpbin.org/";
+        private const string MOCK_URL = "https://httpbin.org/";
         private static readonly String _traceHeaderValue = "Root=" + TraceId + ";Parent=53995c3f42cd8ad8;Sampled=1";
         private AWSXRayRecorder _recorder;
 
@@ -64,21 +62,21 @@ namespace Amazon.XRay.Recorder.UnitTests
             {
                 AWSXRayRecorder.InitializeInstance(recorder: _recorder);
 
-                LambdaTestHelper(recorder, true);
+                TestLambdaHelper(recorder, true);
                 mockEmitter.Verify(x => x.Send(It.IsAny<Subsegment>()), Times.Exactly(2));
 
-                LambdaTestHelper(recorder, false);
+                TestLambdaHelper(recorder, false);
                 mockEmitter.Verify(x => x.Send(It.IsAny<Subsegment>()), Times.Exactly(2));
 
-                LambdaTestHelper(recorder, true);
+                TestLambdaHelper(recorder, true);
                 mockEmitter.Verify(x => x.Send(It.IsAny<Subsegment>()), Times.Exactly(4));
 
-                LambdaTestHelper(recorder, false);
+                TestLambdaHelper(recorder, false);
                 mockEmitter.Verify(x => x.Send(It.IsAny<Subsegment>()), Times.Exactly(4));
             }
         }
 
-        private static void LambdaTestHelper(AWSXRayRecorder recorder, bool sampled)
+        private static void TestLambdaHelper(AWSXRayRecorder recorder, bool sampled)
         {
             if (sampled)
             {
@@ -89,7 +87,7 @@ namespace Amazon.XRay.Recorder.UnitTests
                 recorder.BeginSubsegmentWithoutSampling("subsegment1");
             }
 
-            var request = (HttpWebRequest)WebRequest.Create(URL);
+            var request = (HttpWebRequest)WebRequest.Create(MOCK_URL);
 
             using (var response = request.GetResponseTraced() as HttpWebResponse)
             {

@@ -232,7 +232,7 @@ namespace Amazon.XRay.Recorder.Core
         }
 
         /// <summary>
-        /// Begin a tracing subsegment. A new segment will be created and added as a subsegment to previous segment.
+        /// Begin a tracing subsegment. A new subsegment will be created and added as a subsegment to previous segment.
         /// </summary>
         /// <param name="name">Name of the operation.</param>
         /// <param name="timestamp">Sets the start time of the subsegment</param>
@@ -241,12 +241,12 @@ namespace Amazon.XRay.Recorder.Core
         public abstract void BeginSubsegment(string name, DateTime? timestamp = null);
 
         /// <summary>
-        /// Begin a tracing subsegment. A new segment will be created and added as a subsegment to previous segment.
+        /// Begin a tracing subsegment. A new subsegment will be created and added as a subsegment to previous segment.
         /// </summary>
         /// <param name="name">Name of the operation.</param>
         public void BeginSubsegmentWithoutSampling(string name)
         {
-            BeginSubsegment(name, null);
+            BeginSubsegment(name);
             TraceContext.GetEntity().Sampled = SampleDecision.NotSampled;
         }
 

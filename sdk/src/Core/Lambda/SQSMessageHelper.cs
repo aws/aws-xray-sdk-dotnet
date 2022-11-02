@@ -15,15 +15,7 @@
 // </copyright>
 //-----------------------------------------------------------------------------
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Net;
-using System.Net.Http;
-using System.Text;
 using Amazon.Lambda.SQSEvents;
-using Amazon.Runtime.Internal.Util;
-using ThirdParty.LitJson;
 
 namespace Amazon.XRay.Recorder.Core.Lambda
 {
