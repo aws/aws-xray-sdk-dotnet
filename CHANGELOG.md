@@ -1,7 +1,33 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## 2.11.1 (TBD)
+## 2.12.0 (2022-11-02)
+### AWSXRayRecorder.Core (2.12.0)
+- No changes. Bumping to release with lateral related packages.
+
+### AWSXRayRecorder.Handlers.AspNet (2.9.0)
+- No changes. Bumping to release with lateral related packages.
+
+### AWSXRayRecorder.Handlers.AspNetCore (2.9.0)
+- No changes. Bumping to release with lateral related packages.
+
+### AWSXRayRecorder.Handlers.AwsSdk (2.10.0)
+#### Fixed
+- Allow list TopicArn for SNS PublishBatch request [PR#269](https://github.com/aws/aws-xray-sdk-dotnet/pull/269)
+- Fix issue using version 3.7.100 of AWS SDK causing exception not finding EndpointResolver [PR#268](https://github.com/aws/aws-xray-sdk-dotnet/pull/268)
+
+### AWSXRayRecorder.Handlers.EntityFramework (1.3.0)
+- No changes. Bumping to release with lateral related packages.
+
+### AWSXRayRecorder.Handlers.SqlServer (2.9.0)
+- No changes. Bumping to release with lateral related packages.
+
+### AWSXRayRecorder.Handlers.System.Net (2.9.0)
+#### New Feature
+- Provide tracing handler to allow removal of query string in traces [PR#264](https://github.com/aws/aws-xray-sdk-dotnet/pull/264)
+
+
+## 2.11.1 (2022-07-21)
 ### AWSXRayRecorder.Core (2.11.1)
 - No changes. Bumping to release with lateral related packages.
  
