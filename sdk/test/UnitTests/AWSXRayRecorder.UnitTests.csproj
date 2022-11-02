@@ -2,7 +2,7 @@
 
   
   <PropertyGroup>
-    <TargetFrameworks>net452;net462;netcoreapp2.0;netcoreapp3.1;net6.0</TargetFrameworks>
+    <TargetFrameworks>net6.0;netcoreapp3.1;netcoreapp2.0;net462;net452</TargetFrameworks>
     <Company>Amazon.com, Inc</Company>
     <Product>Amazon Web Service X-Ray Recorder</Product>
     <Copyright>Copyright 2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.</Copyright>
@@ -58,7 +58,7 @@
 
   <ItemGroup Condition="'$(TargetFramework)' != 'net452' AND '$(TargetFramework)' != 'net462'">
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="3.1.0" />
-
+    <PackageReference Include="Amazon.Lambda.SQSEvents" Version="2.1.0"/>
     <Compile Remove="TestAppSettings.cs" />
     <Compile Remove="Tools\MockHttpRequest.cs" />
     <Compile Remove="Tools\MockHttpRequestFactory.cs" />
@@ -75,6 +75,7 @@
     <Compile Remove="Tools\TestEFContext.cs" />
     <Compile Remove="TestXRayOptions.cs" />
     <Compile Remove="TestLambdaContext.cs" />
+    <Compile Remove="SQSMessageHelperTests.cs" />
     <Compile Remove="FacadeSegmentTest.cs" />
     <Compile Remove="Tools\TestEFContext.cs" />
     <Compile Remove="EfCoreTests.cs" />

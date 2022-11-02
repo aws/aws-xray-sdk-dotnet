@@ -232,13 +232,23 @@ namespace Amazon.XRay.Recorder.Core
         }
 
         /// <summary>
-        /// Begin a tracing subsegment. A new segment will be created and added as a subsegment to previous segment.
+        /// Begin a tracing subsegment. A new subsegment will be created and added as a subsegment to previous segment.
         /// </summary>
         /// <param name="name">Name of the operation.</param>
         /// <param name="timestamp">Sets the start time of the subsegment</param>
         /// <exception cref="ArgumentNullException">The argument has a null value.</exception>
         /// <exception cref="EntityNotAvailableException">Entity is not available in trace context.</exception>
         public abstract void BeginSubsegment(string name, DateTime? timestamp = null);
+
+        /// <summary>
+        /// Begin a tracing subsegment. A new subsegment will be created and added as a subsegment to previous segment.
+        /// </summary>
+        /// <param name="name">Name of the operation.</param>
+        public void BeginSubsegmentWithoutSampling(string name)
+        {
+            BeginSubsegment(name);
+            TraceContext.GetEntity().Sampled = SampleDecision.NotSampled;
+        }
 
         /// <summary>
         /// End a subsegment.
