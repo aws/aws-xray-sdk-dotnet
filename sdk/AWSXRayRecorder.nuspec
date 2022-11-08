@@ -32,7 +32,7 @@
       </group>
       <group targetFramework=".NETStandard2.0">
         <dependency id="AWSXRayRecorder.Core" version="2.13.0" />
-        <dependency id="AWSXRayRecorder.Handlers.AspNet" version="2.10.0" />
+        <dependency id="AWSXRayRecorder.Handlers.AspNetCore" version="2.10.0" />
         <dependency id="AWSXRayRecorder.Handlers.AwsSdk" version="2.11.0" />
         <dependency id="AWSXRayRecorder.Handlers.EntityFramework" version="1.4.0" />
         <dependency id="AWSXRayRecorder.Handlers.SqlServer" version="2.10.0" />
@@ -40,7 +40,7 @@
       </group>
       <group targetFramework=".NETCoreApp3.1">
         <dependency id="AWSXRayRecorder.Core" version="2.13.0" />
-        <dependency id="AWSXRayRecorder.Handlers.AspNet" version="2.10.0" />
+        <dependency id="AWSXRayRecorder.Handlers.AspNetCore" version="2.10.0" />
         <dependency id="AWSXRayRecorder.Handlers.AwsSdk" version="2.11.0" />
         <dependency id="AWSXRayRecorder.Handlers.EntityFramework" version="1.4.0" />
         <dependency id="AWSXRayRecorder.Handlers.SqlServer" version="2.10.0" />
@@ -48,7 +48,7 @@
       </group>
       <group targetFramework="net6.0">
         <dependency id="AWSXRayRecorder.Core" version="2.13.0" />
-        <dependency id="AWSXRayRecorder.Handlers.AspNet" version="2.10.0" />
+        <dependency id="AWSXRayRecorder.Handlers.AspNetCore" version="2.10.0" />
         <dependency id="AWSXRayRecorder.Handlers.AwsSdk" version="2.11.0" />
         <dependency id="AWSXRayRecorder.Handlers.EntityFramework" version="1.4.0" />
         <dependency id="AWSXRayRecorder.Handlers.SqlServer" version="2.10.0" />
