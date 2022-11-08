@@ -2,28 +2,28 @@
 All notable changes to this project will be documented in this file.
 
 ## 2.13.0 (2022-11-08)
-### AWSXRayRecorder.Core (2.12.0)
+### AWSXRayRecorder.Core (2.13.0)
 #### New Feature
 - Oversampling Mitigation [#PR381](https://github.com/aws/aws-xray-sdk-go/pull/381)
 #### Fixed
 - Changed Missing Context default strategy to log [#PR382](https://github.com/aws/aws-xray-sdk-go/pull/382)
 
-### AWSXRayRecorder.Handlers.AspNet (2.9.0)
+### AWSXRayRecorder.Handlers.AspNet (2.10.0)
 - No changes. Bumping to release with lateral related packages.
 
-### AWSXRayRecorder.Handlers.AspNetCore (2.9.0)
+### AWSXRayRecorder.Handlers.AspNetCore (2.10.0)
 - No changes. Bumping to release with lateral related packages.
 
-### AWSXRayRecorder.Handlers.AwsSdk (2.10.0)
+### AWSXRayRecorder.Handlers.AwsSdk (2.11.0)
 - No changes. Bumping to release with lateral related packages.
 
-### AWSXRayRecorder.Handlers.EntityFramework (1.3.0)
+### AWSXRayRecorder.Handlers.EntityFramework (1.4.0)
 - No changes. Bumping to release with lateral related packages.
 
-### AWSXRayRecorder.Handlers.SqlServer (2.9.0)
+### AWSXRayRecorder.Handlers.SqlServer (2.10.0)
 - No changes. Bumping to release with lateral related packages.
 
-### AWSXRayRecorder.Handlers.System.Net (2.9.0)
+### AWSXRayRecorder.Handlers.System.Net (2.10.0)
 - No changes. Bumping to release with lateral related packages.
 
 ## 2.12.0 (2022-11-02)
