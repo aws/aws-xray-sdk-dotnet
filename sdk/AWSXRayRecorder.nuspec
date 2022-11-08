@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>AWSXRayRecorder</id>
-    <version>2.12.0</version>
+    <version>2.13.0</version>
     <title>AWS X-Ray Recorder</title>
     <authors>AWS Web Service</authors>
     <licenseUrl>http://aws.amazon.com/apache2.0/</licenseUrl>
@@ -15,44 +15,44 @@
     <tags>AWS Amazon cloud AWSXRay XRay</tags>
     <dependencies>
       <group targetFramework=".NETFramework4.5">
-        <dependency id="AWSXRayRecorder.Core" version="2.12.0" />
-        <dependency id="AWSXRayRecorder.Handlers.AspNet" version="2.9.0" />
-        <dependency id="AWSXRayRecorder.Handlers.AwsSdk" version="2.10.0" />
-        <dependency id="AWSXRayRecorder.Handlers.EntityFramework" version="1.3.0" />
-        <dependency id="AWSXRayRecorder.Handlers.SqlServer" version="2.9.0" />
-        <dependency id="AWSXRayRecorder.Handlers.System.Net" version="2.9.0" />
+        <dependency id="AWSXRayRecorder.Core" version="2.13.0" />
+        <dependency id="AWSXRayRecorder.Handlers.AspNet" version="2.10.0" />
+        <dependency id="AWSXRayRecorder.Handlers.AwsSdk" version="2.11.0" />
+        <dependency id="AWSXRayRecorder.Handlers.EntityFramework" version="1.4.0" />
+        <dependency id="AWSXRayRecorder.Handlers.SqlServer" version="2.10.0" />
+        <dependency id="AWSXRayRecorder.Handlers.System.Net" version="2.10.0" />
       </group>
       <group targetFramework=".NETFramework4.6.2">
-        <dependency id="AWSXRayRecorder.Core" version="2.12.0" />
-        <dependency id="AWSXRayRecorder.Handlers.AspNet" version="2.9.0" />
-        <dependency id="AWSXRayRecorder.Handlers.AwsSdk" version="2.10.0" />
-        <dependency id="AWSXRayRecorder.Handlers.EntityFramework" version="1.3.0" />
-        <dependency id="AWSXRayRecorder.Handlers.SqlServer" version="2.9.0" />
-        <dependency id="AWSXRayRecorder.Handlers.System.Net" version="2.9.0" />
+        <dependency id="AWSXRayRecorder.Core" version="2.13.0" />
+        <dependency id="AWSXRayRecorder.Handlers.AspNet" version="2.10.0" />
+        <dependency id="AWSXRayRecorder.Handlers.AwsSdk" version="2.11.0" />
+        <dependency id="AWSXRayRecorder.Handlers.EntityFramework" version="1.4.0" />
+        <dependency id="AWSXRayRecorder.Handlers.SqlServer" version="2.10.0" />
+        <dependency id="AWSXRayRecorder.Handlers.System.Net" version="2.10.0" />
       </group>
       <group targetFramework=".NETStandard2.0">
-        <dependency id="AWSXRayRecorder.Core" version="2.12.0" />
-        <dependency id="AWSXRayRecorder.Handlers.AspNetCore" version="2.9.0" />
-        <dependency id="AWSXRayRecorder.Handlers.AwsSdk" version="2.10.0" />
-        <dependency id="AWSXRayRecorder.Handlers.EntityFramework" version="1.3.0" />
-        <dependency id="AWSXRayRecorder.Handlers.SqlServer" version="2.9.0" />
-        <dependency id="AWSXRayRecorder.Handlers.System.Net" version="2.9.0" />
+        <dependency id="AWSXRayRecorder.Core" version="2.13.0" />
+        <dependency id="AWSXRayRecorder.Handlers.AspNet" version="2.10.0" />
+        <dependency id="AWSXRayRecorder.Handlers.AwsSdk" version="2.11.0" />
+        <dependency id="AWSXRayRecorder.Handlers.EntityFramework" version="1.4.0" />
+        <dependency id="AWSXRayRecorder.Handlers.SqlServer" version="2.10.0" />
+        <dependency id="AWSXRayRecorder.Handlers.System.Net" version="2.10.0" />
       </group>
       <group targetFramework=".NETCoreApp3.1">
-        <dependency id="AWSXRayRecorder.Core" version="2.12.0" />
-        <dependency id="AWSXRayRecorder.Handlers.AspNetCore" version="2.9.0" />
-        <dependency id="AWSXRayRecorder.Handlers.AwsSdk" version="2.10.0" />
-        <dependency id="AWSXRayRecorder.Handlers.EntityFramework" version="1.3.0" />
-        <dependency id="AWSXRayRecorder.Handlers.SqlServer" version="2.9.0" />
-        <dependency id="AWSXRayRecorder.Handlers.System.Net" version="2.9.0" />
+        <dependency id="AWSXRayRecorder.Core" version="2.13.0" />
+        <dependency id="AWSXRayRecorder.Handlers.AspNet" version="2.10.0" />
+        <dependency id="AWSXRayRecorder.Handlers.AwsSdk" version="2.11.0" />
+        <dependency id="AWSXRayRecorder.Handlers.EntityFramework" version="1.4.0" />
+        <dependency id="AWSXRayRecorder.Handlers.SqlServer" version="2.10.0" />
+        <dependency id="AWSXRayRecorder.Handlers.System.Net" version="2.10.0" />
       </group>
       <group targetFramework="net6.0">
-        <dependency id="AWSXRayRecorder.Core" version="2.12.0" />
-        <dependency id="AWSXRayRecorder.Handlers.AspNetCore" version="2.9.0" />
-        <dependency id="AWSXRayRecorder.Handlers.AwsSdk" version="2.10.0" />
-        <dependency id="AWSXRayRecorder.Handlers.EntityFramework" version="1.3.0" />
-        <dependency id="AWSXRayRecorder.Handlers.SqlServer" version="2.9.0" />
-        <dependency id="AWSXRayRecorder.Handlers.System.Net" version="2.9.0" />
+        <dependency id="AWSXRayRecorder.Core" version="2.13.0" />
+        <dependency id="AWSXRayRecorder.Handlers.AspNet" version="2.10.0" />
+        <dependency id="AWSXRayRecorder.Handlers.AwsSdk" version="2.11.0" />
+        <dependency id="AWSXRayRecorder.Handlers.EntityFramework" version="1.4.0" />
+        <dependency id="AWSXRayRecorder.Handlers.SqlServer" version="2.10.0" />
+        <dependency id="AWSXRayRecorder.Handlers.System.Net" version="2.10.0" />
       </group>
     </dependencies>
     <frameworkReferences>
