@@ -1,7 +1,7 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## 2.13.0 (2022-11-08)
+## 2.13.0 (2022-11-09)
 ### AWSXRayRecorder.Core (2.13.0)
 - Oversampling Mitigation [#PR270](https://github.com/aws/aws-xray-sdk-dotnet/pull/270)
 
