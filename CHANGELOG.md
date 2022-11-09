@@ -1,12 +1,9 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## 2.13.0 (2022-11-08)
+## 2.13.0 (2022-11-09)
 ### AWSXRayRecorder.Core (2.13.0)
-#### New Feature
-- Oversampling Mitigation [#PR381](https://github.com/aws/aws-xray-sdk-go/pull/381)
-#### Fixed
-- Changed Missing Context default strategy to log [#PR382](https://github.com/aws/aws-xray-sdk-go/pull/382)
+- Oversampling Mitigation [#PR270](https://github.com/aws/aws-xray-sdk-dotnet/pull/270)
 
 ### AWSXRayRecorder.Handlers.AspNet (2.10.0)
 - No changes. Bumping to release with lateral related packages.
