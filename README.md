@@ -749,6 +749,55 @@ public string FunctionHandler(string input, ILambdaContext context)
 }
 ```
 
+### Oversampling Mitigation
+Oversampling mitigation allows you to ignore a parent segment/subsegment's sampled flag and instead set it to false.
+The code below demonstrates overriding the sampled flag based on the SQS messages sent to Lambda.
+
+```csharp
+using Amazon.Lambda.Core;
+using Amazon.Lambda.SQSEvents;
+using Amazon.XRay.Recorder.Core;
+using Amazon.XRay.Recorder.Core.Lambda;
+
+[assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.Json.JsonSerializer))]
+
+namespace MyFunction;
+
+public class Function
+{
+    public string HandleSQSEvent(SQSEvent sqsEvent, ILambdaContext context)
+    {
+        // Check to see if any messages upstream are sampled.
+        bool isSampled = false;
+        foreach (SQSEvent.SQSMessage sqsMessage in sqsEvent.Records)
+        {
+            if (SQSMessageHelper.IsSampled(sqsMessage))
+            {
+                isSampled = true;
+            }
+        }
+
+        // Create a new subsegment
+        if (isSampled)
+        {
+            AWSXRayRecorder.Instance.BeginSubsegment("Processing Message");
+        }
+        else
+        {
+            AWSXRayRecorder.Instance.BeginSubsegmentWithoutSampling("Processing Message");
+        }
+
+        // Do your procesing work here
+        Console.WriteLine("Doing processing work");
+
+        // End your subsegment
+        AWSXRayRecorder.Instance.EndSubsegment();
+
+        return "Success";
+    }
+}
+```
+
 ### ASP.NET Core on AWS Lambda (.NET Core)
 
 We support instrumenting ASP.NET Core web app on Lambda. Please follow the steps of [ASP.NET Core](https://github.com/aws/aws-xray-sdk-dotnet/tree/master#aspnet-core-framework-net-core--nuget) instrumentation.
