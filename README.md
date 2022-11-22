@@ -750,7 +750,12 @@ public string FunctionHandler(string input, ILambdaContext context)
 ```
 
 ### Oversampling Mitigation
-Oversampling mitigation allows you to ignore a parent segment/subsegment's sampled flag and instead set it to false.
+Oversampling mitigation allows you to ignore a parent segment/subsegment's sampled flag and instead sets the subsegment's sampled flag to false.
+This ensures that downstream calls are not sampled and this subsegment is not emitted.
+
+```csharp
+```
+
 The code below demonstrates overriding the sampled flag based on the SQS messages sent to Lambda.
 
 ```csharp
@@ -767,31 +772,25 @@ public class Function
 {
     public string HandleSQSEvent(SQSEvent sqsEvent, ILambdaContext context)
     {
-        // Check to see if any messages upstream are sampled.
-        bool isSampled = false;
+
         foreach (SQSEvent.SQSMessage sqsMessage in sqsEvent.Records)
         {
             if (SQSMessageHelper.IsSampled(sqsMessage))
             {
-                isSampled = true;
+                AWSXRayRecorder.Instance.BeginSubsegment("Processing Message");
             }
-        }
+            else
+            {
+                AWSXRayRecorder.Instance.BeginSubsegmentWithoutSampling("Processing Message");
+            }
 
-        // Create a new subsegment
-        if (isSampled)
-        {
-            AWSXRayRecorder.Instance.BeginSubsegment("Processing Message");
-        }
-        else
-        {
-            AWSXRayRecorder.Instance.BeginSubsegmentWithoutSampling("Processing Message");
-        }
 
-        // Do your procesing work here
-        Console.WriteLine("Doing processing work");
+            // Do my processing work here
+            Console.WriteLine("Doing processing work");
 
-        // End your subsegment
-        AWSXRayRecorder.Instance.EndSubsegment();
+            // End my subsegment
+            AWSXRayRecorder.Instance.EndSubsegment();
+        }
 
         return "Success";
     }
