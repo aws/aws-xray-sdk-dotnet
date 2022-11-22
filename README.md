@@ -778,10 +778,9 @@ public class Function
 
         foreach (var url in response.Result.QueueUrls)
         {
-            Console.WriteLine("  " + url);
+            Console.WriteLine(url);
         }
 
-        // End my subsegment
         AWSXRayRecorder.Instance.EndSubsegment();
 
         return "Success";
