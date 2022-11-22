@@ -749,6 +749,86 @@ public string FunctionHandler(string input, ILambdaContext context)
 }
 ```
 
+### Oversampling Mitigation
+Oversampling mitigation allows you to ignore a parent segment/subsegment's sampled flag and instead sets the subsegment's sampled flag to false.
+This ensures that downstream calls are not sampled and this subsegment is not emitted.
+
+```csharp
+using Amazon.Lambda.Core;
+using Amazon.Lambda.SQSEvents;
+using Amazon.XRay.Recorder.Core;
+using Amazon.SQS;
+using Amazon.SQS.Model;
+
+[assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.Json.JsonSerializer))]
+
+namespace MyFunction;
+
+public class Function
+{
+    public string HandleSQSEvent(SQSEvent sqsEvent, ILambdaContext context)
+    {
+        AWSXRayRecorder.Instance.BeginSubsegmentWithoutSampling("Processing Event");
+
+        var client = new AmazonSQSClient();
+
+        var request = new ListQueuesRequest();
+
+        var response = client.ListQueuesAsync(request);
+
+        foreach (var url in response.Result.QueueUrls)
+        {
+            Console.WriteLine(url);
+        }
+
+        AWSXRayRecorder.Instance.EndSubsegment();
+
+        return "Success";
+    }
+}
+```
+
+The code below demonstrates overriding the sampled flag based on the SQS messages sent to Lambda.
+
+```csharp
+using Amazon.Lambda.Core;
+using Amazon.Lambda.SQSEvents;
+using Amazon.XRay.Recorder.Core;
+using Amazon.XRay.Recorder.Core.Lambda;
+
+[assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.Json.JsonSerializer))]
+
+namespace MyFunction;
+
+public class Function
+{
+    public string HandleSQSEvent(SQSEvent sqsEvent, ILambdaContext context)
+    {
+
+        foreach (SQSEvent.SQSMessage sqsMessage in sqsEvent.Records)
+        {
+            if (SQSMessageHelper.IsSampled(sqsMessage))
+            {
+                AWSXRayRecorder.Instance.BeginSubsegment("Processing Message");
+            }
+            else
+            {
+                AWSXRayRecorder.Instance.BeginSubsegmentWithoutSampling("Processing Message");
+            }
+
+
+            // Do my processing work here
+            Console.WriteLine("Doing processing work");
+
+            // End my subsegment
+            AWSXRayRecorder.Instance.EndSubsegment();
+        }
+
+        return "Success";
+    }
+}
+```
+
 ### ASP.NET Core on AWS Lambda (.NET Core)
 
 We support instrumenting ASP.NET Core web app on Lambda. Please follow the steps of [ASP.NET Core](https://github.com/aws/aws-xray-sdk-dotnet/tree/master#aspnet-core-framework-net-core--nuget) instrumentation.
