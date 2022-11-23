@@ -142,7 +142,9 @@ namespace Amazon.XRay.Recorder.Core.Plugins
                     throw new Exception("Unable to complete the request successfully");
                 }
 
-                var encoding = Encoding.GetEncoding(response.ContentEncoding);
+                var encoding = !string.IsNullOrEmpty(response.ContentEncoding)
+                    ? Encoding.GetEncoding(response.ContentEncoding)
+                    : Encoding.UTF8;
 
                 using (var streamReader = new StreamReader(response.GetResponseStream(), encoding))
                 {
