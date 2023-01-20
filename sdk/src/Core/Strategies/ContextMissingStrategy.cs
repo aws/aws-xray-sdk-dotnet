@@ -25,11 +25,11 @@ namespace Amazon.XRay.Recorder.Core.Strategies
         /// <summary>
         /// The EntityNotAvailableException will be thrown if occurs at runtime.
         /// </summary>
-        RUNTIME_ERROR = 0,  // Set to 0, so it is default value
+        RUNTIME_ERROR = 1,
 
         /// <summary>
         /// The EntityNotAvailableException will be logged if occurs.
         /// </summary>
-        LOG_ERROR = 1, 
+        LOG_ERROR = 0,  // Set to 0, so it is default value
     }
 }

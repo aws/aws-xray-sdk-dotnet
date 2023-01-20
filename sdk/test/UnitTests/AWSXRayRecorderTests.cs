@@ -463,11 +463,13 @@ namespace Amazon.XRay.Recorder.UnitTests
         }
 
         [TestMethod]
-        public void TestSegmentMissingInTraceContext()
+        public void TestSegmentMissingInTraceContextUsingRuntimeError()
         {
+            var recorder = new AWSXRayRecorder();
+            recorder.ContextMissingStrategy = ContextMissingStrategy.RUNTIME_ERROR;
             try
             {
-                _recorder.EndSegment();
+                recorder.EndSegment();
                 Assert.Fail();
             }
             catch (EntityNotAvailableException)
@@ -477,7 +479,7 @@ namespace Amazon.XRay.Recorder.UnitTests
 
             try
             {
-                _recorder.BeginSubsegment("test");
+                recorder.BeginSubsegment("test");
                 Assert.Fail();
             }
             catch (EntityNotAvailableException)
@@ -487,12 +489,44 @@ namespace Amazon.XRay.Recorder.UnitTests
 
             try
             {
-                _recorder.EndSubsegment();
+                recorder.EndSubsegment();
                 Assert.Fail();
             }
             catch (EntityNotAvailableException)
             {
                 // Expected;
+            }
+        }
+
+        [TestMethod]
+        public void TestSegmentMissingInTraceContextUsingDefaultStrategy()
+        {
+            var recorder = new AWSXRayRecorder();
+            try
+            {
+                recorder.EndSegment();
+            }
+            catch (EntityNotAvailableException)
+            {
+                Assert.Fail();
+            }
+
+            try
+            {
+                recorder.BeginSubsegment("test");
+            }
+            catch (EntityNotAvailableException)
+            {
+                Assert.Fail();
+            }
+
+            try
+            {
+                recorder.EndSubsegment();
+            }
+            catch (EntityNotAvailableException)
+            {
+                Assert.Fail();
             }
         }
 
@@ -848,28 +882,75 @@ namespace Amazon.XRay.Recorder.UnitTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(EntityNotAvailableException))]
         public void TestEndSubsegmentWithSegment()
         {
-            _recorder.BeginSegment("segment", TraceId);
-            _recorder.EndSubsegment();
+            try
+            {
+                _recorder.BeginSegment("segment", TraceId);
+                _recorder.EndSubsegment();
+            }
+            catch (EntityNotAvailableException e)
+            {
+                Assert.Fail();
+            }
         }
 
         [TestMethod]
-        [ExpectedException(typeof(EntityNotAvailableException))]
         public void TestStartSubsegmentWithoutSegment()
         {
-            _recorder.BeginSubsegment("subsegment");
+            try
+            {
+                _recorder.BeginSubsegment("subsegment");
+            }
+            catch (EntityNotAvailableException e)
+            {
+                Assert.Fail();
+            }
+        }
+
+        [TestMethod]
+        public void TestEndSegmentWithSubsegment()
+        {
+            try
+            {
+                _recorder.BeginSegment("segment", TraceId);
+                _recorder.BeginSubsegment("subsegment");
+                _recorder.EndSegment();
+            }
+            catch (EntityNotAvailableException e)
+            {
+                Assert.Fail();
+            }
         }
 
         [TestMethod]
         [ExpectedException(typeof(EntityNotAvailableException))]
-
-        public void TestEndSegmentWithSubsegment()
+        public void TestEndSubsegmentWithSegmentUsingRuntimeError()
         {
-            _recorder.BeginSegment("segment", TraceId);
-            _recorder.BeginSubsegment("subsegment");
-            _recorder.EndSegment();
+            var recorder = new AWSXRayRecorder();
+            recorder.ContextMissingStrategy = ContextMissingStrategy.RUNTIME_ERROR;
+            recorder.BeginSegment("segment", TraceId);
+            recorder.EndSubsegment();
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(EntityNotAvailableException))]
+        public void TestStartSubsegmentWithoutSegmentUsingRuntimeError()
+        {
+            var recorder = new AWSXRayRecorder();
+            recorder.ContextMissingStrategy = ContextMissingStrategy.RUNTIME_ERROR;
+            recorder.BeginSubsegment("subsegment");
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(EntityNotAvailableException))]
+        public void TestEndSegmentWithSubsegmentUsingRuntimeError()
+        {
+            var recorder = new AWSXRayRecorder();
+            recorder.ContextMissingStrategy = ContextMissingStrategy.RUNTIME_ERROR;
+            recorder.BeginSegment("segment", TraceId);
+            recorder.BeginSubsegment("subsegment");
+            recorder.EndSegment();
         }
 
         [TestMethod]
@@ -882,7 +963,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         [TestMethod]
         public void TestDefaultValueOfContextMissingStrategy()
         {
-            Assert.AreEqual(ContextMissingStrategy.RUNTIME_ERROR, _recorder.ContextMissingStrategy);
+            Assert.AreEqual(ContextMissingStrategy.LOG_ERROR, _recorder.ContextMissingStrategy);
         }
 
         [TestMethod]
@@ -911,8 +992,9 @@ namespace Amazon.XRay.Recorder.UnitTests
         [TestMethod]
         public void TestDefaultContextMissingStrategy()
         {
+            // Environment.SetEnvironmentVariable(AWSXRayRecorder.EnvironmentVariableContextMissingStrategy, "log_error");
             var recorder = AWSXRayRecorder.Instance;
-            Assert.AreEqual(ContextMissingStrategy.RUNTIME_ERROR, recorder.ContextMissingStrategy);
+            Assert.AreEqual(ContextMissingStrategy.LOG_ERROR, recorder.ContextMissingStrategy);
         }
 
         [TestMethod]

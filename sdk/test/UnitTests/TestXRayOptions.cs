@@ -127,7 +127,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             Assert.IsNull(_xRayOptions.AwsServiceHandlerManifest);
             Assert.IsNull(_xRayOptions.PluginSetting);
             Assert.IsNull(_xRayOptions.SamplingRuleManifest);
-            Assert.IsTrue(_xRayOptions.UseRuntimeErrors);
+            Assert.IsFalse(_xRayOptions.UseRuntimeErrors);
 
             Assert.AreEqual(typeof(UdpSegmentEmitter), AWSXRayRecorder.Instance.Emitter.GetType()); // Default emitter set
 
@@ -147,7 +147,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             Assert.IsNull(_xRayOptions.AwsServiceHandlerManifest);
             Assert.IsNull(_xRayOptions.PluginSetting);
             Assert.IsNull(_xRayOptions.SamplingRuleManifest);
-            Assert.IsTrue(_xRayOptions.UseRuntimeErrors);
+            Assert.IsFalse(_xRayOptions.UseRuntimeErrors);
 
             Assert.AreEqual(AWSXRayRecorder.Instance.SamplingStrategy, recorder.SamplingStrategy); // Custom recorder set in TraceContext
             Assert.AreEqual(typeof(UdpSegmentEmitter), recorder.Emitter.GetType()); // Default emitter set
@@ -167,7 +167,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             Assert.IsNull(_xRayOptions.AwsServiceHandlerManifest);
             Assert.IsNull(_xRayOptions.PluginSetting);
             Assert.IsNull(_xRayOptions.SamplingRuleManifest);
-            Assert.IsTrue(_xRayOptions.UseRuntimeErrors);
+            Assert.IsFalse(_xRayOptions.UseRuntimeErrors);
 
             Assert.AreEqual(AWSXRayRecorder.Instance.SamplingStrategy, recorder.SamplingStrategy); // Custom recorder set in TraceContext
             Assert.AreEqual(typeof(DummyEmitter), recorder.Emitter.GetType()); // custom emitter set
@@ -201,7 +201,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         }
 
         [TestMethod]
-        public void TestUseRuntimeErrorsDefaultsTrue_WhenNotSpecifiedInJson()
+        public void TestUseLogErrorsDefaultsTrue_WhenNotSpecifiedInJson()
         {
             IConfiguration configuration = TestXRayOptions.BuildConfiguration("DisabledXRayMissing.json");
 
@@ -209,8 +209,8 @@ namespace Amazon.XRay.Recorder.UnitTests
 
             AWSXRayRecorder.InitializeInstance(configuration);
 
-            Assert.IsTrue(_xRayOptions.UseRuntimeErrors);
-            Assert.AreEqual(AWSXRayRecorder.Instance.ContextMissingStrategy, Core.Strategies.ContextMissingStrategy.RUNTIME_ERROR);
+            Assert.IsFalse(_xRayOptions.UseRuntimeErrors);
+            Assert.AreEqual(AWSXRayRecorder.Instance.ContextMissingStrategy, Core.Strategies.ContextMissingStrategy.LOG_ERROR);
         }
 
         [TestMethod]

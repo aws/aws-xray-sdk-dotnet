@@ -666,7 +666,7 @@ All notable changes to this project will be documented in this file.
 ### AWSXRayRecorder.Core (1.0.2-beta)
 #### Added
 - Runtime information to the `aws.xray` namespace on segments.
-- Added a `ContextMissingStrategy` property to the `IAWSXRayRecorder` interface. This allows configuration of the exception behavior exhibited when trace context is not properly propagated. The behavior can be configured in code. Alternatively, the environment variable `AWS_XRAY_CONTEXT_MISSING` can be used (overrides any modes set in code). Valid values for this environment variable are currently (case insensitive) `RUNTIME_ERROR` and `LOG_ERROR`. By default, an exception will be thrown on missing context.
+- Added a `ContextMissingStrategy` property to the `IAWSXRayRecorder` interface. This allows configuration of the exception behavior exhibited when trace context is not properly propagated. The behavior can be configured in code. Alternatively, the environment variable `AWS_XRAY_CONTEXT_MISSING` can be used (overrides any modes set in code). Valid values for this environment variable are currently (case insensitive) `RUNTIME_ERROR` and `LOG_ERROR`. By default, errors are logged on missing context.
 
 #### Changed
 - Renamed `SegmentNotAvailableException` to `EntityNotAvailableException`

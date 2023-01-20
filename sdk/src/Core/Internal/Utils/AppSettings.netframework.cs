@@ -131,8 +131,8 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
             return defaultValue;
         }
 
-        // If the key not present, default value set to true.
-        private static bool GetSettingBoolForRuntimeError(string key, bool defaultValue = true)
+        // If the key not present, default value set to false.
+        private static bool GetSettingBoolForRuntimeError(string key, bool defaultValue = false)
         {
             string value = GetSetting(key);
             if (bool.TryParse(value, out bool result))

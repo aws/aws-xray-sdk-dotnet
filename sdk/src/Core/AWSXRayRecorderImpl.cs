@@ -61,7 +61,7 @@ namespace Amazon.XRay.Recorder.Core
 
         private ISegmentEmitter _emitter;
         private bool disposed;
-        protected ContextMissingStrategy cntxtMissingStrategy = ContextMissingStrategy.RUNTIME_ERROR;
+        protected ContextMissingStrategy cntxtMissingStrategy = ContextMissingStrategy.LOG_ERROR;
         private Dictionary<string, object> serviceContext = new Dictionary<string, object>();
 
         protected AWSXRayRecorderImpl(ISegmentEmitter emitter)
