@@ -201,7 +201,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         }
 
         [TestMethod]
-        public void TestUseLogErrorsDefaultsTrue_WhenNotSpecifiedInJson()
+        public void TestUseRuntimeErrorsDefaultsFalse_WhenNotSpecifiedInJson()
         {
             IConfiguration configuration = TestXRayOptions.BuildConfiguration("DisabledXRayMissing.json");
 
