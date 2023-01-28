@@ -149,7 +149,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         public void TestDefaultValueOfContextMissingStrategy()
         {
             var recorder = new AWSXRayRecorderBuilder().Build();
-            Assert.AreEqual(ContextMissingStrategy.RUNTIME_ERROR, recorder.ContextMissingStrategy);
+            Assert.AreEqual(ContextMissingStrategy.LOG_ERROR, recorder.ContextMissingStrategy);
         }
 
         [TestMethod]
@@ -175,7 +175,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         }
 
         [TestMethod]
-        public void TestSetContextMissingUsingConfiguration2() // Contextmissing startegy not set
+        public void TestSetContextMissingUsingConfiguration2() // Contextmissing strategy not set
         {
 #if NETFRAMEWORK
             AppSettings.Reset();
@@ -184,7 +184,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             AWSXRayRecorderBuilder builder = new AWSXRayRecorderBuilder().WithContextMissingStrategyFromConfig(_xRayOptions);
 #endif
             AWSXRayRecorder recorder = builder.Build();
-            Assert.AreEqual(ContextMissingStrategy.RUNTIME_ERROR, recorder.ContextMissingStrategy); // Default context missing strategy is set
+            Assert.AreEqual(ContextMissingStrategy.LOG_ERROR, recorder.ContextMissingStrategy); // Default context missing strategy is set
         }
 
         [TestMethod]

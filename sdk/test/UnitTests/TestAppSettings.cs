@@ -95,16 +95,16 @@ namespace Amazon.XRay.Recorder.UnitTests
             ConfigurationManager.AppSettings[UseRuntimeErrors] = "invalid";
             AppSettings.Reset();
             var recorder = GetRecorder();
-            Assert.AreEqual(Core.Strategies.ContextMissingStrategy.RUNTIME_ERROR ,recorder.ContextMissingStrategy);
+            Assert.AreEqual(Core.Strategies.ContextMissingStrategy.LOG_ERROR ,recorder.ContextMissingStrategy);
         }
 
 
         [TestMethod]
-        public void TestUseRuntimeErrorsNoKeyPresent()
+        public void TestUseLogErrorsNoKeyPresent()
         {
             AppSettings.Reset();
             var recorder = GetRecorder();
-            Assert.AreEqual(Core.Strategies.ContextMissingStrategy.RUNTIME_ERROR, recorder.ContextMissingStrategy);
+            Assert.AreEqual(Core.Strategies.ContextMissingStrategy.LOG_ERROR, recorder.ContextMissingStrategy);
         }
 
         [TestMethod]

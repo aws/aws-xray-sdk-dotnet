@@ -38,7 +38,7 @@ namespace Amazon.XRay.Recorder.Core
 
         private readonly List<IPlugin> _plugins = new List<IPlugin>();
         private ISamplingStrategy _samplingStrategy;
-        private ContextMissingStrategy _contextMissingStrategy = ContextMissingStrategy.RUNTIME_ERROR;
+        private ContextMissingStrategy _contextMissingStrategy = ContextMissingStrategy.LOG_ERROR;
         private ISegmentEmitter _segmentEmitter;
         private string _daemonAddress;
         private ITraceContext _traceContext;
@@ -89,7 +89,7 @@ namespace Amazon.XRay.Recorder.Core
 
         /// <summary>
         /// Reads useRuntimeErrors settings from app settings, and adds into the builder.
-        /// If the useRuntimeErrors settings doesn't exist, it defaults to true and ContextMissingStrategy.RUNTIME_ERROR is used.
+        /// If the useRuntimeErrors settings doesn't exist, it defaults to false and ContextMissingStrategy.LOG_ERROR is used.
         /// </summary>
         /// <returns>The builder with context missing strategy set.</returns>
         public AWSXRayRecorderBuilder WithContextMissingStrategyFromAppSettings()
@@ -123,7 +123,7 @@ namespace Amazon.XRay.Recorder.Core
 
         /// <summary>
         /// Reads useRuntimeErrors settings from config instance, and adds into the builder.
-        /// If the useRuntimeErrors settings doesn't exist, it defaults to true and ContextMissingStrategy.RUNTIME_ERROR is used.
+        /// If the useRuntimeErrors settings doesn't exist, it defaults to false and ContextMissingStrategy.LOG_ERROR is used.
         /// </summary>
         /// <returns>The builder with context missing strategy set.</returns>
         public AWSXRayRecorderBuilder WithContextMissingStrategyFromConfig(XRayOptions xRayOptions)

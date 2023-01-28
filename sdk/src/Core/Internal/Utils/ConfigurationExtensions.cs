@@ -64,7 +64,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
             options.SamplingRuleManifest = GetSetting(SamplingRuleManifestKey, section);
             options.AwsServiceHandlerManifest =GetSetting(AWSServiceHandlerManifestKey, section);
             options.IsXRayTracingDisabled = GetSettingBool(DisableXRayTracingKey,section);
-            options.UseRuntimeErrors = GetSettingBool(UseRuntimeErrorsKey, section, defaultValue: true);
+            options.UseRuntimeErrors = GetSettingBool(UseRuntimeErrorsKey, section, defaultValue: false);
             options.CollectSqlQueries = GetSettingBool(CollectSqlQueries, section, defaultValue: false);
             return options;
         }

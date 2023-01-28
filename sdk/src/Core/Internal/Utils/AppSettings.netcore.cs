@@ -88,7 +88,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Utils
         /// <summary>
         /// For missing Segments/Subsegments, if set to true, runtime exception is thrown, if set to false, runtime exceptions are avoided and logged.
         /// </summary>
-        public bool UseRuntimeErrors { get; set; } = true;
+        public bool UseRuntimeErrors { get; set; } = false;
 
         /// <summary>
         /// Include the TraceableSqlCommand.CommandText in the sanitized_query section of 
