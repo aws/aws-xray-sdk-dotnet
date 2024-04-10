@@ -17,7 +17,7 @@ namespace Amazon.XRay.Recorder.UnitTests
     {
         private const string URL = "https://httpbin.org/?ab=test&ad=test";
 
-        private const string URL404 = "https://httpbin.org/404";
+        private const string URL404 = "https://httpbin.org/status/404";
 
         private readonly HttpClient _httpClient;
 
