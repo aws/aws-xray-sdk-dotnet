@@ -33,7 +33,7 @@ namespace Amazon.XRay.Recorder.UnitTests
     {
         private const string URL = "https://httpbin.org/";
 
-        private const string URL404 = "https://httpbin.org/404";
+        private const string URL404 = "https://httpbin.org/status/404";
 
         private static AWSXRayRecorder _recorder;
 
