@@ -1,6 +1,28 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 2.15.0 (2024-05-02)
+### AWSXRayRecorder.Core (2.15.0)
+- No changes. Bumping to release with lateral related packages.
+
+### AWSXRayRecorder.Handlers.AspNet (2.12.0)
+- No changes. Bumping to release with lateral related packages.
+
+### AWSXRayRecorder.Handlers.AspNetCore (2.12.0)
+- No changes. Bumping to release with lateral related packages.
+
+### AWSXRayRecorder.Handlers.AwsSdk (2.13.0)
+- No changes. Bumping to release with lateral related packages.
+
+### AWSXRayRecorder.Handlers.EntityFramework (1.6.0)
+- No changes. Bumping to release with lateral related packages.
+
+### AWSXRayRecorder.Handlers.SqlServer (2.12.0)
+- Update System.Data.SqlClient version for CVE mitigation [#PR294](https://github.com/aws/aws-xray-sdk-dotnet/pull/294)
+
+### AWSXRayRecorder.Handlers.System.Net (2.12.0)
+- No changes. Bumping to release with lateral related packages.
+
 ## 2.14.0 (2023-02-28)
 ### AWSXRayRecorder.Core (2.14.0)
 - ec2plugin: fallback to utf8 if response encoding not set [#PR278](https://github.com/aws/aws-xray-sdk-dotnet/pull/278)
