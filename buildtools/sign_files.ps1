@@ -97,6 +97,7 @@ Begin
         $retryCount = 0
         do {
             aws s3api get-object --bucket $signedS3bucket --key $key-$jobId $file
+            Start-Sleep -Seconds 30
             $retryCount++
         } while ($LASTEXITCODE -ne 0 -and $retryCount -le $maxRetryCount)
         
