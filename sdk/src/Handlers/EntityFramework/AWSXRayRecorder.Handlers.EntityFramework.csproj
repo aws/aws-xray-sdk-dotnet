@@ -5,9 +5,9 @@
     <Company>Amazon.com, Inc</Company>
     <Product>Amazon Web Service X-Ray Recorder</Product>
     <Copyright>Copyright 2017-2022 Amazon.com, Inc. or its affiliates. All Rights Reserved.</Copyright>
-    <AssemblyVersion>1.6.0.0</AssemblyVersion>
-    <FileVersion>1.6.0.0</FileVersion>
-    <Version>1.6.0</Version>
+    <AssemblyVersion>1.5.0.0</AssemblyVersion>
+    <FileVersion>1.5.0.0</FileVersion>
+    <Version>1.5.0</Version>
     <AssemblyName>AWSXRayRecorder.Handlers.EntityFramework</AssemblyName>
     <RootNamespace>Amazon.XRay.Recorder.Handlers.EntityFramework</RootNamespace>
     <Authors>Amazon Web Services</Authors>
