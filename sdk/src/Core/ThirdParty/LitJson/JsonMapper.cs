@@ -107,11 +107,13 @@ namespace ThirdParty.LitJson
 
         private static IDictionary<Type, ExporterFunc> base_exporters_table;
         private static IDictionary<Type, ExporterFunc> custom_exporters_table;
+        private static readonly object custom_exporters_table_lock = new Object();
 
         private static IDictionary<Type,
                 IDictionary<Type, ImporterFunc>> base_importers_table;
         private static IDictionary<Type,
                 IDictionary<Type, ImporterFunc>> custom_importers_table;
+        private static readonly object custom_importers_table_lock = new Object();
 
         private static IDictionary<Type, ArrayMetadata> array_metadata;
         private static readonly object array_metadata_lock = new Object ();
@@ -337,25 +339,19 @@ namespace ThirdParty.LitJson
                     return reader.Value;
 
                 // If there's a custom importer that fits, use it
-                if (custom_importers_table.ContainsKey (json_type) &&
-                    custom_importers_table[json_type].ContainsKey (
-                        value_type)) {
+                lock (custom_importers_table_lock) {
+                    if (custom_importers_table.TryGetValue(json_type, out IDictionary<Type, ImporterFunc> customImporterTablesValue) &&
+                        customImporterTablesValue.TryGetValue(value_type, out ImporterFunc customImporter)) {
 
-                    ImporterFunc importer =
-                        custom_importers_table[json_type][value_type];
-
-                    return importer (reader.Value);
+                        return customImporter(reader.Value);
+                    }
                 }
 
                 // Maybe there's a base importer that works
-                if (base_importers_table.ContainsKey (json_type) &&
-                    base_importers_table[json_type].ContainsKey (
-                        value_type)) {
+                if (base_importers_table.TryGetValue(json_type, out IDictionary<Type, ImporterFunc> baseImporterTablesValue) &&
+                    baseImporterTablesValue.TryGetValue(value_type, out ImporterFunc baseImporter)) {
 
-                    ImporterFunc importer =
-                        base_importers_table[json_type][value_type];
-
-                    return importer (reader.Value);
+                    return baseImporter(reader.Value);
                 }
 
                 // Maybe it's an enum
@@ -550,6 +546,8 @@ namespace ThirdParty.LitJson
 
         private static void RegisterBaseExporters ()
         {
+            // This method is only called from the static initializer,
+            // so there is no need to explicitly lock any static members here
             base_exporters_table[typeof (byte)] =
                 delegate (object obj, JsonWriter writer) {
                     writer.Write (Convert.ToInt32 ((byte) obj));
@@ -599,6 +597,8 @@ namespace ThirdParty.LitJson
 
         private static void RegisterBaseImporters ()
         {
+            // This method is only called from the static initializer,
+            // so there is no need to explicitly lock any static members here
             ImporterFunc importer;
 
             importer = delegate (object input) {
@@ -775,29 +775,31 @@ namespace ThirdParty.LitJson
             Type obj_type = obj.GetType ();
 
             // See if there's a custom exporter for the object
-            if (custom_exporters_table.ContainsKey (obj_type)) {
-                ExporterFunc exporter = custom_exporters_table[obj_type];
-                exporter (obj, writer);
-
-                return;
-            }
-
-            // See if there's a custom exporter for the base class of the object
-            foreach (var type in custom_exporters_table.Keys)
-            {
-                if (obj_type.IsSubclassOf(type))
-                {
-                    ExporterFunc exporter = custom_exporters_table[type];
-                    exporter(obj, writer);
+            lock (custom_exporters_table_lock) {
+                if (custom_exporters_table.TryGetValue(obj_type, out ExporterFunc customExporter)) {
+                    customExporter(obj, writer);
 
                     return;
                 }
             }
 
+            // See if there's a custom exporter for the base class of the object
+            lock (custom_exporters_table_lock) {
+                foreach (var type in custom_exporters_table.Keys)
+                {
+                    if (obj_type.IsSubclassOf(type))
+                    {
+                        ExporterFunc exporter = custom_exporters_table[type];
+                        exporter(obj, writer);
+
+                        return;
+                    }
+                }
+            }
+
             // If not, maybe there's a base exporter
-            if (base_exporters_table.ContainsKey (obj_type)) {
-                ExporterFunc exporter = base_exporters_table[obj_type];
-                exporter (obj, writer);
+            if (base_exporters_table.TryGetValue(obj_type, out ExporterFunc baseExporter)) {
+                baseExporter(obj, writer);
 
                 return;
             }
@@ -919,7 +921,9 @@ namespace ThirdParty.LitJson
                     exporter ((T) obj, writer);
                 };
 
-            custom_exporters_table[typeof (T)] = exporter_wrapper;
+            lock (custom_exporters_table_lock) {
+                custom_exporters_table[typeof (T)] = exporter_wrapper;
+            }
         }
 
         public static void RegisterImporter<TJson, TValue> (
@@ -930,18 +934,24 @@ namespace ThirdParty.LitJson
                     return importer ((TJson) input);
                 };
 
-            RegisterImporter (custom_importers_table, typeof (TJson),
-                              typeof (TValue), importer_wrapper);
+            lock (custom_importers_table_lock) {
+                RegisterImporter (custom_importers_table, typeof (TJson),
+                                 typeof (TValue), importer_wrapper);
+            }
         }
 
         public static void UnregisterExporters ()
         {
-            custom_exporters_table.Clear ();
+            lock (custom_exporters_table_lock) {
+                custom_exporters_table.Clear();
+            }
         }
 
         public static void UnregisterImporters ()
         {
-            custom_importers_table.Clear ();
+            lock (custom_importers_table_lock) {
+                custom_importers_table.Clear();
+            }
         }
     }
 }
