@@ -85,7 +85,7 @@ Begin
 
         $retryCount = 0        
         do {
-            $jobId = aws s3api get-object-tagging --bucket $unsignedS3bucket --key $key --version-id $versionId --query 'TagSet[?Key==`signer-job-id`].Value | [0]' --output text
+            $jobId = aws s3api get-object-tagging --bucket $unsignedS3bucket --key $key --version-id $versionId --query 'TagSet[?Key==`signer-job-id`].Value | [0]'
             $retryCount++
         } while ($jobId -eq "null" -and $retryCount -le $maxRetryCount)
 
