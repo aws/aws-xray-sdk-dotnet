@@ -96,7 +96,6 @@ Begin
 
         $retryCount = 0
         do {
-            Write-Host "Fetching object from signed bucket: ", $key-$jobId
             aws s3api get-object --bucket $signedS3bucket --key $key-$jobId $file
             $retryCount++
         } while ($LASTEXITCODE -ne 0 -and $retryCount -le $maxRetryCount)
