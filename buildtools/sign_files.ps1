@@ -29,6 +29,11 @@ Begin
     $unsignedS3bucket = $Env:UNSIGNED_BUCKET
     $signedS3bucket = $Env:SIGNED_BUCKET
 
+    Write-Host "aws-cli version: ", aws --version
+
+    $jobId = aws s3api get-object-tagging --bucket $unsignedS3bucket --key XRayDotNetSignerProfile/AuthenticodeSigner-SHA256-RSA/AWSXRayRecorder.Core.dll --version-id XtTVQf7SF1XGsCUmghhuI7KXmFdtcjFM --query 'TagSet[?Key==`signer-job-id`].Value | [0]' --output text --no-paginate
+    Write-Host "JobId: ", $jobId
+
     $FilesToSign = @()
 
     if ($PSCmdlet.ParameterSetName -eq "Files")
@@ -73,7 +78,6 @@ Begin
         $maxRetryCount = 10
 
         Write-Host "Signing File: ", $file
-        Write-Host "aws-cli version: ", aws --version
         do {
             $versionId = aws s3api put-object --bucket $unsignedS3bucket --key $key --body $file --query VersionId --acl bucket-owner-full-control
             $retryCount++
