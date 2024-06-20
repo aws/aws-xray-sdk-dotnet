@@ -73,6 +73,7 @@ Begin
         $maxRetryCount = 10
 
         Write-Host "Signing File: ", $file
+        Write-Host "aws-cli version: ", aws --version
         do {
             $versionId = aws s3api put-object --bucket $unsignedS3bucket --key $key --body $file --query VersionId --acl bucket-owner-full-control
             $retryCount++

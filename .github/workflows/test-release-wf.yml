@@ -25,32 +25,32 @@ jobs:
         - name: Checkout repository
           uses: actions/checkout@v2
 
-        - name: Assume role to get .snk file
-          uses: aws-actions/configure-aws-credentials@v1
-          with:
-            role-to-assume: ${{ secrets.AWS_ASSUME_ROLE_ARN_RELEASE }}
-            aws-region: us-west-2
+        # - name: Assume role to get .snk file
+        #   uses: aws-actions/configure-aws-credentials@v1
+        #   with:
+        #     role-to-assume: ${{ secrets.AWS_ASSUME_ROLE_ARN_RELEASE }}
+        #     aws-region: us-west-2
 
-        - name: Get Strong-Naming Key
-          run: >
-            aws s3api get-object
-            --bucket ${{ secrets.SNK_BUCKET }}
-            --key awsxrayrecorder.dll.snk
-            awsxrayrecorder.dll.snk
+        # - name: Get Strong-Naming Key
+        #   run: >
+        #     aws s3api get-object
+        #     --bucket ${{ secrets.SNK_BUCKET }}
+        #     --key awsxrayrecorder.dll.snk
+        #     awsxrayrecorder.dll.snk
           
-        - name: Install dependencies
-          run: dotnet restore .\sdk\AWSXRayRecorder.sln
+        # - name: Install dependencies
+        #   run: dotnet restore .\sdk\AWSXRayRecorder.sln
 
-        - name: Build solution
-          run: >
-            dotnet build
-            .\sdk\AWSXRayRecorder.sln
-            /p:Configuration=Release
-            --no-restore
-            /p:AssemblyOriginatorKeyFile=${{ github.workspace }}\awsxrayrecorder.dll.snk
+        # - name: Build solution
+        #   run: >
+        #     dotnet build
+        #     .\sdk\AWSXRayRecorder.sln
+        #     /p:Configuration=Release
+        #     --no-restore
+        #     /p:AssemblyOriginatorKeyFile=${{ github.workspace }}\awsxrayrecorder.dll.snk
 
-        - name: Clean up the snk file
-          run: rm .\awsxrayrecorder.dll.snk
+        # - name: Clean up the snk file
+        #   run: rm .\awsxrayrecorder.dll.snk
 
         - name: Assume signer role
           uses: aws-actions/configure-aws-credentials@v1
@@ -72,27 +72,27 @@ jobs:
             .\buildtools\sign_files.ps1 -Filters AWSXRayRecorder.*.dll -Recurse -Path .\sdk\src\Handlers\SqlServer\bin\Release
             .\buildtools\sign_files.ps1 -Filters AWSXRayRecorder.*.dll -Recurse -Path .\sdk\src\Handlers\System.Net\bin\Release
             
-        - name: Pack nugets
-          run: >
-            dotnet pack
-            .\sdk\AWSXRayRecorder.sln
-            --no-build
-            -c Release
-            -o .\Deployment\nuget-packages
+        # - name: Pack nugets
+        #   run: >
+        #     dotnet pack
+        #     .\sdk\AWSXRayRecorder.sln
+        #     --no-build
+        #     -c Release
+        #     -o .\Deployment\nuget-packages
 
-            nuget pack
-            .\sdk\AWSXRayRecorder.nuspec
-            -OutputDirectory .\Deployment\nuget-packages
-            -Exclude **
+        #     nuget pack
+        #     .\sdk\AWSXRayRecorder.nuspec
+        #     -OutputDirectory .\Deployment\nuget-packages
+        #     -Exclude **
 
-        - name: Upload nugets to this GitHub Action run as an artifact
-          uses: actions/upload-artifact@v2
-          with:
-            name: nuget-packages
-            path: Deployment/nuget-packages/
+        # - name: Upload nugets to this GitHub Action run as an artifact
+        #   uses: actions/upload-artifact@v2
+        #   with:
+        #     name: nuget-packages
+        #     path: Deployment/nuget-packages/
 
-        - name: Assume nuget role
-          uses: aws-actions/configure-aws-credentials@v1
-          with:
-            role-to-assume: ${{ secrets.NUGET_ACCESS_ROLE_ARN }}
-            aws-region: us-west-2
+        # - name: Assume nuget role
+        #   uses: aws-actions/configure-aws-credentials@v1
+        #   with:
+        #     role-to-assume: ${{ secrets.NUGET_ACCESS_ROLE_ARN }}
+        #     aws-region: us-west-2
