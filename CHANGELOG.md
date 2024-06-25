@@ -1,7 +1,7 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## 2.15.0 (2024-05-02)
+## 2.15.0 (2024-06-25)
 ### AWSXRayRecorder.Core (2.15.0)
 - Fix race condition on static dictionaries [#PR291](https://github.com/aws/aws-xray-sdk-dotnet/pull/291)
 
