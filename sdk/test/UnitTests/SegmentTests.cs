@@ -21,6 +21,8 @@ using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Threading;
+using System.Threading.Tasks;
 using Amazon.XRay.Recorder.Core.Exceptions;
 using Amazon.XRay.Recorder.Core.Internal.Entities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -298,6 +300,48 @@ namespace Amazon.XRay.Recorder.UnitTests
             Assert.AreEqual("Test someting wrong happens", descriptor.Message);
             Assert.AreEqual("EntityNotAvailableException", descriptor.Type);
             Assert.ReferenceEquals(e, descriptor.Exception);
+        }
+
+        [TestMethod]
+        public void TestAddExceptionWithConcurrentSubsegmentAddition()
+        {
+            const int EXCEPTION_ITERATIONS = 100;
+            const int SUBSEGMENT_ITERATIONS = 100_000;
+            var segment = new Segment("test", TraceId);
+            var raceConditionOccurred = false;
+            var cancellationTokenSource = new CancellationTokenSource();
+
+            var addExceptionTask = Task.Run(() =>
+            {
+                Parallel.ForEach(Enumerable.Range(0, EXCEPTION_ITERATIONS), _ =>
+                {
+                    try
+                    {
+                        var exception = new Exception("Test Exception");
+                        segment.AddException(exception);
+                    }
+                    catch (InvalidOperationException)
+                    {
+                        raceConditionOccurred = true;
+                    }
+                });
+            });
+
+            var addSubsegmentsTask = Task.Run(() =>
+            {
+                try
+                {
+                    Parallel.ForEach(Enumerable.Range(0, SUBSEGMENT_ITERATIONS), new ParallelOptions { CancellationToken = cancellationTokenSource.Token }, _ =>
+                    {
+                        segment.AddSubsegment(new Subsegment("TestSubsegment"));
+                    });
+                }
+                catch (OperationCanceledException) { }
+            });
+
+            Task.WaitAll(addExceptionTask, addSubsegmentsTask);
+
+            Assert.IsFalse(raceConditionOccurred, "A race condition error occurred unexpectedly.");
         }
 
         [TestMethod]

@@ -514,7 +514,13 @@ namespace Amazon.XRay.Recorder.Core.Internal.Entities
         {
             HasFault = true;
             Cause = new Cause();
-            Cause.AddException(AWSXRayRecorder.Instance.ExceptionSerializationStrategy.DescribeException(e, Subsegments));
+            List<Subsegment> subsegmentsCopy;
+            lock (_lazySubsegments.Value)
+            {
+                subsegmentsCopy = _lazySubsegments.Value.ToList(); // Create a copy to avoid holding the lock during serialization
+            }
+
+            Cause.AddException(AWSXRayRecorder.Instance.ExceptionSerializationStrategy.DescribeException(e, subsegmentsCopy));
         }
 
         /// <summary>
