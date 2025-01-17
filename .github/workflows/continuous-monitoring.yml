@@ -4,6 +4,9 @@ on:
     workflow_dispatch:
     schedule:
       - cron: '*/10 * * * *'
+    push:
+      branches:
+        -"distro-action-fix"
 
 permissions:
   id-token: write
@@ -13,6 +16,9 @@ jobs:
     smoke-tests:
         name: Run smoke tests
         runs-on: ${{ matrix.os }}
+        
+        env:
+          DOTNET_SYSTEM_GLOBALIZATION_INVARIANT: 1
         
         strategy:
             fail-fast: false
