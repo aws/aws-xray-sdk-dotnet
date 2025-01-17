@@ -4,9 +4,6 @@ on:
     workflow_dispatch:
     schedule:
       - cron: '*/10 * * * *'
-    push:
-      branches:
-        - "distro-action-fix"
 
 permissions:
   id-token: write
@@ -16,9 +13,6 @@ jobs:
     smoke-tests:
         name: Run smoke tests
         runs-on: ${{ matrix.os }}
-
-        env:
-          DOTNET_SYSTEM_GLOBALIZATION_INVARIANT: 1
         
         strategy:
             fail-fast: false
@@ -30,11 +24,11 @@ jobs:
           - name: Checkout repository
             uses: actions/checkout@v2
             
-          # - name: Configure AWS Credentials
-          #   uses: aws-actions/configure-aws-credentials@v4
-          #   with:
-          #      role-to-assume: ${{ secrets.AWS_INTEG_TEST_ROLE_ARN }}
-          #      aws-region: us-east-1
+          - name: Configure AWS Credentials
+            uses: aws-actions/configure-aws-credentials@v4
+            with:
+               role-to-assume: ${{ secrets.AWS_INTEG_TEST_ROLE_ARN }}
+               aws-region: us-east-1
 
           - name: Setup dotnet
             uses: actions/setup-dotnet@v1
@@ -42,9 +36,6 @@ jobs:
               dotnet-version: |
                 3.1.x
                 6.0.x
-
-          - name: Install System Dependencies
-            run: sudo apt-get update && sudo apt-get install -y libssl-dev libicu-dev
 
           - name: Install dependencies
             run: dotnet restore sdk/test/SmokeTests/AWSXRayRecorder.SmokeTests.csproj
@@ -56,11 +47,11 @@ jobs:
             id: distribution-availability
             run: dotnet test sdk/test/SmokeTests/bin/Release/${{matrix.version}}/AWSXRayRecorder.SmokeTests.dll
             
-          # - name: Publish metric on X-Ray Dotnet SDK distribution availability
-          #   if: ${{ always() }}
-          #   run: |
-          #     if [[ "${{ steps.distribution-availability.outcome }}" == "failure" ]]; then
-          #       aws cloudwatch put-metric-data --metric-name XRayDotnetSDKDistributionUnavailability --dimensions failure=rate --namespace MonitorSDK --value 1 --timestamp $(date +%s)
-          #     else
-          #       aws cloudwatch put-metric-data --metric-name XRayDotnetSDKDistributionUnavailability --dimensions failure=rate --namespace MonitorSDK --value 0 --timestamp $(date +%s)
-          #     fi
+          - name: Publish metric on X-Ray Dotnet SDK distribution availability
+            if: ${{ always() }}
+            run: |
+              if [[ "${{ steps.distribution-availability.outcome }}" == "failure" ]]; then
+                aws cloudwatch put-metric-data --metric-name XRayDotnetSDKDistributionUnavailability --dimensions failure=rate --namespace MonitorSDK --value 1 --timestamp $(date +%s)
+              else
+                aws cloudwatch put-metric-data --metric-name XRayDotnetSDKDistributionUnavailability --dimensions failure=rate --namespace MonitorSDK --value 0 --timestamp $(date +%s)
+              fi
