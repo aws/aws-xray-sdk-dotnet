@@ -43,6 +43,9 @@ jobs:
                 3.1.x
                 6.0.x
 
+          - name: Install System Dependencies
+            run: sudo apt-get update && sudo apt-get install -y libssl-dev libicu-dev
+
           - name: Install dependencies
             run: dotnet restore sdk/test/SmokeTests/AWSXRayRecorder.SmokeTests.csproj
 
