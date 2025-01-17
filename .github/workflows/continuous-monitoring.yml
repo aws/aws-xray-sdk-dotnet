@@ -30,11 +30,11 @@ jobs:
           - name: Checkout repository
             uses: actions/checkout@v2
             
-          - name: Configure AWS Credentials
-            uses: aws-actions/configure-aws-credentials@v4
-            with:
-               role-to-assume: ${{ secrets.AWS_INTEG_TEST_ROLE_ARN }}
-               aws-region: us-east-1
+          # - name: Configure AWS Credentials
+          #   uses: aws-actions/configure-aws-credentials@v4
+          #   with:
+          #      role-to-assume: ${{ secrets.AWS_INTEG_TEST_ROLE_ARN }}
+          #      aws-region: us-east-1
 
           - name: Setup dotnet
             uses: actions/setup-dotnet@v1
