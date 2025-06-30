@@ -184,6 +184,34 @@ namespace Amazon.XRay.Recorder.UnitTests
         }
 
         [TestMethod]
+        public void TestUnmarshallSamplingTargetResponseWithExtraFields()
+        {
+            string samplingTargetResponseJson = "{\"LastRuleModification\":1.603923208E9,\"SamplingTargetDocuments\":[{\"Foo\":\"Bar\", \"FixedRate\":0.05,\"Interval\":2,\"ReservoirQuota\":1,\"ReservoirQuotaTTL\":1.5,\"RuleName\":\"Test\"}],\"UnprocessedStatistics\":[{\"ErrorCode\":\"400\",\"Message\":\"Unknown rule\",\"RuleName\":\"Fault\"}]}";
+
+            var samplingTargetResponseModel = JsonMapper.ToObject<SamplingTargetResponseModel>(samplingTargetResponseJson);
+
+            Assert.AreEqual(1.603923208E9, samplingTargetResponseModel.LastRuleModification);
+            Assert.IsTrue(samplingTargetResponseModel.SamplingTargetDocuments.Count > 0);
+            Assert.IsTrue(samplingTargetResponseModel.UnprocessedStatistics.Count > 0);
+
+            foreach (var target in samplingTargetResponseModel.SamplingTargetDocuments)
+            {
+                Assert.AreEqual(0.05, target.FixedRate.GetValueOrDefault());
+                Assert.AreEqual(2, target.Interval.GetValueOrDefault());
+                Assert.AreEqual(1, target.ReservoirQuota.GetValueOrDefault());
+                Assert.AreEqual(1.5, target.ReservoirQuotaTTL.GetValueOrDefault());
+                Assert.AreEqual("Test", target.RuleName);
+            }
+
+            foreach (var unprocessed in samplingTargetResponseModel.UnprocessedStatistics)
+            {
+                Assert.AreEqual("400", unprocessed.ErrorCode);
+                Assert.AreEqual("Unknown rule", unprocessed.Message);
+                Assert.AreEqual("Fault", unprocessed.RuleName);
+            }
+        }
+
+        [TestMethod]
         public void TestUnmarshallSamplingTargetResponseWithoutSamplingTargetDocuments()
         {
             string samplingTargetResponseJson = "{\"LastRuleModification\":1.603923208E9,\"SamplingTargetDocuments\":[],\"UnprocessedStatistics\":[{\"ErrorCode\":\"400\",\"Message\":\"Unknown rule\",\"RuleName\":\"Fault\"}]}";
