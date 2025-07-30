@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net45;net462;netstandard2.0;net6.0</TargetFrameworks>
+    <TargetFrameworks>net481;netstandard2.0;net8.0</TargetFrameworks>
     <Company>Amazon.com, Inc</Company>
     <Product>Amazon Web Service X-Ray Recorder</Product>
     <Copyright>Copyright 2017-2022 Amazon.com, Inc. or its affiliates. All Rights Reserved.</Copyright>
@@ -28,14 +28,14 @@
     <Compile Remove="EFInterceptor.netframework.cs" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net45' OR '$(TargetFramework)' == 'net462'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'net481'">
     <PackageReference Include="EntityFramework" Version="6.2.0" />
     <Compile Remove="AWSXRayInterceptorExtensions.cs" />
     <Compile Remove="EFInterceptor.cs" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0.0" />
+  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.0" />
     <Compile Remove="AWSXRayEntityFramework6.cs" />
     <Compile Remove="EFInterceptor.netframework.cs" />
   </ItemGroup>

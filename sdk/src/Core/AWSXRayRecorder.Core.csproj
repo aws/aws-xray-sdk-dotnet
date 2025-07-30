@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net6.0;netcoreapp3.1;netstandard2.0;net462;net45</TargetFrameworks>
+    <TargetFrameworks>net8.0;netcoreapp3.1;netstandard2.0;net481</TargetFrameworks>
     <Company>Amazon.com, Inc</Company>
     <Product>Amazon Web Service X-Ray Recorder</Product>
     <Copyright>Copyright 2017-2022 Amazon.com, Inc. or its affiliates. All Rights Reserved.</Copyright>
@@ -43,19 +43,19 @@
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="2.0.0" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1' OR '$(TargetFramework)' == 'net6.0'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1' OR '$(TargetFramework)' == 'net8.0'">
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' != 'net45' AND '$(TargetFramework)' != 'net462'">
-    <PackageReference Include="Amazon.Lambda.SQSEvents" Version="2.1.0"/>
+  <ItemGroup Condition="'$(TargetFramework)' != 'net481'">
+    <PackageReference Include="Amazon.Lambda.SQSEvents" Version="2.1.0" />
     <Compile Remove="Internal\Context\CallContextContainer.netframework.cs" />
     <Compile Remove="Internal\Context\HybridContextContainer.netframework.cs" />
     <Compile Remove="Internal\Utils\AppSettings.netframework.cs" />
     <Compile Remove="AWSXRayRecorder.cs" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net45' OR '$(TargetFramework)' == 'net462'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'net481'">
     <Compile Remove="Internal\Context\AsyncLocalContextContainer.netstandard.cs" />
     <Compile Remove="Internal\Context\LambdaContextContainer.netstandard.cs" />
     <Compile Remove="Lambda\SQSMessageHelper.cs" />
@@ -64,8 +64,8 @@
     <Compile Remove="AWSXRayRecorder.netcore.cs" />
     <Compile Remove="FacadeSegment.cs" />
   </ItemGroup>
-  
-  <ItemGroup Condition="'$(TargetFramework)' == 'net45' OR '$(TargetFramework)' == 'net462'">
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net481'">
     <Reference Include="System.Configuration" />
     <Reference Include="System.Web" />
     <Reference Include="System.Net.Http" />

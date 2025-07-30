@@ -2,7 +2,7 @@
 
   
   <PropertyGroup>
-    <TargetFrameworks>net6.0;netcoreapp3.1;netcoreapp2.0;net462;net452</TargetFrameworks>
+    <TargetFrameworks>net8.0;netcoreapp3.1;netstandard2.0;net481</TargetFrameworks>
     <Company>Amazon.com, Inc</Company>
     <Product>Amazon Web Service X-Ray Recorder</Product>
     <Copyright>Copyright 2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.</Copyright>
@@ -20,7 +20,7 @@
     <PackageReference Include="AWSSDK.SimpleNotificationService" Version="3.5.0.26" />
     <PackageReference Include="Moq" Version="4.7.137" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.0'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
     <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="3.1.0">
     </PackageReference>
 
@@ -37,10 +37,10 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="3.1.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="3.1.0" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="6.0.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="6.0.0" />
+  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.0" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="System.Data.SQLite" Version="1.0.113.7" />
@@ -56,7 +56,7 @@
     <ProjectReference Include="..\..\src\Handlers\System.Net\AWSXRayRecorder.Handlers.System.Net.csproj" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' != 'net452' AND '$(TargetFramework)' != 'net462'">
+  <ItemGroup Condition="'$(TargetFramework)' != 'net481'">
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="3.1.0" />
     <PackageReference Include="Amazon.Lambda.SQSEvents" Version="2.1.0"/>
     <Compile Remove="TestAppSettings.cs" />
@@ -64,7 +64,7 @@
     <Compile Remove="Tools\MockHttpRequestFactory.cs" />
     <Compile Remove="EF6Tests.cs" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'net452' OR '$(TargetFramework)' == 'net462'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'net481'">
     <Reference Include="System.Web" />
     <Reference Include="System.Net.Http" />
     <PackageReference Include="EntityFramework" Version="6.4.4" />

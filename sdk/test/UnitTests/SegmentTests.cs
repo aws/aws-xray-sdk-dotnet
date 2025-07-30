@@ -355,7 +355,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         }
 
 
-#if NETFRAMEWORK
+#if !NET8_0
         [TestMethod]
         public void TestSegmentIsSerializable()
         {
@@ -410,7 +410,6 @@ namespace Amazon.XRay.Recorder.UnitTests
             Assert.AreEqual(type, subsegmentAfterSerialize.Type);
             Assert.AreEqual(precursorId, subsegmentAfterSerialize.PrecursorIds.First());
         }
-#endif
 
         private static object SerializeAndDeserialize(Object source)
         {
@@ -422,6 +421,7 @@ namespace Amazon.XRay.Recorder.UnitTests
             stream.Close();
             return obj;
         }
+#endif
 
         [TestMethod]
         public void TestSetUser()
