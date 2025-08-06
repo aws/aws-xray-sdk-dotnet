@@ -18,106 +18,433 @@ jobs:
         env:
             DOTNET_MULTILEVEL_LOOKUP: 1
 
-        strategy:
-            fail-fast: true
-
         steps:
         - name: Checkout repository
-          uses: actions/checkout@v2
+          uses: actions/checkout@v4
+
+        - name: Setup .NET Core 3.1
+          uses: actions/setup-dotnet@v4
+          with:
+            dotnet-version: '3.1.x'
+
+        - name: Setup .NET 8.0
+          uses: actions/setup-dotnet@v4
+          with:
+            dotnet-version: '8.0.x'
+
+        - name: Validate .NET SDK installations
+          run: |
+            Write-Host "Validating .NET SDK installations..."
+            dotnet --list-sdks
+            Write-Host "Validating .NET runtime installations..."
+            dotnet --list-runtimes
+            
+            # Verify required SDKs are installed
+            $sdks = dotnet --list-sdks
+            if (-not ($sdks -match "3\.1")) {
+              Write-Error "ERROR: .NET Core 3.1 SDK not found"
+              exit 1
+            }
+            
+            if (-not ($sdks -match "8\.0")) {
+              Write-Error "ERROR: .NET 8.0 SDK not found"
+              exit 1
+            }
+            
+            Write-Host "All required .NET SDKs are installed successfully"
+
+        - name: Validate release inputs
+          run: |
+            Write-Host "Validating release inputs..."
+            $version = "${{ github.event.inputs.version }}"
+            
+            if ([string]::IsNullOrWhiteSpace($version)) {
+              Write-Error "ERROR: Version input is required"
+              exit 1
+            }
+            
+            # Validate version format (basic semver check)
+            if (-not ($version -match '^\d+\.\d+\.\d+$')) {
+              Write-Error "ERROR: Version must be in format x.y.z (e.g., 1.2.3)"
+              exit 1
+            }
+            
+            Write-Host "Release version validated: $version"
 
         - name: Assume role to get .snk file
-          uses: aws-actions/configure-aws-credentials@v1
+          uses: aws-actions/configure-aws-credentials@v4
           with:
             role-to-assume: ${{ secrets.AWS_ASSUME_ROLE_ARN_RELEASE }}
             aws-region: us-west-2
 
         - name: Get Strong-Naming Key
-          run: >
-            aws s3api get-object
-            --bucket ${{ secrets.SNK_BUCKET }}
-            --key awsxrayrecorder.dll.snk
-            awsxrayrecorder.dll.snk
+          run: |
+            Write-Host "Downloading strong-naming key..."
+            
+            try {
+              aws s3api get-object --bucket ${{ secrets.SNK_BUCKET }} --key awsxrayrecorder.dll.snk awsxrayrecorder.dll.snk
+              
+              if (-not (Test-Path "awsxrayrecorder.dll.snk")) {
+                Write-Error "ERROR: Strong-naming key file was not downloaded successfully"
+                exit 1
+              }
+              
+              Write-Host "Strong-naming key downloaded successfully"
+            }
+            catch {
+              Write-Error "ERROR: Failed to download strong-naming key: $_"
+              exit 1
+            }
           
         - name: Install dependencies
-          run: dotnet restore .\sdk\AWSXRayRecorder.sln
+          run: |
+            Write-Host "Restoring dependencies for solution..."
+            dotnet restore .\sdk\AWSXRayRecorder.sln --verbosity normal
+            
+            if ($LASTEXITCODE -ne 0) {
+              Write-Error "ERROR: Failed to restore dependencies"
+              Write-Host "Please check package references and network connectivity"
+              exit 1
+            }
+            
+            Write-Host "Dependencies restored successfully"
 
         - name: Build solution
-          run: >
-            dotnet build
-            .\sdk\AWSXRayRecorder.sln
-            /p:Configuration=Release
-            --no-restore
-            /p:AssemblyOriginatorKeyFile=${{ github.workspace }}\awsxrayrecorder.dll.snk
+          run: |
+            Write-Host "Building solution for Release configuration with strong-naming..."
+            
+            dotnet build .\sdk\AWSXRayRecorder.sln `
+              /p:Configuration=Release `
+              --no-restore `
+              --verbosity normal `
+              /p:AssemblyOriginatorKeyFile="${{ github.workspace }}\awsxrayrecorder.dll.snk"
+            
+            if ($LASTEXITCODE -ne 0) {
+              Write-Error "ERROR: Build failed for Release configuration"
+              Write-Host "Please check build logs above for compilation errors"
+              exit 1
+            }
+            
+            Write-Host "Solution built successfully"
+
+        - name: Validate build outputs
+          run: |
+            Write-Host "Validating build outputs for all target frameworks..."
+            
+            $expectedFrameworks = @("net481", "netcoreapp3.1", "net8.0", "netstandard2.0")
+            $projects = @(
+              "sdk\src\Core",
+              "sdk\src\Handlers\AspNet",
+              "sdk\src\Handlers\AspNetCore", 
+              "sdk\src\Handlers\AwsSdk",
+              "sdk\src\Handlers\EntityFramework",
+              "sdk\src\Handlers\SqlServer",
+              "sdk\src\Handlers\System.Net"
+            )
+            
+            $missingOutputs = @()
+            
+            foreach ($project in $projects) {
+              Write-Host "Checking outputs for project: $project"
+              
+              foreach ($framework in $expectedFrameworks) {
+                $dllPath = "$project\bin\Release\$framework\AWSXRayRecorder*.dll"
+                $dlls = Get-ChildItem -Path $dllPath -ErrorAction SilentlyContinue
+                
+                if (-not $dlls) {
+                  # Some projects may not target all frameworks
+                  Write-Host "  No outputs found for $framework in $project (may be expected)"
+                } else {
+                  Write-Host "  Found outputs for $framework in $project: $($dlls.Count) files"
+                }
+              }
+            }
+            
+            # Validate core assembly exists for main frameworks
+            $coreFrameworks = @("net481", "netcoreapp3.1", "net8.0", "netstandard2.0")
+            foreach ($framework in $coreFrameworks) {
+              $coreDll = "sdk\src\Core\bin\Release\$framework\AWSXRayRecorder.Core.dll"
+              if (-not (Test-Path $coreDll)) {
+                $missingOutputs += "Core assembly missing for $framework at $coreDll"
+              }
+            }
+            
+            if ($missingOutputs.Count -gt 0) {
+              Write-Error "ERROR: Missing build outputs:"
+              $missingOutputs | ForEach-Object { Write-Error "  $_" }
+              exit 1
+            }
+            
+            Write-Host "Build outputs validated successfully"
 
         - name: Clean up the snk file
-          run: rm .\awsxrayrecorder.dll.snk
+          run: |
+            Write-Host "Cleaning up strong-naming key file..."
+            if (Test-Path ".\awsxrayrecorder.dll.snk") {
+              Remove-Item ".\awsxrayrecorder.dll.snk" -Force
+              Write-Host "Strong-naming key file removed successfully"
+            } else {
+              Write-Host "Strong-naming key file not found (may have been cleaned up already)"
+            }
 
         - name: Assume signer role
-          uses: aws-actions/configure-aws-credentials@v1
+          uses: aws-actions/configure-aws-credentials@v4
           with:
             role-to-assume: ${{ secrets.AWS_ARTIFACT_ACCESS_ROLE_ARN }}
             aws-region: us-west-2
+
+        - name: Validate signing script
+          run: |
+            Write-Host "Validating signing script availability..."
+            
+            if (-not (Test-Path ".\buildtools\sign_files.ps1")) {
+              Write-Error "ERROR: Signing script not found at .\buildtools\sign_files.ps1"
+              exit 1
+            }
+            
+            Write-Host "Signing script found successfully"
 
         - name: Invoke Signing script
           env:
             UNSIGNED_BUCKET: ${{ secrets.AWS_UNSIGNED_BUCKET_NAME }}
             SIGNED_BUCKET: ${{ secrets.AWS_SIGNED_BUCKET_NAME }}
-          #TODO: There is probably a better way to pass in a list of paths as a single parameter to the script.
           run: |
-            .\buildtools\sign_files.ps1 -Filters AWSXRayRecorder.*.dll -Recurse -Path .\sdk\src\Core\bin\Release
-            .\buildtools\sign_files.ps1 -Filters AWSXRayRecorder.*.dll -Recurse -Path .\sdk\src\Handlers\AspNet\bin\Release
-            .\buildtools\sign_files.ps1 -Filters AWSXRayRecorder.*.dll -Recurse -Path .\sdk\src\Handlers\AspNetCore\bin\Release
-            .\buildtools\sign_files.ps1 -Filters AWSXRayRecorder.*.dll -Recurse -Path .\sdk\src\Handlers\AwsSdk\bin\Release
-            .\buildtools\sign_files.ps1 -Filters AWSXRayRecorder.*.dll -Recurse -Path .\sdk\src\Handlers\EntityFramework\bin\Release
-            .\buildtools\sign_files.ps1 -Filters AWSXRayRecorder.*.dll -Recurse -Path .\sdk\src\Handlers\SqlServer\bin\Release
-            .\buildtools\sign_files.ps1 -Filters AWSXRayRecorder.*.dll -Recurse -Path .\sdk\src\Handlers\System.Net\bin\Release
+            Write-Host "Starting assembly signing process..."
             
-        - name: Pack nugets
-          run: >
-            dotnet pack
-            .\sdk\AWSXRayRecorder.sln
-            --no-build
-            -c Release
-            -o .\Deployment\nuget-packages
+            $signingPaths = @(
+              ".\sdk\src\Core\bin\Release",
+              ".\sdk\src\Handlers\AspNet\bin\Release",
+              ".\sdk\src\Handlers\AspNetCore\bin\Release",
+              ".\sdk\src\Handlers\AwsSdk\bin\Release",
+              ".\sdk\src\Handlers\EntityFramework\bin\Release",
+              ".\sdk\src\Handlers\SqlServer\bin\Release",
+              ".\sdk\src\Handlers\System.Net\bin\Release"
+            )
+            
+            $failedSigning = @()
+            
+            foreach ($path in $signingPaths) {
+              Write-Host "Signing assemblies in: $path"
+              
+              if (-not (Test-Path $path)) {
+                Write-Host "  Path not found: $path (may not have outputs for this project)"
+                continue
+              }
+              
+              try {
+                .\buildtools\sign_files.ps1 -Filters AWSXRayRecorder.*.dll -Recurse -Path $path
+                
+                if ($LASTEXITCODE -ne 0) {
+                  $failedSigning += "Failed to sign assemblies in $path (exit code: $LASTEXITCODE)"
+                } else {
+                  Write-Host "  Successfully signed assemblies in $path"
+                }
+              }
+              catch {
+                $failedSigning += "Exception signing assemblies in $path`: $_"
+              }
+            }
+            
+            if ($failedSigning.Count -gt 0) {
+              Write-Error "ERROR: Assembly signing failures:"
+              $failedSigning | ForEach-Object { Write-Error "  $_" }
+              exit 1
+            }
+            
+            Write-Host "All assemblies signed successfully"
 
-            nuget pack
-            .\sdk\AWSXRayRecorder.nuspec
-            -OutputDirectory .\Deployment\nuget-packages
-            -Exclude **
+        - name: Validate signed assemblies
+          run: |
+            Write-Host "Validating signed assemblies..."
+            
+            $signedAssemblies = Get-ChildItem -Path ".\sdk\src" -Recurse -Filter "AWSXRayRecorder.*.dll" | Where-Object { $_.FullName -like "*\bin\Release\*" }
+            
+            if ($signedAssemblies.Count -eq 0) {
+              Write-Error "ERROR: No signed assemblies found"
+              exit 1
+            }
+            
+            Write-Host "Found $($signedAssemblies.Count) signed assemblies"
+            
+            # Basic validation that assemblies are accessible
+            $inaccessibleAssemblies = @()
+            foreach ($assembly in $signedAssemblies) {
+              try {
+                $fileInfo = Get-Item $assembly.FullName
+                if ($fileInfo.Length -eq 0) {
+                  $inaccessibleAssemblies += "Zero-byte assembly: $($assembly.FullName)"
+                }
+              }
+              catch {
+                $inaccessibleAssemblies += "Inaccessible assembly: $($assembly.FullName) - $_"
+              }
+            }
+            
+            if ($inaccessibleAssemblies.Count -gt 0) {
+              Write-Error "ERROR: Issues with signed assemblies:"
+              $inaccessibleAssemblies | ForEach-Object { Write-Error "  $_" }
+              exit 1
+            }
+            
+            Write-Host "Signed assemblies validated successfully"
+
+        - name: Create packaging directory
+          run: |
+            Write-Host "Creating packaging directory..."
+            
+            if (-not (Test-Path ".\Deployment")) {
+              New-Item -ItemType Directory -Path ".\Deployment" -Force
+            }
+            
+            if (-not (Test-Path ".\Deployment\nuget-packages")) {
+              New-Item -ItemType Directory -Path ".\Deployment\nuget-packages" -Force
+            }
+            
+            Write-Host "Packaging directory created successfully"
+
+        - name: Pack nugets
+          run: |
+            Write-Host "Creating NuGet packages..."
+            
+            try {
+              # Pack solution projects
+              Write-Host "Packing solution projects..."
+              dotnet pack .\sdk\AWSXRayRecorder.sln --no-build -c Release -o .\Deployment\nuget-packages --verbosity normal
+              
+              if ($LASTEXITCODE -ne 0) {
+                Write-Error "ERROR: Failed to pack solution projects"
+                exit 1
+              }
+              
+              # Pack main nuspec
+              Write-Host "Packing main nuspec..."
+              nuget pack .\sdk\AWSXRayRecorder.nuspec -OutputDirectory .\Deployment\nuget-packages -Exclude **
+              
+              if ($LASTEXITCODE -ne 0) {
+                Write-Error "ERROR: Failed to pack main nuspec"
+                exit 1
+              }
+              
+              Write-Host "NuGet packages created successfully"
+            }
+            catch {
+              Write-Error "ERROR: Exception during NuGet packaging: $_"
+              exit 1
+            }
+
+        - name: Validate NuGet packages
+          run: |
+            Write-Host "Validating NuGet packages..."
+            
+            $packages = Get-ChildItem -Path ".\Deployment\nuget-packages" -Filter "*.nupkg"
+            
+            if ($packages.Count -eq 0) {
+              Write-Error "ERROR: No NuGet packages were created"
+              exit 1
+            }
+            
+            Write-Host "Found $($packages.Count) NuGet packages:"
+            $packages | ForEach-Object { Write-Host "  $($_.Name) ($($_.Length) bytes)" }
+            
+            # Validate package sizes (basic sanity check)
+            $smallPackages = $packages | Where-Object { $_.Length -lt 1KB }
+            if ($smallPackages.Count -gt 0) {
+              Write-Error "ERROR: Suspiciously small packages found:"
+              $smallPackages | ForEach-Object { Write-Error "  $($_.Name) ($($_.Length) bytes)" }
+              exit 1
+            }
+            
+            Write-Host "NuGet packages validated successfully"
 
         - name: Upload nugets to this GitHub Action run as an artifact
-          uses: actions/upload-artifact@v2
+          uses: actions/upload-artifact@v4
           with:
             name: nuget-packages
             path: Deployment/nuget-packages/
+            retention-days: 90
 
         - name: Assume nuget role
-          uses: aws-actions/configure-aws-credentials@v1
+          uses: aws-actions/configure-aws-credentials@v4
           with:
             role-to-assume: ${{ secrets.NUGET_ACCESS_ROLE_ARN }}
             aws-region: us-west-2
 
         - name: Push packages to Nuget.org
-          run: >
-            $nugetKey = aws secretsmanager get-secret-value
-            --secret-id ${{ secrets.NUGET_SECRETS_ID }}
-            --region us-west-2
-            --output text
-            --query SecretString | ConvertFrom-Json
-
-            nuget push
-            .\Deployment\nuget-packages\*.nupkg
-            -Source https://api.nuget.org/v3/index.json
-            -ApiKey $nugetKey.Key
+          run: |
+            Write-Host "Publishing packages to NuGet.org..."
+            
+            try {
+              # Get NuGet API key from AWS Secrets Manager
+              Write-Host "Retrieving NuGet API key from AWS Secrets Manager..."
+              $secretJson = aws secretsmanager get-secret-value --secret-id ${{ secrets.NUGET_SECRETS_ID }} --region us-west-2 --output text --query SecretString
+              
+              if ($LASTEXITCODE -ne 0) {
+                Write-Error "ERROR: Failed to retrieve NuGet API key from AWS Secrets Manager"
+                exit 1
+              }
+              
+              $nugetKey = $secretJson | ConvertFrom-Json
+              
+              if ([string]::IsNullOrWhiteSpace($nugetKey.Key)) {
+                Write-Error "ERROR: NuGet API key is empty or invalid"
+                exit 1
+              }
+              
+              Write-Host "NuGet API key retrieved successfully"
+              
+              # Get list of packages to push
+              $packages = Get-ChildItem -Path ".\Deployment\nuget-packages" -Filter "*.nupkg"
+              Write-Host "Found $($packages.Count) packages to publish"
+              
+              $failedPushes = @()
+              
+              foreach ($package in $packages) {
+                Write-Host "Publishing package: $($package.Name)"
+                
+                nuget push $package.FullName -Source https://api.nuget.org/v3/index.json -ApiKey $nugetKey.Key -NonInteractive
+                
+                if ($LASTEXITCODE -ne 0) {
+                  $failedPushes += "Failed to push $($package.Name) (exit code: $LASTEXITCODE)"
+                } else {
+                  Write-Host "  Successfully published $($package.Name)"
+                }
+              }
+              
+              if ($failedPushes.Count -gt 0) {
+                Write-Error "ERROR: Package publishing failures:"
+                $failedPushes | ForEach-Object { Write-Error "  $_" }
+                exit 1
+              }
+              
+              Write-Host "All packages published successfully to NuGet.org"
+            }
+            catch {
+              Write-Error "ERROR: Exception during NuGet publishing: $_"
+              exit 1
+            }
             
         - name: Create draft release
           id: create_release
-          uses: actions/create-release@v1
+          uses: softprops/action-gh-release@v2
           env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           with:
             tag_name: 'V${{ github.event.inputs.version }}'
-            release_name: 'Release ${{ github.event.inputs.version }}'
+            name: 'Release ${{ github.event.inputs.version }}'
             body: 'Please refer [change-log](https://github.com/aws/aws-xray-sdk-dotnet/blob/master/CHANGELOG.md) for more details'
             draft: true
             prerelease: false
+
+        - name: Validate release creation
+          run: |
+            Write-Host "Validating release creation..."
+            
+            $releaseUrl = "${{ steps.create_release.outputs.url }}"
+            if ([string]::IsNullOrWhiteSpace($releaseUrl)) {
+              Write-Error "ERROR: Release URL is empty - release creation may have failed"
+              exit 1
+            }
+            
+            Write-Host "Release created successfully: $releaseUrl"
+            Write-Host "Release ID: ${{ steps.create_release.outputs.id }}"
+            Write-Host "Upload URL: ${{ steps.create_release.outputs.upload_url }}"

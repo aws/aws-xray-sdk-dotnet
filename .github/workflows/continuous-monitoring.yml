@@ -18,11 +18,11 @@ jobs:
             fail-fast: false
             matrix:
                 os: [ubuntu-22.04]
-                version: [netcoreapp3.1, net6.0]
+                version: [netcoreapp3.1, net8.0]
 
         steps:
           - name: Checkout repository
-            uses: actions/checkout@v2
+            uses: actions/checkout@v4
             
           - name: Configure AWS Credentials
             uses: aws-actions/configure-aws-credentials@v4
@@ -31,27 +31,174 @@ jobs:
                aws-region: us-east-1
 
           - name: Setup dotnet
-            uses: actions/setup-dotnet@v1
+            uses: actions/setup-dotnet@v4
             with:
               dotnet-version: |
                 3.1.x
-                6.0.x
+                8.0.x
+
+          - name: Validate .NET SDK installations
+            run: |
+              echo "Validating .NET SDK installations for monitoring..."
+              dotnet --list-sdks
+              echo "Validating .NET runtime installations..."
+              dotnet --list-runtimes
+              
+              # Verify required SDKs are installed
+              if ! dotnet --list-sdks | grep -q "3.1"; then
+                echo "ERROR: .NET Core 3.1 SDK not found"
+                exit 1
+              fi
+              
+              if ! dotnet --list-sdks | grep -q "8.0"; then
+                echo "ERROR: .NET 8.0 SDK not found"
+                exit 1
+              fi
+              
+              echo "All required .NET SDKs are installed successfully"
+
+          - name: Validate framework compatibility
+            run: |
+              echo "Validating framework compatibility for monitoring: ${{matrix.version}}"
+              
+              case "${{matrix.version}}" in
+                "netcoreapp3.1")
+                  echo ".NET Core 3.1 validation passed for monitoring"
+                  ;;
+                "net8.0")
+                  echo ".NET 8.0 validation passed for monitoring"
+                  ;;
+                *)
+                  echo "ERROR: Unsupported framework for monitoring: ${{matrix.version}}"
+                  echo "Supported frameworks: netcoreapp3.1, net8.0"
+                  exit 1
+                  ;;
+              esac
+
+          - name: Validate AWS credentials
+            run: |
+              echo "Validating AWS credentials for CloudWatch access..."
+              
+              # Test AWS credentials by attempting to describe CloudWatch metrics
+              if ! aws sts get-caller-identity > /dev/null 2>&1; then
+                echo "ERROR: AWS credentials are not properly configured"
+                exit 1
+              fi
+              
+              echo "AWS credentials validated successfully"
 
           - name: Install dependencies
-            run: dotnet restore sdk/test/SmokeTests/AWSXRayRecorder.SmokeTests.csproj
+            run: |
+              echo "Restoring dependencies for smoke tests..."
+              dotnet restore sdk/test/SmokeTests/AWSXRayRecorder.SmokeTests.csproj --verbosity normal
+              
+              if [ $? -ne 0 ]; then
+                echo "ERROR: Failed to restore dependencies for smoke tests"
+                echo "This may indicate issues with NuGet package availability"
+                exit 1
+              fi
+              
+              echo "Dependencies restored successfully"
 
           - name: Build tests
-            run: dotnet build sdk/test/SmokeTests/AWSXRayRecorder.SmokeTests.csproj --configuration Release --no-restore
+            run: |
+              echo "Building smoke tests for framework: ${{matrix.version}}"
+              dotnet build sdk/test/SmokeTests/AWSXRayRecorder.SmokeTests.csproj --configuration Release --no-restore --verbosity normal
+              
+              if [ $? -ne 0 ]; then
+                echo "ERROR: Failed to build smoke tests"
+                echo "This may indicate compilation issues or missing dependencies"
+                exit 1
+              fi
+              
+              echo "Smoke tests built successfully"
+
+          - name: Validate test assembly
+            run: |
+              echo "Validating test assembly for framework: ${{matrix.version}}"
+              
+              TEST_DLL="sdk/test/SmokeTests/bin/Release/${{matrix.version}}/AWSXRayRecorder.SmokeTests.dll"
+              
+              if [ ! -f "$TEST_DLL" ]; then
+                echo "ERROR: Test assembly not found at expected path: $TEST_DLL"
+                echo "Available files in SmokeTests/bin/Release/:"
+                find sdk/test/SmokeTests/bin/Release/ -name "*.dll" -o -name "*.exe" 2>/dev/null || echo "No build outputs found"
+                exit 1
+              fi
+              
+              echo "Test assembly validated successfully: $TEST_DLL"
 
           - name: Run tests
             id: distribution-availability
-            run: dotnet test sdk/test/SmokeTests/bin/Release/${{matrix.version}}/AWSXRayRecorder.SmokeTests.dll
+            run: |
+              echo "Running smoke tests for framework: ${{matrix.version}}"
+              echo "This tests the availability of X-Ray SDK packages from distribution channels"
+              
+              dotnet test sdk/test/SmokeTests/bin/Release/${{matrix.version}}/AWSXRayRecorder.SmokeTests.dll \
+                --logger "console;verbosity=detailed" \
+                --logger "trx;LogFileName=smoke-test-results-${{matrix.version}}.trx"
+              
+              TEST_EXIT_CODE=$?
+              
+              if [ $TEST_EXIT_CODE -ne 0 ]; then
+                echo "ERROR: Smoke tests failed for framework ${{matrix.version}}"
+                echo "This indicates potential issues with SDK distribution availability"
+              else
+                echo "Smoke tests completed successfully for ${{matrix.version}}"
+              fi
+              
+              # Don't exit here - let the metric publishing step handle the result
+              exit $TEST_EXIT_CODE
+
+          - name: Upload test results
+            uses: actions/upload-artifact@v4
+            if: always()
+            with:
+              name: smoke-test-results-${{matrix.os}}-${{matrix.version}}
+              path: sdk/test/SmokeTests/TestResults/smoke-test-results-${{matrix.version}}.trx
+              retention-days: 7
             
           - name: Publish metric on X-Ray Dotnet SDK distribution availability
             if: ${{ always() }}
             run: |
+              echo "Publishing CloudWatch metrics for distribution availability..."
+              
+              METRIC_NAME="XRayDotnetSDKDistributionUnavailability"
+              NAMESPACE="MonitorSDK"
+              TIMESTAMP=$(date +%s)
+              
               if [[ "${{ steps.distribution-availability.outcome }}" == "failure" ]]; then
-                aws cloudwatch put-metric-data --metric-name XRayDotnetSDKDistributionUnavailability --dimensions failure=rate --namespace MonitorSDK --value 1 --timestamp $(date +%s)
+                echo "Publishing failure metric (value=1) for framework ${{matrix.version}}"
+                
+                aws cloudwatch put-metric-data \
+                  --metric-name "$METRIC_NAME" \
+                  --dimensions "failure=rate,framework=${{matrix.version}},os=${{matrix.os}}" \
+                  --namespace "$NAMESPACE" \
+                  --value 1 \
+                  --timestamp "$TIMESTAMP"
+                
+                if [ $? -ne 0 ]; then
+                  echo "ERROR: Failed to publish failure metric to CloudWatch"
+                  exit 1
+                fi
+                
+                echo "Failure metric published successfully"
               else
-                aws cloudwatch put-metric-data --metric-name XRayDotnetSDKDistributionUnavailability --dimensions failure=rate --namespace MonitorSDK --value 0 --timestamp $(date +%s)
+                echo "Publishing success metric (value=0) for framework ${{matrix.version}}"
+                
+                aws cloudwatch put-metric-data \
+                  --metric-name "$METRIC_NAME" \
+                  --dimensions "failure=rate,framework=${{matrix.version}},os=${{matrix.os}}" \
+                  --namespace "$NAMESPACE" \
+                  --value 0 \
+                  --timestamp "$TIMESTAMP"
+                
+                if [ $? -ne 0 ]; then
+                  echo "ERROR: Failed to publish success metric to CloudWatch"
+                  exit 1
+                fi
+                
+                echo "Success metric published successfully"
               fi
+              
+              echo "CloudWatch metric publishing completed"

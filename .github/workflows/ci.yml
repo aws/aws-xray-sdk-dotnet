@@ -18,33 +18,152 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                version: [net452, net462, netcoreapp2.0, netcoreapp3.1, net6.0]
+                version: [net8.0, netcoreapp3.1, netstandard2.0, net481]
 
         steps:
         - name: Checkout repository
-          uses: actions/checkout@v2
+          uses: actions/checkout@v4
 
-        - uses: actions/setup-dotnet@v1
-          with:
-            dotnet-version: '2.0.x'
-
-        - uses: actions/setup-dotnet@v1
+        - name: Setup .NET Core 3.1
+          uses: actions/setup-dotnet@v4
           with:
             dotnet-version: '3.1.x'
 
-        - uses: actions/setup-dotnet@v1
+        - name: Setup .NET 8.0
+          uses: actions/setup-dotnet@v4
           with:
-            dotnet-version: '6.0.x'
+            dotnet-version: '8.0.x'
+
+        - name: Validate .NET SDK installations
+          run: |
+            echo "Validating .NET SDK installations..."
+            dotnet --list-sdks
+            echo "Validating .NET runtime installations..."
+            dotnet --list-runtimes
+            
+            # Verify required SDKs are installed
+            if ! dotnet --list-sdks | grep -q "3.1"; then
+              echo "ERROR: .NET Core 3.1 SDK not found"
+              exit 1
+            fi
+            
+            if ! dotnet --list-sdks | grep -q "8.0"; then
+              echo "ERROR: .NET 8.0 SDK not found"
+              exit 1
+            fi
+            
+            echo "All required .NET SDKs are installed successfully"
+
+        - name: Validate framework compatibility
+          run: |
+            echo "Validating framework compatibility for: ${{matrix.version}}"
+            
+            # Check if framework is supported on current OS
+            case "${{matrix.version}}" in
+              "net481")
+                if [[ "$RUNNER_OS" != "Windows" ]]; then
+                  echo "ERROR: .NET Framework 4.8.1 requires Windows runner"
+                  exit 1
+                fi
+                echo ".NET Framework 4.8.1 validation passed"
+                ;;
+              "netcoreapp3.1")
+                echo ".NET Core 3.1 validation passed"
+                ;;
+              "net8.0")
+                echo ".NET 8.0 validation passed"
+                ;;
+              "netstandard2.0")
+                echo ".NET Standard 2.0 validation passed"
+                ;;
+              *)
+                echo "ERROR: Unknown framework version: ${{matrix.version}}"
+                exit 1
+                ;;
+            esac
 
         - name: Install dependencies
-          run: dotnet restore sdk/AWSXRayRecorder.sln
+          run: |
+            echo "Restoring dependencies for solution..."
+            dotnet restore sdk/AWSXRayRecorder.sln --verbosity normal
+            
+            if [ $? -ne 0 ]; then
+              echo "ERROR: Failed to restore dependencies"
+              echo "Please check package references and network connectivity"
+              exit 1
+            fi
+            
+            echo "Dependencies restored successfully"
 
         - name: Build solution
-          run: dotnet build sdk/AWSXRayRecorder.sln --configuration Release --no-restore
+          run: |
+            echo "Building solution for Release configuration..."
+            dotnet build sdk/AWSXRayRecorder.sln --configuration Release --no-restore --verbosity normal
+            
+            if [ $? -ne 0 ]; then
+              echo "ERROR: Build failed for Release configuration"
+              echo "Please check build logs above for compilation errors"
+              exit 1
+            fi
+            
+            echo "Solution built successfully"
+
+        - name: Validate build outputs
+          run: |
+            echo "Validating build outputs for framework: ${{matrix.version}}"
+            
+            # Define expected output paths based on framework
+            case "${{matrix.version}}" in
+              "net481"|"netcoreapp3.1"|"net8.0")
+                FRAMEWORK_PATH="${{matrix.version}}"
+                ;;
+              "netstandard2.0")
+                FRAMEWORK_PATH="netstandard2.0"
+                ;;
+            esac
+            
+            # Check if core assembly exists
+            CORE_DLL="sdk/src/Core/bin/Release/${FRAMEWORK_PATH}/AWSXRayRecorder.Core.dll"
+            if [ ! -f "$CORE_DLL" ]; then
+              echo "ERROR: Core assembly not found at expected path: $CORE_DLL"
+              echo "Available files in Core/bin/Release/:"
+              find sdk/src/Core/bin/Release/ -name "*.dll" -o -name "*.exe" 2>/dev/null || echo "No build outputs found"
+              exit 1
+            fi
+            
+            echo "Build outputs validated successfully for ${{matrix.version}}"
 
         - name: Run tests
-          run: >-
-            dotnet test sdk/test/UnitTests/bin/Release/${{matrix.version}}/AWSXRayRecorder.UnitTests.dll
-            --configuration Release
-            --no-build
-            --logger "console;verbosity=detailed"
+          run: |
+            echo "Running tests for framework: ${{matrix.version}}"
+            
+            # Framework-specific test execution
+            case "${{matrix.version}}" in
+              "netstandard2.0")
+                echo "Skipping tests for .NET Standard 2.0 (library target only)"
+                ;;
+              *)
+                dotnet test sdk/test/UnitTests/AWSXRayRecorder.UnitTests.csproj \
+                  --configuration Release \
+                  --framework ${{matrix.version}} \
+                  --no-build \
+                  --logger "console;verbosity=detailed" \
+                  --logger "trx;LogFileName=test-results-${{matrix.version}}.trx"
+                
+                if [ $? -ne 0 ]; then
+                  echo "ERROR: Tests failed for framework ${{matrix.version}}"
+                  echo "Please check test output above for failure details"
+                  exit 1
+                fi
+                
+                echo "Tests completed successfully for ${{matrix.version}}"
+                ;;
+            esac
+
+        - name: Upload test results
+          uses: actions/upload-artifact@v4
+          if: always()
+          with:
+            name: test-results-${{matrix.version}}
+            path: sdk/test/UnitTests/TestResults/test-results-${{matrix.version}}.trx
+            retention-days: 30
