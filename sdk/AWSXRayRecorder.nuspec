@@ -14,15 +14,7 @@
     <projectUrl>https://aws.amazon.com/documentation/xray/</projectUrl>
     <tags>AWS Amazon cloud AWSXRay XRay</tags>
     <dependencies>
-      <group targetFramework=".NETFramework4.5">
-        <dependency id="AWSXRayRecorder.Core" version="2.15.0" />
-        <dependency id="AWSXRayRecorder.Handlers.AspNet" version="2.12.0" />
-        <dependency id="AWSXRayRecorder.Handlers.AwsSdk" version="2.13.0" />
-        <dependency id="AWSXRayRecorder.Handlers.EntityFramework" version="1.6.0" />
-        <dependency id="AWSXRayRecorder.Handlers.SqlServer" version="2.12.0" />
-        <dependency id="AWSXRayRecorder.Handlers.System.Net" version="2.12.0" />
-      </group>
-      <group targetFramework=".NETFramework4.6.2">
+      <group targetFramework="net481">
         <dependency id="AWSXRayRecorder.Core" version="2.15.0" />
         <dependency id="AWSXRayRecorder.Handlers.AspNet" version="2.12.0" />
         <dependency id="AWSXRayRecorder.Handlers.AwsSdk" version="2.13.0" />
@@ -46,7 +38,7 @@
         <dependency id="AWSXRayRecorder.Handlers.SqlServer" version="2.12.0" />
         <dependency id="AWSXRayRecorder.Handlers.System.Net" version="2.12.0" />
       </group>
-      <group targetFramework="net6.0">
+      <group targetFramework="net8.0">
         <dependency id="AWSXRayRecorder.Core" version="2.15.0" />
         <dependency id="AWSXRayRecorder.Handlers.AspNetCore" version="2.12.0" />
         <dependency id="AWSXRayRecorder.Handlers.AwsSdk" version="2.13.0" />
@@ -59,7 +51,7 @@
       <group targetFramework=".NETCoreApp3.1">
         <frameworkReference name="Microsoft.AspNetCore.App" />
       </group>
-	  <group targetFramework="net6.0">
+      <group targetFramework="net8.0">
         <frameworkReference name="Microsoft.AspNetCore.App" />
       </group>
     </frameworkReferences>
