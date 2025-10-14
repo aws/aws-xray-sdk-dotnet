@@ -1,4 +1,6 @@
 name: Continuous Build
+permissions:
+    contents: read
 
 on:
     push:
