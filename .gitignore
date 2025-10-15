@@ -168,3 +168,6 @@ $RECYCLE.BIN/
 # Mac desktop service store files
 .DS_Store
 awsxrayrecorder-release.snk
+
+# Jetbrains
+sdk/.idea

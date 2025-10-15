@@ -2,7 +2,7 @@
 
   
   <PropertyGroup>
-    <TargetFrameworks>net45;net462;netcoreapp2.0;netcoreapp3.1;net6.0</TargetFrameworks>
+    <TargetFrameworks>net8.0;netcoreapp3.1;net481</TargetFrameworks>
     <Company>Amazon.com, Inc</Company>
     <Product>Amazon Web Service X-Ray Recorder</Product>
     <Copyright>Copyright 2016 Amazon.com, Inc. or its affiliates. All Rights Reserved.</Copyright>
@@ -13,11 +13,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AWSSDK.Core" Version="3.5.1.23" />
-    <PackageReference Include="AWSSDK.DynamoDBv2" Version="3.5.1.1" />
-    <PackageReference Include="AWSSDK.Lambda" Version="3.5.0.25" />
-    <PackageReference Include="AWSSDK.S3" Version="3.5.3.1" />
-    <PackageReference Include="AWSSDK.XRay" Version="3.5.2.16" />
+    <PackageReference Include="AWSSDK.Core" Version="4.0.0.18" />
+    <PackageReference Include="AWSSDK.DynamoDBv2" Version="4.0.3.1" />
+    <PackageReference Include="AWSSDK.Lambda" Version="4.0.2.1" />
+    <PackageReference Include="AWSSDK.S3" Version="4.0.6.2" />
+    <PackageReference Include="AWSSDK.XRay" Version="4.0.0.15" />
     <PackageReference Include="Moq" Version="4.7.137" />
   </ItemGroup>
   <ItemGroup>

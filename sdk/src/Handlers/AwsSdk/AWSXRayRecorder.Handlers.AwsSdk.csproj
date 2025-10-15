@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net45;net462;netstandard2.0;net6.0</TargetFrameworks>
+    <TargetFrameworks>net481;netstandard2.0;net8.0</TargetFrameworks>
     <Company>Amazon.com, Inc</Company>
     <Product>Amazon Web Service X-Ray Recorder</Product>
     <Copyright>Copyright 2017-2022 Amazon.com, Inc. or its affiliates. All Rights Reserved.</Copyright>
@@ -33,7 +33,7 @@
     <EmbeddedResource Include="DefaultAWSWhitelist.json" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' != 'net45' AND '$(TargetFramework)' != 'net462'">
+  <ItemGroup Condition="'$(TargetFramework)' != 'net481'">
     <Compile Remove="AWSSdkTracingHandler.cs" />
   </ItemGroup>
   
