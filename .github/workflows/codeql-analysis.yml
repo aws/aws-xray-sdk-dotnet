@@ -1,0 +1,105 @@
+name: "CodeQL Security Analysis"
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+  schedule:
+    # Run CodeQL analysis weekly on Mondays at 2 AM UTC
+    - cron: '0 2 * * 1'
+
+permissions:
+  actions: read
+  contents: read
+  security-events: write
+
+jobs:
+  analyze:
+    name: Analyze
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'csharp' ]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@e2b3eafc8d227b0241d48be5f425d47c2d750a13 # v3.26.10
+      with:
+        languages: ${{ matrix.language }}
+        # Override default queries to include security-extended for more comprehensive analysis
+        queries: security-extended,security-and-quality
+
+    - name: Setup .NET 6.0
+      uses: actions/setup-dotnet@6bd8b7f7774af54e05809fcc5431931b3eb1ddee # v4.0.1
+      with:
+        dotnet-version: '6.0.x'
+
+    - name: Restore dependencies
+      run: dotnet restore sdk/AWSXRayRecorder.sln
+
+    - name: Build solution
+      run: dotnet build sdk/AWSXRayRecorder.sln --no-restore
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@e2b3eafc8d227b0241d48be5f425d47c2d750a13 # v3.26.10
+      with:
+        category: "/language:${{matrix.language}}"
+        upload: false  # Don't upload to avoid conflict with default setup
+
+  security-scan:
+    name: .NET Security Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+
+    - name: Setup .NET 6.0
+      uses: actions/setup-dotnet@6bd8b7f7774af54e05809fcc5431931b3eb1ddee # v4.0.1
+      with:
+        dotnet-version: '6.0.x'
+
+    - name: Restore dependencies
+      run: dotnet restore sdk/AWSXRayRecorder.sln
+
+    - name: Install and run security-scan tool
+      continue-on-error: true
+      run: |
+        # Install security-scan global tool
+        dotnet tool install --global security-scan --version 5.6.7 || echo "security-scan installation completed"
+        
+        # Run security scan on the solution
+        security-scan sdk/AWSXRayRecorder.sln --export=security-scan-results.json || echo "Security scan completed"
+
+    - name: Run Semgrep security analysis
+      continue-on-error: true
+      run: |
+        # Install Semgrep
+        python3 -m pip install semgrep==1.88.0
+        
+        # Run Semgrep with C# security rules
+        semgrep --config=auto --sarif --output=semgrep-results.sarif . || echo "Semgrep scan completed"
+
+    - name: Upload Semgrep results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@e2b3eafc8d227b0241d48be5f425d47c2d750a13 # v3.26.10
+      if: always() && hashFiles('semgrep-results.sarif') != ''
+      with:
+        sarif_file: semgrep-results.sarif
+        category: 'semgrep-security'
+
+    - name: Upload security analysis reports
+      uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
+      if: always()
+      with:
+        name: security-analysis-reports
+        path: |
+          semgrep-results.sarif
+          security-scan-results.json

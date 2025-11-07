@@ -1,0 +1,206 @@
+name: "Daily Security Scan"
+
+on:
+  schedule:
+    # Run twice daily at 6 AM and 6 PM UTC
+    - cron: '0 6,18 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  scan-published-packages:
+    name: Scan Published NuGet Packages
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - package: "AWSXRayRecorder.Core"
+            name: "core"
+          - package: "AWSXRayRecorder.Handlers.AspNetCore"
+            name: "aspnetcore"
+          - package: "AWSXRayRecorder.Handlers.AspNet"
+            name: "aspnet"
+          - package: "AWSXRayRecorder.Handlers.AwsSdk"
+            name: "awssdk"
+          - package: "AWSXRayRecorder.Handlers.SqlServer"
+            name: "sqlserver"
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+
+    - name: Setup .NET 6.0
+      uses: actions/setup-dotnet@6bd8b7f7774af54e05809fcc5431931b3eb1ddee # v4.0.1
+      with:
+        dotnet-version: '6.0.x'
+
+    - name: Download and analyze published package
+      continue-on-error: true
+      timeout-minutes: 15
+      run: |
+        # Create temp directory for package analysis
+        mkdir -p temp-scan/${{ matrix.name }}
+        cd temp-scan/${{ matrix.name }}
+        
+        # Get latest version from NuGet API
+        LATEST_VERSION=$(curl -s "https://api.nuget.org/v3-flatcontainer/${{ matrix.package }}/index.json" | jq -r '.versions[-1] // "UNKNOWN"')
+        echo "Latest version of ${{ matrix.package }}: $LATEST_VERSION"
+        
+        if [ "$LATEST_VERSION" != "UNKNOWN" ] && [ "$LATEST_VERSION" != "null" ]; then
+          # Download the package
+          curl -L -o "${{ matrix.package }}.$LATEST_VERSION.nupkg" "https://api.nuget.org/v3-flatcontainer/${{ matrix.package }}/$LATEST_VERSION/${{ matrix.package }}.$LATEST_VERSION.nupkg" || echo "Failed to download package"
+          
+          # Extract the package (nupkg is a zip file)
+          if [ -f "${{ matrix.package }}.$LATEST_VERSION.nupkg" ]; then
+            unzip -q "${{ matrix.package }}.$LATEST_VERSION.nupkg" -d extracted/ || echo "Failed to extract package"
+            echo "Downloaded and extracted ${{ matrix.package }} version $LATEST_VERSION"
+            ls -la extracted/
+          fi
+        else
+          echo "Could not determine latest version for ${{ matrix.package }}"
+        fi
+
+    - name: Run security analysis on published package
+      continue-on-error: true
+      timeout-minutes: 20
+      run: |
+        cd temp-scan/${{ matrix.name }}
+        
+        # Download and run OWASP Dependency Check
+        curl -L -o dependency-check-11.1.0-release.zip https://github.com/jeremylong/DependencyCheck/releases/download/v11.1.0/dependency-check-11.1.0-release.zip
+        unzip -q dependency-check-11.1.0-release.zip
+        
+        # Scan the extracted package
+        if [ -d "extracted" ]; then
+          ./dependency-check/bin/dependency-check.sh \
+            --project "aws-xray-sdk-dotnet-${{ matrix.name }}" \
+            --scan extracted/ \
+            --format SARIF \
+            --out "dependency-check-${{ matrix.name }}-results.sarif" \
+            --failOnCVSS 7 \
+            --enableRetired || echo "Dependency check completed with findings"
+        else
+          echo "No extracted package found to scan"
+        fi
+
+    - name: Upload OWASP Dependency Check results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@e2b3eafc8d227b0241d48be5f425d47c2d750a13 # v3.26.10
+      if: always() && hashFiles('temp-scan/${{ matrix.name }}/dependency-check-${{ matrix.name }}-results.sarif') != ''
+      with:
+        sarif_file: 'temp-scan/${{ matrix.name }}/dependency-check-${{ matrix.name }}-results.sarif'
+        category: 'daily-scan-${{ matrix.name }}'
+
+    - name: Generate summary report
+      if: always()
+      run: |
+        echo "## Daily Security Scan Results for ${{ matrix.package }}" >> $GITHUB_STEP_SUMMARY
+        echo "Scan completed at $(date)" >> $GITHUB_STEP_SUMMARY
+        echo "Package: ${{ matrix.package }}" >> $GITHUB_STEP_SUMMARY
+        echo "Component: ${{ matrix.name }}" >> $GITHUB_STEP_SUMMARY
+        
+        # Check if vulnerabilities were found
+        SARIF_FILE="temp-scan/${{ matrix.name }}/dependency-check-${{ matrix.name }}-results.sarif"
+        if [ -f "$SARIF_FILE" ]; then
+          VULN_COUNT=$(jq '.runs[0].results | length' "$SARIF_FILE" 2>/dev/null || echo "0")
+          echo "Vulnerabilities found: $VULN_COUNT" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "$VULN_COUNT" -gt "0" ]; then
+            echo "⚠️ **Action Required**: Vulnerabilities detected in published package" >> $GITHUB_STEP_SUMMARY
+            echo "Check the Security tab for detailed findings" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ No high/critical vulnerabilities found" >> $GITHUB_STEP_SUMMARY
+          fi
+        else
+          echo "❌ Scan failed or package not accessible" >> $GITHUB_STEP_SUMMARY
+        fi
+
+  scan-current-dependencies:
+    name: Scan Current Dependencies
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4.1.7
+
+    - name: Setup .NET 6.0
+      uses: actions/setup-dotnet@6bd8b7f7774af54e05809fcc5431931b3eb1ddee # v4.0.1
+      with:
+        dotnet-version: '6.0.x'
+
+    - name: Restore dependencies
+      run: dotnet restore sdk/AWSXRayRecorder.sln
+
+    - name: Run comprehensive dependency scan
+      continue-on-error: true
+      run: |
+        # Run .NET vulnerability scan
+        dotnet list sdk/AWSXRayRecorder.sln package --vulnerable --include-transitive > dotnet-vulnerabilities-current.txt || echo "Vulnerability scan completed"
+        
+        # Generate current package list
+        dotnet list sdk/AWSXRayRecorder.sln package --include-transitive > dotnet-packages-current.txt || echo "Package list completed"
+        
+        # Download and run OWASP Dependency Check on current dependencies
+        curl -L -o dependency-check-11.1.0-release.zip https://github.com/jeremylong/DependencyCheck/releases/download/v11.1.0/dependency-check-11.1.0-release.zip
+        unzip -q dependency-check-11.1.0-release.zip
+        
+        ./dependency-check/bin/dependency-check.sh \
+          --project "aws-xray-sdk-dotnet-current" \
+          --scan sdk/ \
+          --format SARIF \
+          --out dependency-check-current-results.sarif \
+          --failOnCVSS 7 \
+          --enableRetired || echo "Dependency check completed"
+
+    - name: Upload current dependency scan results
+      uses: github/codeql-action/upload-sarif@e2b3eafc8d227b0241d48be5f425d47c2d750a13 # v3.26.10
+      if: always() && hashFiles('dependency-check-current-results.sarif') != ''
+      with:
+        sarif_file: dependency-check-current-results.sarif
+        category: 'daily-scan-current-deps'
+
+    - name: Upload dependency reports
+      uses: actions/upload-artifact@50769540e7f4bd5e21e526ee35c689e35e0d6874 # v4.4.0
+      if: always()
+      with:
+        name: daily-dependency-reports
+        path: |
+          dependency-check-current-results.sarif
+          dotnet-vulnerabilities-current.txt
+          dotnet-packages-current.txt
+
+    - name: Generate dependency summary
+      if: always()
+      run: |
+        echo "## Daily .NET Dependencies Scan Summary" >> $GITHUB_STEP_SUMMARY
+        echo "Scan completed at $(date)" >> $GITHUB_STEP_SUMMARY
+        
+        # Check .NET vulnerability scan results
+        if [ -f "dotnet-vulnerabilities-current.txt" ]; then
+          DOTNET_VULNS=$(grep -c "has the following vulnerable packages" dotnet-vulnerabilities-current.txt 2>/dev/null || echo "0")
+          echo ".NET vulnerability scan findings: $DOTNET_VULNS" >> $GITHUB_STEP_SUMMARY
+        fi
+        
+        # Check OWASP Dependency Check results
+        if [ -f "dependency-check-current-results.sarif" ]; then
+          OWASP_VULNS=$(jq '.runs[0].results | length' dependency-check-current-results.sarif 2>/dev/null || echo "0")
+          echo "OWASP Dependency Check vulnerabilities: $OWASP_VULNS" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "$OWASP_VULNS" -gt "0" ]; then
+            echo "⚠️ **Action Required**: $OWASP_VULNS vulnerabilities found in current dependencies" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ No vulnerabilities found in current dependencies" >> $GITHUB_STEP_SUMMARY
+          fi
+        fi
+        
+        # Check package count
+        if [ -f "dotnet-packages-current.txt" ]; then
+          PACKAGE_COUNT=$(grep -c ">" dotnet-packages-current.txt 2>/dev/null || echo "0")
+          echo "NuGet packages scanned: $PACKAGE_COUNT" >> $GITHUB_STEP_SUMMARY
+        fi
