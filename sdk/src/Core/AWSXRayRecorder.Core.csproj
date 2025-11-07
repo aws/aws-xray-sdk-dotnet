@@ -49,6 +49,7 @@
 
   <ItemGroup Condition="'$(TargetFramework)' != 'net45' AND '$(TargetFramework)' != 'net462'">
     <PackageReference Include="Amazon.Lambda.SQSEvents" Version="2.1.0"/>
+    <PackageReference Include="Amazon.Lambda.Core" Version="2.8.0" />
     <Compile Remove="Internal\Context\CallContextContainer.netframework.cs" />
     <Compile Remove="Internal\Context\HybridContextContainer.netframework.cs" />
     <Compile Remove="Internal\Utils\AppSettings.netframework.cs" />
