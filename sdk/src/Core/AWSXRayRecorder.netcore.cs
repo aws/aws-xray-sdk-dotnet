@@ -15,6 +15,7 @@
 // </copyright>
 //-----------------------------------------------------------------------------
 using System;
+using Amazon.Lambda.Core;
 using Amazon.Runtime.Internal.Util;
 using Amazon.XRay.Recorder.Core.Exceptions;
 using Amazon.XRay.Recorder.Core.Internal.Emitters;
@@ -34,7 +35,6 @@ namespace Amazon.XRay.Recorder.Core
         private static readonly Logger _logger = Logger.GetLogger(typeof(AWSXRayRecorder));
         static AWSXRayRecorder _instance = new AWSXRayRecorderBuilder().Build();
         public const String LambdaTaskRootKey = "LAMBDA_TASK_ROOT";
-        public const String LambdaTraceHeaderKey = "_X_AMZN_TRACE_ID";
 
         private static String _lambdaVariables;
 
@@ -216,9 +216,9 @@ namespace Amazon.XRay.Recorder.Core
             else // Facade / Subsegment already present
             {
                 var entity = TraceContext.GetEntity(); // can be Facade segment or Subsegment
-                var environmentRootTraceId = TraceHeader.FromString(AWSXRayRecorder.GetTraceVariablesFromEnvironment()).RootTraceId;
+                var lambdaCurrentTraceId = TraceHeader.FromString(LambdaTraceProvider.CurrentTraceId).RootTraceId;
 
-                if ((null != environmentRootTraceId) && !environmentRootTraceId.Equals(entity.RootSegment.TraceId)) // If true, customer has leaked subsegments across invocation
+                if ((null != lambdaCurrentTraceId) && !lambdaCurrentTraceId.Equals(entity.RootSegment.TraceId)) // If true, customer has leaked subsegments across invocation
                 {
                     TraceContext.ClearEntity(); // reset TraceContext
                     BeginSubsegment(name, timestamp); // This adds Facade segment with updated environment variables
@@ -235,18 +235,18 @@ namespace Amazon.XRay.Recorder.Core
         /// </summary>
         internal void AddFacadeSegment(String name = null)
         {
-            _lambdaVariables = AWSXRayRecorder.GetTraceVariablesFromEnvironment();
+            _lambdaVariables = LambdaTraceProvider.CurrentTraceId;
             _logger.DebugFormat("Lambda Environment detected. Lambda variables: {0}", _lambdaVariables);
 
             if (!TraceHeader.TryParseAll(_lambdaVariables, out TraceHeader traceHeader))
             {
                 if (name != null)
                 {
-                    _logger.DebugFormat("Lambda variables : {0} for X-Ray trace header environment variable under key : {1} are missing/not valid trace id, parent id or sampling decision, discarding subsegment : {2}", _lambdaVariables, LambdaTraceHeaderKey, name);
+                    _logger.DebugFormat("Lambda Trace Id : {0} is missing/not valid trace id, parent id or sampling decision, discarding subsegment : {1}", _lambdaVariables, name);
                 }
                 else
                 {
-                    _logger.DebugFormat("Lambda variables : {0} for X-Ray trace header environment variable under key : {1} are missing/not valid trace id, parent id or sampling decision, discarding subsegment", _lambdaVariables, LambdaTraceHeaderKey);
+                    _logger.DebugFormat("Lambda Trace Id : {0} is missing/not valid trace id, parent id or sampling decision, discarding subsegment", _lambdaVariables);
                 }
 
                 traceHeader = new TraceHeader();
@@ -437,15 +437,6 @@ namespace Amazon.XRay.Recorder.Core
             }
 
             return false;
-        }
-
-        /// <summary>
-        /// Returns value set for environment variable "_X_AMZN_TRACE_ID"
-        /// </summary>
-        private static String GetTraceVariablesFromEnvironment()
-        {
-            var lambdaTraceHeader = Environment.GetEnvironmentVariable(LambdaTraceHeaderKey);
-            return lambdaTraceHeader;
         }
 
         /// <summary>

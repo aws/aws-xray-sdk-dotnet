@@ -32,6 +32,7 @@ namespace Amazon.XRay.Recorder.UnitTests
     [TestClass]
     public class TestLambdaContext : TestBase
     {
+        public const string LambdaTraceHeaderKey = "_X_AMZN_TRACE_ID";
         private const string MOCK_URL = "https://httpbin.org/";
         private static readonly String _traceHeaderValue = "Root=" + TraceId + ";Parent=53995c3f42cd8ad8;Sampled=1";
         private AWSXRayRecorder _recorder;
@@ -40,7 +41,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         public void Initialize()
         {
             Environment.SetEnvironmentVariable(AWSXRayRecorder.LambdaTaskRootKey, "test");
-            Environment.SetEnvironmentVariable(AWSXRayRecorder.LambdaTraceHeaderKey, _traceHeaderValue);
+            Environment.SetEnvironmentVariable(LambdaTraceHeaderKey, _traceHeaderValue);
             _recorder = new AWSXRayRecorderBuilder().Build();
             AWSXRayRecorder.InitializeInstance(recorder: _recorder);
         }
@@ -50,7 +51,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         {
             base.TestCleanup();
             Environment.SetEnvironmentVariable(AWSXRayRecorder.LambdaTaskRootKey, null);
-            Environment.SetEnvironmentVariable(AWSXRayRecorder.LambdaTraceHeaderKey, null);
+            Environment.SetEnvironmentVariable(LambdaTraceHeaderKey, null);
         }
 
         [TestMethod]
@@ -158,7 +159,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         public void TestLambdaVariablesNotSetCorrectly()
         {
             String invalidTraceHeader = "Root=" + TraceId + ";Parent=53995c3f42cd8ad8"; // sample decision is missing
-            Environment.SetEnvironmentVariable(AWSXRayRecorder.LambdaTraceHeaderKey, invalidTraceHeader);
+            Environment.SetEnvironmentVariable(LambdaTraceHeaderKey, invalidTraceHeader);
 
             _recorder.BeginSubsegment("subsegment1");
             Subsegment subsegment = (Subsegment)AWSXRayRecorder.Instance.TraceContext.GetEntity(); // subsegment added with sample decision set to not sampled
@@ -175,7 +176,7 @@ namespace Amazon.XRay.Recorder.UnitTests
 
             _recorder.BeginSubsegment("subsegment1");
             Subsegment subsegment1 = (Subsegment)AWSXRayRecorder.Instance.TraceContext.GetEntity();
-            Environment.SetEnvironmentVariable(AWSXRayRecorder.LambdaTraceHeaderKey, secondTraceHeader);
+            Environment.SetEnvironmentVariable(LambdaTraceHeaderKey, secondTraceHeader);
 
             _recorder.BeginSubsegment("subsegment2"); // Environment variables changed, subsegment1 will be dropped
             Subsegment subsegment2 = (Subsegment)AWSXRayRecorder.Instance.TraceContext.GetEntity();
@@ -220,7 +221,7 @@ namespace Amazon.XRay.Recorder.UnitTests
         public void TestNotSampledNestedSubsegments()
         {
             String notSampledTraceHeader = "Root=" + Core.Internal.Entities.TraceId.NewId() + ";Parent=53995c3f42cd8ad1;Sampled=0"; //not sampled
-            Environment.SetEnvironmentVariable(AWSXRayRecorder.LambdaTraceHeaderKey, notSampledTraceHeader);
+            Environment.SetEnvironmentVariable(LambdaTraceHeaderKey, notSampledTraceHeader);
 
             _recorder.BeginSubsegment("subsegment1");
             _recorder.BeginSubsegment("subsegment2");
