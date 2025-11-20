@@ -1,7 +1,7 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## 2.16.0 (2024-06-25)
+## 2.16.0 (2025-11-20)
 ### AWSXRayRecorder.Core (2.16.0)
 - Add locking mechanism for Subsegments in Entity.AddException method [#PR307](https://github.com/aws/aws-xray-sdk-dotnet/pull/307)
 - Rework internal logic for determining the Trace ID created by AWS Lambda [#PR322](https://github.com/aws/aws-xray-sdk-dotnet/pull/322)
