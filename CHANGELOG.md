@@ -1,6 +1,29 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
+## 2.16.0 (2024-06-25)
+### AWSXRayRecorder.Core (2.16.0)
+- Add locking mechanism for Subsegments in Entity.AddException method [#PR307](https://github.com/aws/aws-xray-sdk-dotnet/pull/307)
+- Rework internal logic for determining the Trace ID created by AWS Lambda [#PR322](https://github.com/aws/aws-xray-sdk-dotnet/pull/322)
+
+### AWSXRayRecorder.Handlers.AspNet (2.13.0)
+- No changes. Bumping to release with lateral related packages.
+
+### AWSXRayRecorder.Handlers.AspNetCore (2.13.0)
+- No changes. Bumping to release with lateral related packages.
+
+### AWSXRayRecorder.Handlers.AwsSdk (2.14.0)
+- No changes. Bumping to release with lateral related packages.
+
+### AWSXRayRecorder.Handlers.EntityFramework (1.7.0)
+- No changes. Bumping to release with lateral related packages.
+
+### AWSXRayRecorder.Handlers.SqlServer (2.13.0)
+- No changes. Bumping to release with lateral related packages.
+
+### AWSXRayRecorder.Handlers.System.Net (2.13.0)
+- No changes. Bumping to release with lateral related packages.
+
 ## 2.15.0 (2024-06-25)
 ### AWSXRayRecorder.Core (2.15.0)
 - Fix race condition on static dictionaries [#PR291](https://github.com/aws/aws-xray-sdk-dotnet/pull/291)
