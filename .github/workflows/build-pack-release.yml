@@ -26,7 +26,7 @@ jobs:
           uses: actions/checkout@v2
 
         - name: Assume role to get .snk file
-          uses: aws-actions/configure-aws-credentials@v1
+          uses: aws-actions/configure-aws-credentials@v4
           with:
             role-to-assume: ${{ secrets.AWS_ASSUME_ROLE_ARN_RELEASE }}
             aws-region: us-west-2
@@ -53,7 +53,7 @@ jobs:
           run: rm .\awsxrayrecorder.dll.snk
 
         - name: Assume signer role
-          uses: aws-actions/configure-aws-credentials@v1
+          uses: aws-actions/configure-aws-credentials@v4
           with:
             role-to-assume: ${{ secrets.AWS_ARTIFACT_ACCESS_ROLE_ARN }}
             aws-region: us-west-2
@@ -86,13 +86,13 @@ jobs:
             -Exclude **
 
         - name: Upload nugets to this GitHub Action run as an artifact
-          uses: actions/upload-artifact@v2
+          uses: actions/upload-artifact@v4
           with:
             name: nuget-packages
             path: Deployment/nuget-packages/
 
         - name: Assume nuget role
-          uses: aws-actions/configure-aws-credentials@v1
+          uses: aws-actions/configure-aws-credentials@v4
           with:
             role-to-assume: ${{ secrets.NUGET_ACCESS_ROLE_ARN }}
             aws-region: us-west-2
