@@ -75,6 +75,7 @@ Begin
         Write-Host "Signing File: ", $file
         do {
             $versionId = aws s3api put-object --bucket $unsignedS3bucket --key $key --body $file --query VersionId --acl bucket-owner-full-control
+            $versionId = $versionId.Trim('"')
             $retryCount++
         } while ($LASTEXITCODE -ne 0 -and $retryCount -le $maxRetryCount)
 
