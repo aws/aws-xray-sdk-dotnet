@@ -74,7 +74,8 @@ Begin
 
         Write-Host "Signing File: ", $file
         do {
-            $versionId = aws s3api put-object --bucket $unsignedS3bucket --key $key --body $file --query VersionId --acl bucket-owner-full-control
+            $versionId = aws s3api put-object --bucket $unsignedS3bucket --key $key --body $file --query VersionId --output text --acl bucket-owner-full-control
+            $versionId = $versionId.Trim('"')
             $retryCount++
         } while ($LASTEXITCODE -ne 0 -and $retryCount -le $maxRetryCount)
 
@@ -107,16 +108,16 @@ Begin
         }
     }
 
-    Get-Job | Remove-Job
+    # Get-Job | Remove-Job
 
-    Write-Host "Signing", $FilesToSign.Count, "file(s)..."
+    # Write-Host "Signing", $FilesToSign.Count, "file(s)..."
     
-    foreach ($file in $FilesToSign)
-    {  
-        $null = Invoke-Command -ScriptBlock $signFile -ArgumentList $file
-    }
+    # foreach ($file in $FilesToSign)
+    # {  
+    #     $null = Invoke-Command -ScriptBlock $signFile -ArgumentList $file
+    # }
 
-    Get-Job | Wait-Job | ValidateJob
+    # Get-Job | Wait-Job | ValidateJob
 
     $sw.Stop()
     $totalSec += $sw.Elapsed.TotalSeconds
