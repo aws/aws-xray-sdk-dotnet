@@ -70,14 +70,13 @@ jobs:
           gpg --verify dependency-check.zip.asc
           unzip dependency-check.zip
           
-          # Run dependency check on .NET projects
+          # Run dependency check on entire workspace
           ./dependency-check/bin/dependency-check.sh \
-            --project "AWS.XRay.SDK.DotNet" \
             --failOnCVSS 0 \
             --nvdApiKey ${{ env.NVD_API_KEY_NVD_API_KEY }} \
             --disableOssIndex \
-            --out . \
-            --scan "**/*.csproj" \
+            --enableExperimental \
+            -s "." \
             --format HTML \
             --format JSON
 
