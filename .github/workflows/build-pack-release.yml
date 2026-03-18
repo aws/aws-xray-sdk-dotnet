@@ -23,10 +23,10 @@ jobs:
 
         steps:
         - name: Checkout repository
-          uses: actions/checkout@v2
+          uses: actions/checkout@ee0669bd1cc54295c223e0bb666b733df41de1c5 #v2.7.0
 
         - name: Assume role to get .snk file
-          uses: aws-actions/configure-aws-credentials@v4
+          uses: aws-actions/configure-aws-credentials@7474bc4690e29a8392af63c5b98e7449536d5c3a #v4.3.1
           with:
             role-to-assume: ${{ secrets.AWS_ASSUME_ROLE_ARN_RELEASE }}
             aws-region: us-west-2
@@ -53,7 +53,7 @@ jobs:
           run: rm .\awsxrayrecorder.dll.snk
 
         - name: Assume signer role
-          uses: aws-actions/configure-aws-credentials@v4
+          uses: aws-actions/configure-aws-credentials@7474bc4690e29a8392af63c5b98e7449536d5c3a #v4.3.1
           with:
             role-to-assume: ${{ secrets.AWS_ARTIFACT_ACCESS_ROLE_ARN }}
             aws-region: us-west-2
@@ -86,13 +86,13 @@ jobs:
             -Exclude **
 
         - name: Upload nugets to this GitHub Action run as an artifact
-          uses: actions/upload-artifact@v4
+          uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 #v4.6.2
           with:
             name: nuget-packages
             path: Deployment/nuget-packages/
 
         - name: Assume nuget role
-          uses: aws-actions/configure-aws-credentials@v4
+          uses: aws-actions/configure-aws-credentials@7474bc4690e29a8392af63c5b98e7449536d5c3a #v4.3.1
           with:
             role-to-assume: ${{ secrets.NUGET_ACCESS_ROLE_ARN }}
             aws-region: us-west-2
@@ -112,7 +112,7 @@ jobs:
             
         - name: Create draft release
           id: create_release
-          uses: actions/create-release@v1
+          uses: actions/create-release@0cb9c9b65d5d1901c1f53e5e66eaf4afd303e70e #v1.1.4
           env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           with:
