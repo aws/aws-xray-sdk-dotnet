@@ -56,6 +56,14 @@ jobs:
             OSS_INDEX, ${{ secrets.OSS_INDEX_SECRET_ARN }}
           parse-json-secrets: true
 
+      - name: Install published package for scanning
+        run: |
+          mkdir -p scan-target
+          dotnet new console -o scan-target --no-restore --force
+          cd scan-target
+          dotnet add package AWSXRayRecorder.Core
+          dotnet restore --packages ./packages
+
       # See http://jeremylong.github.io/DependencyCheck/dependency-check-cli/ for installation explanation
       - name: Install and run dependency scan
         id: dep_scan
@@ -67,7 +75,7 @@ jobs:
           curl -Ls "https://github.com/dependency-check/DependencyCheck/releases/download/v$VERSION/dependency-check-$VERSION-release.zip.asc" --output dependency-check.zip.asc
           gpg --verify dependency-check.zip.asc
           unzip dependency-check.zip
-          ./dependency-check/bin/dependency-check.sh --failOnCVSS 0 --nvdApiKey ${{ env.NVD_API_KEY_NVD_API_KEY }} --ossIndexUsername ${{ env.OSS_INDEX_USERNAME }} --ossIndexPassword ${{ env.OSS_INDEX_PASSWORD }} -s "."
+          ./dependency-check/bin/dependency-check.sh --failOnCVSS 0 --nvdApiKey ${{ env.NVD_API_KEY_NVD_API_KEY }} --ossIndexUsername ${{ env.OSS_INDEX_USERNAME }} --ossIndexPassword ${{ env.OSS_INDEX_PASSWORD }} -s "scan-target/"
 
       - name: Print dependency scan results on failure
         if: ${{ steps.dep_scan.outcome != 'success' }}
