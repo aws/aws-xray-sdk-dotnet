@@ -59,7 +59,7 @@ jobs:
       - name: Install published package for scanning
         run: |
           mkdir -p scan-target
-          dotnet new console -o scan-target --no-restore --force
+          dotnet new console -o scan-target --no-restore --force --framework net8.0
           cd scan-target
           dotnet add package AWSXRayRecorder.Core
           dotnet restore --packages ./packages
