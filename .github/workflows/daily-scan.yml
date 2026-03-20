@@ -62,6 +62,12 @@ jobs:
           dotnet new console -o scan-target --no-restore --force --framework net8.0
           cd scan-target
           dotnet add package AWSXRayRecorder.Core
+          dotnet add package AWSXRayRecorder.Handlers.AwsSdk
+          dotnet add package AWSXRayRecorder.Handlers.AspNetCore
+          dotnet add package AWSXRayRecorder.Handlers.AspNet
+          dotnet add package AWSXRayRecorder.Handlers.EntityFramework
+          dotnet add package AWSXRayRecorder.Handlers.SqlServer
+          dotnet add package AWSXRayRecorder.Handlers.System.Net
           dotnet restore --packages ./packages
 
       # See http://jeremylong.github.io/DependencyCheck/dependency-check-cli/ for installation explanation
