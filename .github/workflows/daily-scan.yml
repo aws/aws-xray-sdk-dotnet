@@ -1,7 +1,7 @@
 ## Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 ## SPDX-License-Identifier: Apache-2.0
 # Performs a daily scan of:
-# * The latest released X-Ray .NET SDK artifacts, using Trivy
+# * The published artifact dependencies, using Trivy
 # * Project dependencies, using DependencyCheck
 #
 #  Publishes results to CloudWatch Metrics.
@@ -62,6 +62,12 @@ jobs:
           dotnet new console -o scan-target --no-restore --force --framework net8.0
           cd scan-target
           dotnet add package AWSXRayRecorder.Core
+          dotnet add package AWSXRayRecorder.Handlers.AwsSdk
+          dotnet add package AWSXRayRecorder.Handlers.AspNetCore
+          dotnet add package AWSXRayRecorder.Handlers.AspNet
+          dotnet add package AWSXRayRecorder.Handlers.EntityFramework
+          dotnet add package AWSXRayRecorder.Handlers.SqlServer
+          dotnet add package AWSXRayRecorder.Handlers.System.Net
           dotnet restore --packages ./packages
 
       # See http://jeremylong.github.io/DependencyCheck/dependency-check-cli/ for installation explanation
@@ -81,29 +87,27 @@ jobs:
         if: ${{ steps.dep_scan.outcome != 'success' }}
         run: less dependency-check-report.html
 
-      - name: Build .NET solution for scanning
+      - name: Build scan target for Trivy
         if: always()
-        run: |
-          dotnet restore sdk/AWSXRayRecorder.sln
-          dotnet build sdk/AWSXRayRecorder.sln --configuration Release --no-restore
+        run: dotnet build scan-target/ --configuration Release --no-restore
 
-      - name: Perform high severity scan on built artifacts
+      - name: Perform high severity scan on published artifact dependencies
         if: always()
         id: high_scan_latest
         uses: aquasecurity/trivy-action@97e0b3872f55f89b95b2f65b3dbab56962816478 # v0.34.2
         with:
           scan-type: 'fs'
-          scan-ref: 'sdk/src/Core/bin/Release/'
+          scan-ref: 'scan-target/'
           severity: 'CRITICAL,HIGH'
           exit-code: '1'
 
-      - name: Perform low severity scan on built artifacts
+      - name: Perform low severity scan on published artifact dependencies
         if: always()
         id: low_scan_latest
         uses: aquasecurity/trivy-action@97e0b3872f55f89b95b2f65b3dbab56962816478 # v0.34.2
         with:
           scan-type: 'fs'
-          scan-ref: 'sdk/src/Core/bin/Release/'
+          scan-ref: 'scan-target/'
           severity: 'MEDIUM,LOW,UNKNOWN'
           exit-code: '1'
 
