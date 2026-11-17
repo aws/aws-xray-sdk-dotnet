@@ -39,7 +39,8 @@ namespace Amazon.XRay.Recorder.Core.Internal.Entities
         /// <summary>
         /// List of <see cref="ExceptionDescriptor"/>
         /// </summary>
-        private Lazy<List<ExceptionDescriptor>> _exceptions = new Lazy<List<ExceptionDescriptor>>();
+        /// <remarks>Also used as the lock object guarding the list, since exceptions can be added concurrently.</remarks>
+        private readonly Lazy<List<ExceptionDescriptor>> _exceptions = new Lazy<List<ExceptionDescriptor>>();
 
         /// <summary>
         /// Gets the working directory
@@ -58,7 +59,16 @@ namespace Amazon.XRay.Recorder.Core.Internal.Entities
         {
             get
             {
-                return _exceptions.IsValueCreated ? _exceptions.Value.AsReadOnly() : null;
+                if (!_exceptions.IsValueCreated)
+                {
+                    return null;
+                }
+
+                lock (_exceptions)
+                {
+                    // Return a snapshot so callers can enumerate it while other threads keep adding exceptions.
+                    return _exceptions.Value.ToList().AsReadOnly();
+                }
             }
         }
 
@@ -72,7 +82,15 @@ namespace Amazon.XRay.Recorder.Core.Internal.Entities
         {
             get
             {
-                return _exceptions.IsValueCreated && _exceptions.Value.Any();
+                if (!_exceptions.IsValueCreated)
+                {
+                    return false;
+                }
+
+                lock (_exceptions)
+                {
+                    return _exceptions.Value.Count > 0;
+                }
             }
         }
        
@@ -80,13 +98,32 @@ namespace Amazon.XRay.Recorder.Core.Internal.Entities
         /// Add list of <see cref="ExceptionDescriptor"/> to cause instance.
         /// </summary>
         /// <param name="exceptionDescriptors">List of <see cref="ExceptionDescriptor"/>.</param>
+        /// <remarks>
+        /// Thread safe. Descriptors are appended to the ones already recorded. If the top level exception of
+        /// <paramref name="exceptionDescriptors"/> has already been recorded in this cause, it is not added again.
+        /// </remarks>
         public void AddException(List<ExceptionDescriptor> exceptionDescriptors)
         {
-            if (exceptionDescriptors != null)
+            if (exceptionDescriptors == null || exceptionDescriptors.Count == 0)
             {
-                WorkingDirectory = Directory.GetCurrentDirectory();
+                return;
             }
-            _exceptions.Value.AddRange(exceptionDescriptors);
+
+            var workingDirectory = Directory.GetCurrentDirectory();
+            var topLevelException = exceptionDescriptors[0].Exception;
+
+            lock (_exceptions)
+            {
+                WorkingDirectory = workingDirectory;
+
+                var exceptions = _exceptions.Value;
+                if (topLevelException != null && exceptions.Any(d => ReferenceEquals(d.Exception, topLevelException)))
+                {
+                    return; // The same exception object was already recorded, e.g. by both a handler and user code.
+                }
+
+                exceptions.AddRange(exceptionDescriptors);
+            }
         }
     }
 }

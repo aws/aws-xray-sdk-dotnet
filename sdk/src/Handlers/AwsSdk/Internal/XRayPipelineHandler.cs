@@ -650,13 +650,21 @@ namespace Amazon.XRay.Recorder.Handlers.AwsSdk.Internal
                 return;
             }
 
-            subsegment.AddException(e); // record exception 
-
-            if (e is AmazonServiceException amazonServiceException)
+            // Recording the exception must never replace it: the caller rethrows the original exception
+            // after this method returns, and the application relies on catching that exception type.
+            try
             {
-                ProcessException(amazonServiceException, subsegment);
+                subsegment.AddException(e); // record exception
+
+                if (e is AmazonServiceException amazonServiceException)
+                {
+                    ProcessException(amazonServiceException, subsegment);
+                }
             }
-            return;
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Failed to record exception for AWS SDK request.");
+            }
         }
 
         private static bool ExcludeServiceOperation(IExecutionContext executionContext)

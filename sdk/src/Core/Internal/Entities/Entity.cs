@@ -48,6 +48,7 @@ namespace Amazon.XRay.Recorder.Core.Internal.Entities
         private string _name;
         private string _parentId;
         private long _referenceCounter;      // Reference count
+        private readonly object _causeLock = new object();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Entity"/> class.
@@ -513,14 +514,26 @@ namespace Amazon.XRay.Recorder.Core.Internal.Entities
         public void AddException(Exception e)
         {
             HasFault = true;
-            Cause = new Cause();
             List<Subsegment> subsegmentsCopy;
             lock (_lazySubsegments.Value)
             {
                 subsegmentsCopy = _lazySubsegments.Value.ToList(); // Create a copy to avoid holding the lock during serialization
             }
 
-            Cause.AddException(AWSXRayRecorder.Instance.ExceptionSerializationStrategy.DescribeException(e, subsegmentsCopy));
+            // Describe the exception outside of any lock, since it walks stack frames.
+            List<ExceptionDescriptor> descriptors = AWSXRayRecorder.Instance.ExceptionSerializationStrategy.DescribeException(e, subsegmentsCopy);
+
+            // AddException may be called concurrently on the same entity. Create the Cause only once and
+            // append to it, so that exceptions recorded by other callers are never overwritten or lost.
+            lock (_causeLock)
+            {
+                if (Cause == null)
+                {
+                    Cause = new Cause();
+                }
+
+                Cause.AddException(descriptors);
+            }
         }
 
         /// <summary>
