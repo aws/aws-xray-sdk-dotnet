@@ -212,14 +212,16 @@ namespace Amazon.XRay.Recorder.Core.Internal.Emitters
         {
             // Propagating faults (e.g. exceptions) can refer to the local root cause exception with its ID rather than duplicating the exceptions.
            //  format ->  "cause" : "4fe5fbae3f9e29c1"
-            if (cause.IsExceptionAdded)
+            // Take one snapshot so the checks below and the written array are consistent even if
+            // exceptions are being added concurrently.
+            var exceptions = cause.ExceptionDescriptors;
+
+            // The short form can only be used when the reference is the only recorded exception,
+            // otherwise the other exceptions would be dropped.
+            if (exceptions != null && exceptions.Count == 1 && IsReference(exceptions[0]))
             {
-                var firstException = cause.ExceptionDescriptors[0];
-                if (firstException.Cause != null && firstException.Id == null)
-                {
-                    writer.Write(firstException.Cause);
-                    return;
-                }
+                writer.Write(exceptions[0].Cause);
+                return;
             }
 
             writer.WriteObjectStart();
@@ -236,18 +238,37 @@ namespace Amazon.XRay.Recorder.Core.Internal.Emitters
                 JsonMapper.ToJson(cause.Paths, writer);
             }
 
-            if (cause.IsExceptionAdded)
+            if (exceptions != null && exceptions.Count > 0)
             {
-               
                 writer.WritePropertyName("exceptions");
-                JsonMapper.ToJson(cause.ExceptionDescriptors, writer);
+                JsonMapper.ToJson(exceptions, writer);
             }
 
             writer.WriteObjectEnd();
         }
 
+        /// <summary>
+        /// A reference descriptor carries no details of its own; it points at an exception already
+        /// recorded in a subsegment via its cause id.
+        /// </summary>
+        private static bool IsReference(ExceptionDescriptor descriptor)
+        {
+            return descriptor.Id == null && descriptor.Cause != null;
+        }
+
         private static void ExceptionDescriptorExporter(ExceptionDescriptor descriptor, JsonWriter writer)
         {
+            if (IsReference(descriptor))
+            {
+                // Only reachable when other exceptions are recorded next to the reference. All exception
+                // fields are optional in the segment document, so write just the link.
+                writer.WriteObjectStart();
+                writer.WritePropertyName("cause");
+                writer.Write(descriptor.Cause);
+                writer.WriteObjectEnd();
+                return;
+            }
+
             writer.WriteObjectStart();  // exception
             writer.WritePropertyName("id");
             writer.Write(descriptor.Id);

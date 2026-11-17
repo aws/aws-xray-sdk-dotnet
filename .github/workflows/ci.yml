@@ -26,17 +26,16 @@ jobs:
         - name: Checkout repository
           uses: actions/checkout@ee0669bd1cc54295c223e0bb666b733df41de1c5 #v2.7.0
 
-        - uses: actions/setup-dotnet@871f041373faaad213a635d9afb62905ec029bbb #v1.10.1
+        # setup-dotnet v4 installs into C:\Program Files\dotnet on Windows, next to the runner's preinstalled
+        # SDKs, so the test host started by the newest SDK can find these runtimes. v1 installed them under
+        # %LocalAppData%, which the test host does not search, and the net6.0/netcoreapp* tests failed with
+        # "You must install or update .NET to run this application".
+        - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 #v4.3.1
           with:
-            dotnet-version: '2.0.x'
-
-        - uses: actions/setup-dotnet@871f041373faaad213a635d9afb62905ec029bbb #v1.10.1
-          with:
-            dotnet-version: '3.1.x'
-
-        - uses: actions/setup-dotnet@871f041373faaad213a635d9afb62905ec029bbb #v1.10.1
-          with:
-            dotnet-version: '6.0.x'
+            dotnet-version: |
+              2.0.x
+              3.1.x
+              6.0.x
 
         - name: Install dependencies
           run: dotnet restore sdk/AWSXRayRecorder.sln
