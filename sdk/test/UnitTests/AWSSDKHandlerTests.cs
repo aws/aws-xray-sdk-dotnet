@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.Model;
@@ -192,6 +193,90 @@ namespace Amazon.XRay.Recorder.UnitTests
                 Assert.IsTrue(segment.Subsegments[0].Aws.ContainsKey("table_names"));
                 Assert.IsTrue(segment.Subsegments[0].Aws.ContainsKey("operation"));
                 Assert.IsTrue(segment.Subsegments[0].Aws.ContainsKey("request_id"));
+            }
+        }
+
+        private class ThrowingExceptionSerializationStrategy : Core.Strategies.ExceptionSerializationStrategy
+        {
+            public List<Core.Internal.Entities.ExceptionDescriptor> DescribeException(Exception e, IEnumerable<Core.Internal.Entities.Subsegment> subsegments)
+            {
+                throw new ArgumentException("failure while recording the exception");
+            }
+        }
+
+        // https://github.com/aws/aws-xray-sdk-dotnet/issues/339: a failure while recording the exception must not
+        // replace the exception the AWS SDK call threw.
+        [TestMethod]
+        public async Task TestOriginalExceptionIsRethrownWhenRecordingFails()
+        {
+            AWSSDKHandler.RegisterXRayForAllServices();
+            using (var client = new AmazonDynamoDBClient(new AnonymousAWSCredentials(), RegionEndpoint.USEast1))
+            {
+                CustomResponses.SetResponse(client, (request) => { throw new ConditionalCheckFailedException("condition failed"); });
+                _recorder.ExceptionSerializationStrategy = new ThrowingExceptionSerializationStrategy();
+                _recorder.BeginSegment("test", TraceId);
+
+                try
+                {
+                    await client.UpdateItemAsync(new UpdateItemRequest { TableName = "test", ConditionExpression = "attribute_not_exists(id)" });
+                    Assert.Fail("expected ConditionalCheckFailedException");
+                }
+                catch (ConditionalCheckFailedException e)
+                {
+                    Assert.AreEqual("condition failed", e.Message);
+                }
+                finally
+                {
+                    _recorder.EndSegment();
+                }
+            }
+        }
+
+        // Scenario from https://github.com/aws/aws-xray-sdk-dotnet/issues/339: many concurrent calls that all fail
+        // their condition. Every caller must get its own ConditionalCheckFailedException and every subsegment must
+        // record exactly the exception of its own call.
+        [TestMethod]
+        public async Task TestConcurrentFailingCallsRecordTheirOwnException()
+        {
+            const int calls = 200;
+            AWSSDKHandler.RegisterXRayForAllServices();
+            using (var client = new AmazonDynamoDBClient(new AnonymousAWSCredentials(), RegionEndpoint.USEast1))
+            {
+                CustomResponses.SetResponse(client, (request) =>
+                {
+                    throw new ConditionalCheckFailedException("condition failed") { StatusCode = System.Net.HttpStatusCode.BadRequest };
+                });
+                // Keep every subsegment attached to the segment: the default strategy streams (and removes)
+                // completed subsegments once the segment reaches 100 subsegments.
+                _recorder.StreamingStrategy = new Core.Strategies.DefaultStreamingStrategy(calls * 2);
+                _recorder.BeginSegment("test", TraceId);
+                var segment = AWSXRayRecorder.Instance.TraceContext.GetEntity();
+
+                var tasks = Enumerable.Range(0, calls).Select(i => Task.Run(async () =>
+                {
+                    try
+                    {
+                        await client.UpdateItemAsync(new UpdateItemRequest { TableName = "test", ConditionExpression = "attribute_not_exists(id)" });
+                        return (Exception)null;
+                    }
+                    catch (Exception e)
+                    {
+                        return e;
+                    }
+                })).ToList();
+                var caught = await Task.WhenAll(tasks);
+                _recorder.EndSegment();
+
+                Assert.IsTrue(caught.All(e => e is ConditionalCheckFailedException), "unexpected: " + caught.FirstOrDefault(e => !(e is ConditionalCheckFailedException)));
+                Assert.AreEqual(calls, segment.Subsegments.Count);
+                Assert.IsNull(segment.Cause);
+                foreach (var subsegment in segment.Subsegments)
+                {
+                    Assert.AreEqual(1, subsegment.Cause.ExceptionDescriptors.Count);
+                    Assert.IsInstanceOfType(subsegment.Cause.ExceptionDescriptors[0].Exception, typeof(ConditionalCheckFailedException));
+                }
+                var recordedExceptions = segment.Subsegments.Select(s => s.Cause.ExceptionDescriptors[0].Exception).ToList();
+                CollectionAssert.AreEquivalent(caught.ToList(), recordedExceptions);
             }
         }
 
